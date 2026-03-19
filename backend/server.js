@@ -12,6 +12,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+const { spawn } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,7 +21,7 @@ const PORT = process.env.PORT || 3000;
 // ============== 미들웨어 설정 ==============
 app.use(cors()); // 다른 도메인에서도 접근 가능
 app.use(bodyParser.json({ limit: '50mb' })); // JSON 데이터 처리
-app.use(express.static('../frontend')); // 프론트엔드 파일 제공
+app.use(express.static(path.join(__dirname, '../frontend'))); // 프론트엔드 파일 제공
 
 // ============== 임시 데이터베이스 (메모리) ==============
 // 실제 서비스에서는 MySQL이나 MongoDB로 교체
@@ -508,9 +510,6 @@ app.put('/api/sessions/:code/participants/:participantId/signature', (req, res) 
  * 동영상 교육자료 생성
  * POST /api/sessions/:code/generate-video
  */
-const { spawn } = require('child_process');
-const path = require('path');
-
 app.post('/api/sessions/:code/generate-video', (req, res) => {
     const { code } = req.params;
 

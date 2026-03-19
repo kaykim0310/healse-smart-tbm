@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: healse-smart-tbm
+    runtime: node
+    region: singapore
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLAUDE_API_KEY
+        sync: false
