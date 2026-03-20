@@ -1279,6 +1279,7 @@
                 <div class="session-code" id="displaySessionCode"></div>
                 <p style="font-size: 0.9rem; color: #666;">이 코드를 팀원들과 공유하세요</p>
             </div>
+            <button onclick="changeLanguage()" style="margin-top: 12px; background: transparent; border: 1px solid #ccc; border-radius: 8px; padding: 8px 16px; cursor: pointer; color: #888; font-size: 0.85rem;">🌐 언어 변경 / Change Language</button>
         </div>
     </div>
 
@@ -1766,6 +1767,12 @@
             document.getElementById('loginContainer').style.display = 'flex';
 
             initSpeechRecognition(langCode);
+        }
+
+        function changeLanguage() {
+            localStorage.removeItem('tbm_language');
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('languageSelection').style.display = 'flex';
         }
 
         // ==================== 세션 관리 ====================
