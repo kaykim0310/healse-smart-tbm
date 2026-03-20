@@ -1342,9 +1342,9 @@
                 <button class="ai-analyze-btn" id="aiAnalyzeBtn" onclick="analyzeWithAI()">
                     🤖 <span id="aiAnalyzeText">AI 분석 시작</span>
                 </button>
-                <button class="ai-analyze-btn" id="generateVideoBtn" onclick="generateVideo()"
-                    style="background: linear-gradient(135deg, #a78bfa, #8b5cf6);">
-                    🎬 <span id="generateVideoText">교육 영상 생성</span>
+                <button class="ai-analyze-btn" id="generateVideoBtn" onclick="loadEducationResources()"
+                    style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                    🔍 <span id="generateVideoText">교육자료 검색</span>
                 </button>
             </div>
 
@@ -1490,22 +1490,20 @@
 
         <!-- 교육자료 탭 -->
         <div class="tab-content" id="educationTab">
-            <h2>📄 맞춤형 안전교육자료</h2>
+            <h2>📚 맞춤형 안전교육자료</h2>
 
+            <!-- Placeholder before loading -->
             <div id="educationPlaceholder">
-                <div
-                    style="text-align: center; padding: 60px; background: linear-gradient(135deg, #f8fafb, #e8f4f8); border-radius: 20px;">
-                    <div style="font-size: 4rem; margin-bottom: 20px;">📄</div>
-                    <h3 style="color: #2c5f5f; margin-bottom: 15px;">안전보건교육 자료 생성</h3>
-                    <p style="color: #666; margin-bottom: 25px;">회의 내용을 바탕으로 맞춤형 교육 자료를 만듭니다.</p>
-                    <div style="display: flex; gap: 15px; justify-content: center;">
-                        <button class="btn btn-primary" onclick="generateOnePageEducation()"
-                            style="padding: 15px 30px; font-size: 1.1rem;">
+                <div style="text-align: center; padding: 60px; background: linear-gradient(135deg, #f8fafb, #e8f4f8); border-radius: 20px;">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">📚</div>
+                    <h3 style="color: #2c5f5f; margin-bottom: 15px;">안전교육 자료 검색</h3>
+                    <p style="color: #666; margin-bottom: 25px;">AI 분석 결과를 바탕으로 관련 교육영상과 사고사례를 검색합니다.</p>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="generateOnePageEducation()" style="padding: 15px 30px; font-size: 1.1rem;">
                             📄 원페이지 자료
                         </button>
-                        <button class="btn btn-primary" onclick="generateVideo()"
-                            style="padding: 15px 30px; font-size: 1.1rem; background: linear-gradient(135deg, #a78bfa, #8b5cf6);">
-                            🎬 영상 자료 (1~2분 소요)
+                        <button class="btn btn-primary" onclick="loadEducationResources()" style="padding: 15px 30px; font-size: 1.1rem; background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                            🔍 교육자료 검색
                         </button>
                     </div>
                 </div>
@@ -1526,39 +1524,41 @@
                 </div>
             </div>
 
-            <!-- 비디오 교육자료 컨테이너 -->
-            <div id="videoContainer" style="display: none; margin-top: 30px;">
-                <h3 style="color: #2c5f5f; margin-bottom: 15px; text-align: center;" id="videoTitle">교육 영상</h3>
-                <div
-                    style="max-width: 800px; margin: 0 auto; background: black; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                    <video id="educationVideo" width="100%" controls style="display: block;">
-                        Your browser does not support the video tag.
-                    </video>
+            <!-- NEW: Education Resources Container -->
+            <div id="educationResourcesContainer" style="display: none;">
+                <!-- YouTube Section -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #ff0000; margin-bottom: 15px;">🎬 관련 안전교육 영상</h3>
+                    <div id="youtubeLinks" style="display: grid; gap: 12px;">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+
+                <!-- KOSHA Accident Cases Section -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #e65100; margin-bottom: 15px;">⚠️ 유사 사고사례</h3>
+                    <div id="koshaAccidents" style="display: grid; gap: 12px;">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+
+                <!-- Prevention Summary Section -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #2e7d32; margin-bottom: 15px;">💡 예방대책 요약</h3>
+                    <div id="preventionSummary" style="background: #f1f8e9; padding: 20px; border-radius: 12px; border-left: 4px solid #4caf50;">
+                        <!-- Dynamically filled -->
+                    </div>
                 </div>
 
                 <div class="btn-group" style="justify-content: center; margin-top: 25px;">
-                    <button class="btn btn-success" onclick="downloadVideo()">📥 비디오 다운로드</button>
-                </div>
-
-                <!-- 생성된 대본 보기 영역 -->
-                <div
-                    style="margin-top: 30px; max-width: 800px; margin-left: auto; margin-right: auto; background: white; padding: 20px; border-radius: 15px; border: 1px solid #eee;">
-                    <h4 style="margin-bottom: 15px; color: #444;">오디오 대본 (팟캐스트 형식)</h4>
-                    <div id="videoScriptContainer"
-                        style="max-height: 200px; overflow-y: auto; font-size: 0.95rem; color: #555; background: #f9f9f9; padding: 15px; border-radius: 10px;">
-                        <!-- 대본이 여기에 들어갑니다 -->
-                    </div>
+                    <button class="btn btn-outline" onclick="loadEducationResources()">🔄 다시 검색</button>
+                    <button class="btn btn-primary" onclick="generateOnePageEducation()">📄 원페이지 자료</button>
                 </div>
             </div>
 
-            <!-- 로딩 컨테이너 -->
-            <div id="videoLoadingContainer" style="display: none; text-align: center; padding: 60px;">
-                <div class="loading-spinner"
-                    style="width: 50px; height: 50px; border-width: 5px; border-top-color: #8b5cf6;"></div>
-                <h3 style="margin-top: 20px; color: #2c5f5f;">AI가 교육 영상을 제작 중입니다...</h3>
-                <p style="color: #666; margin-top: 10px;">대본 작성, 음성 합성, 영상 렌더링이 진행 중이므로 <strong>약 1~2분</strong> 정도
-                    소요됩니다.<br>잠시만 기다려주세요.</p>
-            </div>
+            <!-- Legacy video containers (hidden) -->
+            <div id="videoContainer" style="display: none;"></div>
+            <div id="videoLoadingContainer" style="display: none;"></div>
         </div>
     </div>
 
@@ -1981,7 +1981,7 @@
                 'voiceStatus': '준비 완료',
                 'voicePlaceholder': '마이크 버튼을 눌러 회의를 시작하세요.',
                 'aiAnalyzeText': 'AI 분석 시작',
-                'generateVideoText': '교육 영상 생성',
+                'generateVideoText': '교육자료 검색',
                 'loginTitle': '🎤 TBM 회의 참여'
             };
             Object.entries(idMap).forEach(([id, koText]) => {
@@ -1993,7 +1993,7 @@
             const aiBtn = document.getElementById('aiAnalyzeBtn');
             if (aiBtn && t['AI 분석 시작']) aiBtn.innerHTML = '🤖 ' + t['AI 분석 시작'];
             const vidBtn = document.getElementById('generateVideoBtn');
-            if (vidBtn && t['교육 영상 생성']) vidBtn.innerHTML = '🎬 ' + t['교육 영상 생성'];
+            if (vidBtn && t['교육자료 검색']) vidBtn.innerHTML = '🔍 ' + t['교육자료 검색'];
         }
 
         // ==================== 언어 선택 ====================
@@ -2290,7 +2290,204 @@
             }
         }
 
-        // ==================== 비디오 생성 ====================
+        // ==================== 교육자료 검색 (YouTube + KOSHA) ====================
+        async function loadEducationResources() {
+            if (!riskAssessmentData || riskAssessmentData.length === 0) {
+                showNotification('AI 분석을 먼저 진행해주세요.', 'error');
+                return;
+            }
+
+            // Switch to education tab
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const eduTabBtn = document.querySelector('.tab-btn[onclick*="educationTab"]');
+            if (eduTabBtn) eduTabBtn.classList.add('active');
+            document.getElementById('educationTab').classList.add('active');
+
+            document.getElementById('educationPlaceholder').style.display = 'none';
+            document.getElementById('educationContainer').style.display = 'none';
+            document.getElementById('educationResourcesContainer').style.display = 'block';
+
+            // Extract keywords from risk assessment
+            const keywords = extractHazardKeywords();
+
+            // 1. Generate YouTube links
+            renderYouTubeLinks(keywords);
+
+            // 2. Search KOSHA accident cases
+            await searchKoshaAccidents(keywords);
+
+            // 3. Render prevention summary
+            renderPreventionSummary();
+        }
+
+        function extractHazardKeywords() {
+            const keywordMap = {
+                '추락': ['추락', '떨어짐', '고소작업'],
+                '감전': ['감전', '전기', '활선'],
+                '화재': ['화재', '폭발', '용접'],
+                '끼임': ['끼임', '협착', '회전체'],
+                '질식': ['질식', '밀폐공간', '산소결핍'],
+                '넘어짐': ['넘어짐', '미끄러짐', '전도'],
+                '부딪힘': ['부딪힘', '충돌', '접촉'],
+                '베임': ['베임', '절단', '날카로운'],
+                '무너짐': ['무너짐', '붕괴', '토사'],
+                '중량물': ['중량물', '요통', '근골격']
+            };
+
+            const found = new Set();
+            riskAssessmentData.forEach(risk => {
+                const text = (risk.hazard || '') + (risk.risk_factor || '') + (risk.cause || '');
+                Object.entries(keywordMap).forEach(([key, variants]) => {
+                    if (variants.some(v => text.includes(v))) {
+                        found.add(key);
+                    }
+                });
+            });
+
+            return found.size > 0 ? [...found] : ['산업안전'];
+        }
+
+        function renderYouTubeLinks(keywords) {
+            const container = document.getElementById('youtubeLinks');
+            const links = keywords.map(kw => {
+                const searchQuery = encodeURIComponent(`${kw} 안전교육 KOSHA`);
+                return `
+                    <a href="https://www.youtube.com/results?search_query=${searchQuery}" target="_blank" rel="noopener"
+                       style="display:flex; align-items:center; gap:12px; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; text-decoration:none; color:#333; transition:all 0.2s; cursor:pointer;"
+                       onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.borderColor='#ff0000';"
+                       onmouseout="this.style.boxShadow='none'; this.style.borderColor='#e0e0e0';">
+                        <div style="width:50px; height:50px; background:#ff0000; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <span style="color:white; font-size:1.5rem;">▶</span>
+                        </div>
+                        <div>
+                            <div style="font-weight:600; font-size:1rem;">${kw} 안전교육 영상</div>
+                            <div style="color:#888; font-size:0.85rem;">YouTube에서 "${kw} 안전교육" 검색 결과 보기</div>
+                        </div>
+                        <div style="margin-left:auto; color:#888;">↗</div>
+                    </a>
+                `;
+            });
+
+            // Add KOSHA TV channel link
+            links.push(`
+                <a href="https://www.youtube.com/@koshatv" target="_blank" rel="noopener"
+                   style="display:flex; align-items:center; gap:12px; padding:15px; background:linear-gradient(135deg,#fff3e0,#ffe0b2); border-radius:12px; border:1px solid #ffcc80; text-decoration:none; color:#333; transition:all 0.2s;"
+                   onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
+                   onmouseout="this.style.boxShadow='none';">
+                    <div style="width:50px; height:50px; background:#ff6f00; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <span style="color:white; font-size:1.2rem;">📺</span>
+                    </div>
+                    <div>
+                        <div style="font-weight:600; font-size:1rem;">KOSHA TV (안전보건공단 공식채널)</div>
+                        <div style="color:#888; font-size:0.85rem;">산업안전 전문 교육 콘텐츠 모음</div>
+                    </div>
+                    <div style="margin-left:auto; color:#888;">↗</div>
+                </a>
+            `);
+
+            container.innerHTML = links.join('');
+        }
+
+        async function searchKoshaAccidents(keywords) {
+            const container = document.getElementById('koshaAccidents');
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">🔍 사고사례 검색 중...</div>';
+
+            const KOSHA_API_KEY = '5002b52ede58ae3359d098a19d4e11ce7f88ffddc737233c2ebce75c033ff44a';
+            const allItems = [];
+
+            for (const kw of keywords.slice(0, 3)) {
+                try {
+                    const url = `https://apis.data.go.kr/B552468/disaster_api02/getdisaster_api02?ServiceKey=${KOSHA_API_KEY}&keyword=${encodeURIComponent(kw)}&numOfRows=3&pageNo=1`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.body && data.body.items && data.body.items.item) {
+                        const items = Array.isArray(data.body.items.item) ? data.body.items.item : [data.body.items.item];
+                        items.forEach(item => {
+                            allItems.push({
+                                keyword: item.keyword || kw,
+                                contents: item.contents || '',
+                                business: item.business || '',
+                                boardno: item.boardno || '',
+                                searchKeyword: kw
+                            });
+                        });
+                    }
+                } catch (e) {
+                    console.warn(`KOSHA API 검색 실패 (${kw}):`, e);
+                }
+            }
+
+            if (allItems.length > 0) {
+                const html = allItems.map(item => {
+                    let summary = item.contents.replace(/<\/?PRE>/gi, '').replace(/\n/g, ' ').trim();
+                    if (summary.length > 150) summary = summary.substring(0, 150) + '...';
+
+                    const koshaUrl = `https://www.kosha.or.kr/kosha/data/disaster.do?boardNo=${item.boardno}`;
+
+                    return `
+                        <a href="${koshaUrl}" target="_blank" rel="noopener"
+                           style="display:block; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; text-decoration:none; color:#333; transition:all 0.2s;"
+                           onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.borderColor='#e65100';"
+                           onmouseout="this.style.boxShadow='none'; this.style.borderColor='#e0e0e0';">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                                <span style="background:#fff3e0; color:#e65100; padding:2px 8px; border-radius:4px; font-size:0.8rem; font-weight:600;">${item.business || item.searchKeyword}</span>
+                                <span style="font-weight:600; font-size:0.95rem;">${item.keyword}</span>
+                            </div>
+                            <div style="color:#666; font-size:0.85rem; line-height:1.5;">${summary}</div>
+                        </a>
+                    `;
+                }).join('');
+                container.innerHTML = html;
+            } else {
+                const fallbackHtml = keywords.map(kw => {
+                    const searchUrl = `https://www.kosha.or.kr/kosha/data/machine.do?keyword=${encodeURIComponent(kw)}`;
+                    return `
+                        <a href="${searchUrl}" target="_blank" rel="noopener"
+                           style="display:flex; align-items:center; gap:12px; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; text-decoration:none; color:#333; transition:all 0.2s;"
+                           onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.borderColor='#e65100';"
+                           onmouseout="this.style.boxShadow='none'; this.style.borderColor='#e0e0e0';">
+                            <div style="width:50px; height:50px; background:#e65100; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <span style="color:white; font-size:1.2rem;">⚠️</span>
+                            </div>
+                            <div>
+                                <div style="font-weight:600;">"${kw}" 관련 재해사례</div>
+                                <div style="color:#888; font-size:0.85rem;">안전보건공단 재해사례 검색 →</div>
+                            </div>
+                            <div style="margin-left:auto; color:#888;">↗</div>
+                        </a>
+                    `;
+                }).join('');
+                container.innerHTML = fallbackHtml;
+            }
+        }
+
+        function renderPreventionSummary() {
+            const container = document.getElementById('preventionSummary');
+            if (!riskAssessmentData || riskAssessmentData.length === 0) {
+                container.innerHTML = '<p>AI 분석 결과가 없습니다.</p>';
+                return;
+            }
+
+            const html = riskAssessmentData.map((risk, idx) => `
+                <div style="margin-bottom:15px; padding-bottom:15px; ${idx < riskAssessmentData.length - 1 ? 'border-bottom:1px solid #c8e6c9;' : ''}">
+                    <div style="font-weight:600; color:#1b5e20; margin-bottom:5px;">
+                        ${idx + 1}. ${risk.hazard || risk.risk_factor || '위험요인'}
+                    </div>
+                    <div style="color:#555; font-size:0.9rem; margin-bottom:5px;">
+                        📍 원인: ${risk.cause || '-'}
+                    </div>
+                    <div style="color:#2e7d32; font-size:0.9rem;">
+                        ✅ 대책: ${(risk.measures || risk.improvement_measures || []).toString().replace(/,/g, ', ')}
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        // ==================== 비디오 생성 (legacy) ====================
         async function generateVideo() {
             if (transcriptData.length === 0) {
                 showNotification('녹음된 회의 내용이 없어 영상을 생성할 수 없습니다. 먼저 마이크를 켜고 회의를 진행해주세요.', 'error');
