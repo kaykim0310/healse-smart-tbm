@@ -2353,7 +2353,7 @@
         function renderYouTubeLinks(keywords) {
             const container = document.getElementById('youtubeLinks');
             const links = keywords.map(kw => {
-                const searchQuery = encodeURIComponent(`${kw} 안전교육 KOSHA`);
+                const searchQuery = `${kw}+안전교육+KOSHA`;
                 return `
                     <a href="https://www.youtube.com/results?search_query=${searchQuery}" target="_blank" rel="noopener"
                        style="display:flex; align-items:center; gap:12px; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; text-decoration:none; color:#333; transition:all 0.2s; cursor:pointer;"
