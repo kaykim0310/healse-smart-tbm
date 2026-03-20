@@ -2292,7 +2292,8 @@
 
         // ==================== 교육자료 검색 (YouTube + KOSHA) ====================
         async function loadEducationResources() {
-            if (!riskAssessmentData || riskAssessmentData.length === 0) {
+            const riskAssessmentData = sessionData?.riskAssessments || [];
+            if (riskAssessmentData.length === 0) {
                 showNotification('AI 분석을 먼저 진행해주세요.', 'error');
                 return;
             }
@@ -2322,6 +2323,7 @@
         }
 
         function extractHazardKeywords() {
+            const riskAssessmentData = sessionData?.riskAssessments || [];
             const keywordMap = {
                 '추락': ['추락', '떨어짐', '고소작업'],
                 '감전': ['감전', '전기', '활선'],
@@ -2337,7 +2339,7 @@
 
             const found = new Set();
             riskAssessmentData.forEach(risk => {
-                const text = (risk.hazard || '') + (risk.risk_factor || '') + (risk.cause || '');
+                const text = (risk.hazard || '') + (risk.activity || '') + (risk.countermeasure || '');
                 Object.entries(keywordMap).forEach(([key, variants]) => {
                     if (variants.some(v => text.includes(v))) {
                         found.add(key);
@@ -2464,8 +2466,9 @@
         }
 
         function renderPreventionSummary() {
+            const riskAssessmentData = sessionData?.riskAssessments || [];
             const container = document.getElementById('preventionSummary');
-            if (!riskAssessmentData || riskAssessmentData.length === 0) {
+            if (riskAssessmentData.length === 0) {
                 container.innerHTML = '<p>AI 분석 결과가 없습니다.</p>';
                 return;
             }
@@ -2473,13 +2476,13 @@
             const html = riskAssessmentData.map((risk, idx) => `
                 <div style="margin-bottom:15px; padding-bottom:15px; ${idx < riskAssessmentData.length - 1 ? 'border-bottom:1px solid #c8e6c9;' : ''}">
                     <div style="font-weight:600; color:#1b5e20; margin-bottom:5px;">
-                        ${idx + 1}. ${risk.hazard || risk.risk_factor || '위험요인'}
+                        ${idx + 1}. ${risk.hazard || risk.activity || '위험요인'}
                     </div>
                     <div style="color:#555; font-size:0.9rem; margin-bottom:5px;">
-                        📍 원인: ${risk.cause || '-'}
+                        📍 작업: ${risk.activity || '-'} / 장소: ${risk.location || '-'}
                     </div>
                     <div style="color:#2e7d32; font-size:0.9rem;">
-                        ✅ 대책: ${(risk.measures || risk.improvement_measures || []).toString().replace(/,/g, ', ')}
+                        ✅ 대책: ${risk.countermeasure || '-'}
                     </div>
                 </div>
             `).join('');
