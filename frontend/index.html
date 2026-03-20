@@ -2353,10 +2353,9 @@
         function renderYouTubeLinks(keywords) {
             const container = document.getElementById('youtubeLinks');
             const links = keywords.map(kw => {
-                const searchQuery = encodeURIComponent(kw + ' 안전교육').replace(/%20/g, '+');
                 return `
-                    <a href="https://www.youtube.com/results?search_query=${searchQuery}" target="_blank" rel="noopener"
-                       style="display:flex; align-items:center; gap:12px; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; text-decoration:none; color:#333; transition:all 0.2s; cursor:pointer;"
+                    <div onclick="window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent('${kw} 안전교육'), '_blank')"
+                       style="display:flex; align-items:center; gap:12px; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; color:#333; transition:all 0.2s; cursor:pointer;"
                        onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.borderColor='#ff0000';"
                        onmouseout="this.style.boxShadow='none'; this.style.borderColor='#e0e0e0';">
                         <div style="width:50px; height:50px; background:#ff0000; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -2367,7 +2366,7 @@
                             <div style="color:#888; font-size:0.85rem;">YouTube에서 "${kw} 안전교육" 검색 결과 보기</div>
                         </div>
                         <div style="margin-left:auto; color:#888;">↗</div>
-                    </a>
+                    </div>
                 `;
             });
 
@@ -2426,11 +2425,11 @@
                     let summary = item.contents.replace(/<\/?PRE>/gi, '').replace(/\n/g, ' ').trim();
                     if (summary.length > 150) summary = summary.substring(0, 150) + '...';
 
-                    const koshaUrl = `https://portal.kosha.or.kr/search/search.do?searchWord=${encodeURIComponent((item.keyword || item.searchKeyword || kw) + ' 재해사례')}`;
+                    const koshaKeyword = (item.keyword || item.searchKeyword || '').replace(/'/g, "\\'");
 
                     return `
-                        <a href="${koshaUrl}" target="_blank" rel="noopener"
-                           style="display:block; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; text-decoration:none; color:#333; transition:all 0.2s;"
+                        <div onclick="window.open('https://portal.kosha.or.kr/acccase-industry/ser-industry?keyword=' + encodeURIComponent('${koshaKeyword}'), '_blank')"
+                           style="display:block; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; color:#333; transition:all 0.2s; cursor:pointer;"
                            onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.borderColor='#e65100';"
                            onmouseout="this.style.boxShadow='none'; this.style.borderColor='#e0e0e0';">
                             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
@@ -2438,16 +2437,15 @@
                                 <span style="font-weight:600; font-size:0.95rem;">${item.keyword}</span>
                             </div>
                             <div style="color:#666; font-size:0.85rem; line-height:1.5;">${summary}</div>
-                        </a>
+                        </div>
                     `;
                 }).join('');
                 container.innerHTML = html;
             } else {
                 const fallbackHtml = keywords.map(kw => {
-                    const searchUrl = `https://portal.kosha.or.kr/search/search.do?searchWord=${encodeURIComponent(kw + ' 재해사례')}`;
                     return `
-                        <a href="${searchUrl}" target="_blank" rel="noopener"
-                           style="display:flex; align-items:center; gap:12px; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; text-decoration:none; color:#333; transition:all 0.2s;"
+                        <div onclick="window.open('https://portal.kosha.or.kr/acccase-industry/ser-industry?keyword=' + encodeURIComponent('${kw}'), '_blank')"
+                           style="display:flex; align-items:center; gap:12px; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; color:#333; transition:all 0.2s; cursor:pointer;"
                            onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.borderColor='#e65100';"
                            onmouseout="this.style.boxShadow='none'; this.style.borderColor='#e0e0e0';">
                             <div style="width:50px; height:50px; background:#e65100; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -2458,7 +2456,7 @@
                                 <div style="color:#888; font-size:0.85rem;">안전보건공단 재해사례 검색 →</div>
                             </div>
                             <div style="margin-left:auto; color:#888;">↗</div>
-                        </a>
+                        </div>
                     `;
                 }).join('');
                 container.innerHTML = fallbackHtml;
