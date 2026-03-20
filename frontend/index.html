@@ -2426,7 +2426,7 @@
                     let summary = item.contents.replace(/<\/?PRE>/gi, '').replace(/\n/g, ' ').trim();
                     if (summary.length > 150) summary = summary.substring(0, 150) + '...';
 
-                    const koshaUrl = `https://www.kosha.or.kr/kosha/data/disaster.do?boardNo=${item.boardno}`;
+                    const koshaUrl = item.boardno ? `https://www.google.com/search?q=site:kosha.or.kr+${encodeURIComponent(item.keyword || kw)}+재해사례` : `https://www.google.com/search?q=site:kosha.or.kr+${encodeURIComponent(item.searchKeyword)}+재해사례`;
 
                     return `
                         <a href="${koshaUrl}" target="_blank" rel="noopener"
@@ -2444,7 +2444,7 @@
                 container.innerHTML = html;
             } else {
                 const fallbackHtml = keywords.map(kw => {
-                    const searchUrl = `https://www.kosha.or.kr/kosha/data/machine.do?keyword=${encodeURIComponent(kw)}`;
+                    const searchUrl = `https://www.google.com/search?q=site:kosha.or.kr+${encodeURIComponent(kw)}+재해사례`;
                     return `
                         <a href="${searchUrl}" target="_blank" rel="noopener"
                            style="display:flex; align-items:center; gap:12px; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; text-decoration:none; color:#333; transition:all 0.2s;"
