@@ -1495,15 +1495,15 @@
             <!-- Placeholder before loading -->
             <div id="educationPlaceholder">
                 <div style="text-align: center; padding: 60px; background: linear-gradient(135deg, #f8fafb, #e8f4f8); border-radius: 20px;">
-                    <div style="font-size: 4rem; margin-bottom: 20px;">📚</div>
-                    <h3 style="color: #2c5f5f; margin-bottom: 15px;">안전교육 자료 검색</h3>
-                    <p style="color: #666; margin-bottom: 25px;">AI 분석 결과를 바탕으로 관련 교육영상과 사고사례를 검색합니다.</p>
-                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                        <button class="btn btn-primary" onclick="generateOnePageEducation()" style="padding: 15px 30px; font-size: 1.1rem;">
-                            📄 원페이지 자료
+                    <div style="font-size: 4rem; margin-bottom: 20px;">📄</div>
+                    <h3 style="color: #2c5f5f; margin-bottom: 10px;">맞춤형 안전교육자료</h3>
+                    <p style="color: #666; margin-bottom: 30px;">AI 분석 결과를 바탕으로 원페이지 교육자료를 생성하고<br>관련 영상 및 사고사례 자료를 검색합니다.</p>
+                    <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                        <button class="btn btn-primary" onclick="generateOnePageEducation()" style="padding: 18px 40px; font-size: 1.2rem; font-weight: 700; border-radius: 14px; box-shadow: 0 4px 14px rgba(44,95,95,0.3);">
+                            📄 원페이지 교육자료 생성
                         </button>
-                        <button class="btn btn-primary" onclick="loadEducationResources()" style="padding: 15px 30px; font-size: 1.1rem; background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
-                            🔍 교육자료 검색
+                        <button class="btn btn-outline" onclick="loadEducationResources()" style="padding: 12px 28px; font-size: 0.95rem;">
+                            🔍 관련 자료 검색
                         </button>
                     </div>
                 </div>
@@ -1526,33 +1526,41 @@
 
             <!-- NEW: Education Resources Container -->
             <div id="educationResourcesContainer" style="display: none;">
+                <!-- Main CTA: One-page education material -->
+                <div style="text-align:center; margin-bottom:28px; padding:24px; background:linear-gradient(135deg,#e8f4f8,#d1ecf1); border-radius:16px;">
+                    <button class="btn btn-primary" onclick="generateOnePageEducation()" style="padding:16px 36px; font-size:1.15rem; font-weight:700; border-radius:12px; box-shadow:0 4px 14px rgba(44,95,95,0.25);">
+                        📄 원페이지 교육자료 생성
+                    </button>
+                    <div style="color:#666; font-size:0.85rem; margin-top:10px;">AI 분석 기반 맞춤형 안전교육 자료를 바로 만들어보세요</div>
+                </div>
+
                 <!-- YouTube Section -->
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #ff0000; margin-bottom: 15px;">🎬 관련 안전교육 영상</h3>
-                    <div id="youtubeLinks" style="display: grid; gap: 12px;">
+                <div style="margin-bottom: 24px;">
+                    <h3 style="color: #ff0000; margin-bottom: 12px; font-size:1.05rem;">🎬 관련 영상 바로가기</h3>
+                    <div id="youtubeLinks" style="display: grid; gap: 10px;">
                         <!-- Dynamically filled -->
                     </div>
                 </div>
 
                 <!-- KOSHA Accident Cases Section -->
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #e65100; margin-bottom: 15px;">⚠️ 유사 사고사례</h3>
-                    <div id="koshaAccidents" style="display: grid; gap: 12px;">
+                <div style="margin-bottom: 24px;">
+                    <h3 style="color: #e65100; margin-bottom: 12px; font-size:1.05rem;">⚠️ 사고사례 자료</h3>
+                    <div id="koshaAccidents" style="display: grid; gap: 10px;">
                         <!-- Dynamically filled -->
                     </div>
                 </div>
 
                 <!-- Prevention Summary Section -->
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #2e7d32; margin-bottom: 15px;">💡 예방대책 요약</h3>
+                <div style="margin-bottom: 24px;">
+                    <h3 style="color: #2e7d32; margin-bottom: 12px; font-size:1.05rem;">💡 예방대책 요약</h3>
                     <div id="preventionSummary" style="background: #f1f8e9; padding: 20px; border-radius: 12px; border-left: 4px solid #4caf50;">
                         <!-- Dynamically filled -->
                     </div>
                 </div>
 
-                <div class="btn-group" style="justify-content: center; margin-top: 25px;">
+                <div class="btn-group" style="justify-content: center; margin-top: 20px;">
                     <button class="btn btn-outline" onclick="loadEducationResources()">🔄 다시 검색</button>
-                    <button class="btn btn-primary" onclick="generateOnePageEducation()">📄 원페이지 자료</button>
+                    <button class="btn btn-primary" onclick="generateOnePageEducation()">📄 원페이지 교육자료 생성</button>
                 </div>
             </div>
 
@@ -2350,219 +2358,82 @@
             return found.size > 0 ? [...found] : ['산업안전'];
         }
 
-        // Curated safety education video database (real KOSHA / safety YouTube videos)
-        const SAFETY_VIDEOS = {
-            '추락': [
-                { id: 'ZQn_CKRWMBY', title: '한순간에 작업자의 목숨을 빼앗은 추락 재해', channel: '안전보건공단' },
-                { id: 'k8VjQlkTObQ', title: '추락재해 예방 안전보건교육', channel: '안전보건공단' },
-            ],
-            '화재': [
-                { id: '5v1wMOFoKtA', title: '화재폭발 예방 안전보건교육', channel: '안전보건공단' },
-                { id: 'Gy2AOqDLBGQ', title: '용접작업 화재예방 포인트', channel: '안전보건공단' },
-            ],
-            '감전': [
-                { id: '3DRBLOQNXPE', title: '감전재해 예방 안전보건교육', channel: '안전보건공단' },
-                { id: 'vFddoJE4JIg', title: '전기작업 안전수칙', channel: '안전보건공단' },
-            ],
-            '끼임': [
-                { id: 'g5pZAKMKBDo', title: '끼임사고 예방 안전보건교육', channel: '안전보건공단' },
-                { id: 'pX1NP_sTjiA', title: '기계설비 끼임재해 예방', channel: '안전보건공단' },
-            ],
-            '질식': [
-                { id: 'JLqL0J3nXpQ', title: '밀폐공간 질식재해 예방', channel: '안전보건공단' },
-                { id: 'bH8wSRh0PLY', title: '밀폐공간 작업안전 수칙', channel: '안전보건공단' },
-            ],
-            '넘어짐': [
-                { id: 'tA7IfsOLjEU', title: '넘어짐 사고예방 안전교육', channel: '안전보건공단' },
-            ],
-            '부딪힘': [
-                { id: 'kA0cIGSRZsE', title: '부딪힘 충돌사고 예방교육', channel: '안전보건공단' },
-            ],
-            '베임': [
-                { id: 'Qs5VGCqJRWM', title: '절단 베임사고 예방 안전교육', channel: '안전보건공단' },
-            ],
-            '무너짐': [
-                { id: 'Z5bx5XFSxyI', title: '붕괴 무너짐 재해예방 교육', channel: '안전보건공단' },
-            ],
-            '중량물': [
-                { id: 'gD1DCJmOrFc', title: '중량물 취급 안전작업 방법', channel: '안전보건공단' },
-            ],
-            '산업안전': [
-                { id: 'ZQn_CKRWMBY', title: '산업안전 기본교육 영상', channel: '안전보건공단' },
-                { id: '5v1wMOFoKtA', title: '작업장 안전수칙 총정리', channel: '안전보건공단' },
-            ]
-        };
-
         function renderYouTubeLinks(keywords) {
             const container = document.getElementById('youtubeLinks');
             let html = '';
 
             keywords.forEach(kw => {
-                const videos = SAFETY_VIDEOS[kw] || SAFETY_VIDEOS['산업안전'];
-                const primaryVideo = videos[0];
-
                 html += `
-                <div style="margin-bottom:24px;">
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                        <span style="background:#ff0000; color:white; padding:4px 12px; border-radius:6px; font-weight:600; font-size:0.85rem;">▶ ${kw}</span>
-                        <span style="color:#666; font-size:0.85rem;">관련 안전교육 영상</span>
+                <div onclick="window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent('${kw} 안전교육 안전보건공단'), '_blank')"
+                    style="display:flex; align-items:center; gap:12px; padding:12px 16px; background:white; border-radius:10px; border:1px solid #eee; cursor:pointer; transition:all 0.2s;"
+                    onmouseover="this.style.background='#fef2f2'; this.style.borderColor='#fca5a5';"
+                    onmouseout="this.style.background='white'; this.style.borderColor='#eee';">
+                    <div style="width:40px; height:40px; background:#ff0000; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <span style="color:white; font-size:1.2rem;">▶</span>
                     </div>
-                    <!-- Embedded YouTube player -->
-                    <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:12px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-                        <iframe style="position:absolute; top:0; left:0; width:100%; height:100%; border:none; border-radius:12px;"
-                            src="https://www.youtube.com/embed/${primaryVideo.id}?rel=0"
-                            title="${primaryVideo.title}"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen loading="lazy"></iframe>
+                    <div style="flex:1;">
+                        <div style="font-weight:600; font-size:0.9rem;">${kw} 안전교육 영상</div>
+                        <div style="color:#999; font-size:0.8rem;">안전보건공단 추천 영상 보기</div>
                     </div>
-                    <div style="font-size:0.9rem; color:#333; font-weight:600; margin-bottom:4px; padding:0 4px;">${primaryVideo.title}</div>
-                    <div style="font-size:0.8rem; color:#888; margin-bottom:10px; padding:0 4px;">${primaryVideo.channel}</div>
-                `;
-
-                // Additional video thumbnails (if more than 1 video)
-                if (videos.length > 1) {
-                    html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:10px; margin-bottom:10px;">`;
-                    videos.slice(1).forEach(v => {
-                        html += `
-                        <div onclick="document.querySelector('#youtubePlayer_${kw}')?.remove(); this.closest('[data-kw-block]').querySelector('.yt-embed-wrap iframe').src='https://www.youtube.com/embed/${v.id}?rel=0&autoplay=1'; "
-                            style="display:flex; align-items:center; gap:10px; padding:10px; background:#fafafa; border-radius:10px; border:1px solid #eee; cursor:pointer; transition:all 0.2s;"
-                            onmouseover="this.style.borderColor='#ff0000'; this.style.background='#fff5f5';"
-                            onmouseout="this.style.borderColor='#eee'; this.style.background='#fafafa';">
-                            <img src="https://img.youtube.com/vi/${v.id}/default.jpg" alt="" style="width:60px; height:45px; border-radius:6px; object-fit:cover; flex-shrink:0;" onerror="this.style.display='none'">
-                            <div>
-                                <div style="font-size:0.82rem; font-weight:600; color:#333; line-height:1.3;">${v.title}</div>
-                                <div style="font-size:0.75rem; color:#999;">${v.channel}</div>
-                            </div>
-                        </div>
-                        `;
-                    });
-                    html += `</div>`;
-                }
-
-                // "More videos" link
-                html += `
-                    <div onclick="window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent('${kw} 안전교육 안전보건공단'), '_blank')"
-                        style="text-align:center; padding:8px 12px; color:#ff0000; cursor:pointer; font-size:0.85rem; border:1px dashed #ffcdd2; border-radius:8px; transition:all 0.2s; background:#fff5f5;"
-                        onmouseover="this.style.background='#ffebee';"
-                        onmouseout="this.style.background='#fff5f5';">
-                        YouTube에서 "${kw} 안전교육" 영상 더보기 →
-                    </div>
-                </div>
-                `;
+                    <span style="color:#ccc; font-size:0.9rem;">→</span>
+                </div>`;
             });
 
             // KOSHA TV channel link at the bottom
             html += `
-                <a href="https://www.youtube.com/@koshamovie" target="_blank" rel="noopener"
-                   style="display:flex; align-items:center; gap:12px; padding:15px; background:linear-gradient(135deg,#fff3e0,#ffe0b2); border-radius:12px; border:1px solid #ffcc80; text-decoration:none; color:#333; transition:all 0.2s;"
-                   onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
-                   onmouseout="this.style.boxShadow='none';">
-                    <div style="width:50px; height:50px; background:#ff6f00; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                        <span style="color:white; font-size:1.2rem;">📺</span>
+                <div onclick="window.open('https://www.youtube.com/@koshamovie', '_blank')"
+                    style="display:flex; align-items:center; gap:12px; padding:12px 16px; background:linear-gradient(135deg,#fff3e0,#ffe0b2); border-radius:10px; border:1px solid #ffcc80; cursor:pointer; transition:all 0.2s;"
+                    onmouseover="this.style.boxShadow='0 3px 10px rgba(0,0,0,0.08)';"
+                    onmouseout="this.style.boxShadow='none';">
+                    <div style="width:40px; height:40px; background:#ff6f00; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <span style="color:white; font-size:1rem;">📺</span>
                     </div>
-                    <div>
-                        <div style="font-weight:600; font-size:1rem;">KOSHA TV (안전보건공단 공식채널)</div>
-                        <div style="color:#888; font-size:0.85rem;">산업안전 전문 교육 콘텐츠 모음</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:600; font-size:0.9rem;">KOSHA TV 공식채널</div>
+                        <div style="color:#999; font-size:0.8rem;">안전보건공단 교육 콘텐츠 모음</div>
                     </div>
-                    <div style="margin-left:auto; color:#888;">↗</div>
-                </a>
-            `;
+                    <span style="color:#ccc; font-size:0.9rem;">→</span>
+                </div>`;
 
             container.innerHTML = html;
         }
-
-        // Curated accident case database (based on KOSHA portal data patterns)
-        const ACCIDENT_CASES = {
-            '추락': [
-                { title: '비계 해체작업 중 추락', industry: '건설업', cause: '안전대 미착용 상태에서 비계 해체작업 중 발판에서 추락', prevention: '안전대 착용, 추락방호망 설치, 작업발판 고정확인', severity: '사망' },
-                { title: '지붕 보수작업 중 채광창 추락', industry: '건설업', cause: '슬레이트 지붕 위 이동 중 채광창 답파하여 추락', prevention: '안전난간 설치, 추락방지망, 지붕 위 이동통로 확보', severity: '사망' },
-                { title: '사다리 작업 중 추락', industry: '제조업', cause: '이동식 사다리 상부에서 작업 중 균형을 잃고 추락', prevention: '고소작업대 사용, 사다리 고정, 2인 1조 작업', severity: '골절' }
-            ],
-            '화재': [
-                { title: '용접 불꽃에 의한 화재', industry: '제조업', cause: '용접작업 시 비산된 불꽃이 인근 가연물에 착화', prevention: '화기작업 허가제, 불꽃 비산방지 덮개, 소화기 비치', severity: '화상' },
-                { title: '전기 합선에 의한 화재', industry: '제조업', cause: '노후 전선의 피복 손상으로 합선 발생하여 화재', prevention: '전기설비 정기점검, 노후전선 교체, 누전차단기 설치', severity: '화상' }
-            ],
-            '감전': [
-                { title: '활선 작업 중 감전', industry: '건설업', cause: '전원 미차단 상태에서 전기배선 작업 중 감전', prevention: '전원 차단 후 작업, 검전기 확인, 절연장갑 착용', severity: '사망' },
-                { title: '누전에 의한 감전', industry: '제조업', cause: '접지불량 장비 접촉 시 누전전류에 의한 감전', prevention: '접지 확인, 누전차단기 설치, 절연장화 착용', severity: '중상' }
-            ],
-            '끼임': [
-                { title: '컨베이어 벨트 끼임', industry: '제조업', cause: '가동 중인 컨베이어 벨트 회전부에 손이 끼임', prevention: '비상정지장치 설치, 방호덮개 설치, 전원차단 후 정비', severity: '절단' },
-                { title: '프레스 작업 중 끼임', industry: '제조업', cause: '프레스 금형 사이에 손을 넣은 상태에서 작동', prevention: '양수조작식 방호장치, 광전자식 방호장치 설치', severity: '절단' }
-            ],
-            '질식': [
-                { title: '맨홀 내 질식', industry: '건설업', cause: '산소농도 미측정 상태로 맨홀 내부 진입하여 질식', prevention: '산소농도 측정, 환기 실시, 감시인 배치, 공기호흡기 준비', severity: '사망' },
-                { title: '밀폐탱크 내 질식', industry: '제조업', cause: '세척작업을 위해 밀폐탱크 진입 중 유해가스에 의한 질식', prevention: '유해가스 측정, 충분한 환기, 송기마스크 착용', severity: '사망' }
-            ],
-            '넘어짐': [
-                { title: '바닥 미끄러짐으로 넘어짐', industry: '제조업', cause: '기름이 묻은 바닥에서 미끄러져 넘어짐', prevention: '바닥 청소, 미끄럼방지 테이프, 안전화 착용', severity: '골절' },
-                { title: '계단에서 넘어짐', industry: '건설업', cause: '자재를 들고 계단 이동 중 발을 헛디뎌 넘어짐', prevention: '손잡이 사용, 계단 미끄럼방지, 자재는 별도 운반', severity: '골절' }
-            ],
-            '부딪힘': [
-                { title: '지게차와 작업자 충돌', industry: '제조업', cause: '후진하는 지게차에 작업자가 부딪힘', prevention: '후방카메라 설치, 보행로 분리, 경광등/경보음 작동', severity: '중상' },
-                { title: '크레인 자재에 부딪힘', industry: '건설업', cause: '크레인으로 양중한 자재가 흔들리면서 작업자에 부딪힘', prevention: '신호수 배치, 양중물 하부 출입금지, 유도로프 사용', severity: '사망' }
-            ],
-            '베임': [
-                { title: '그라인더 작업 중 베임', industry: '제조업', cause: '핸드 그라인더 사용 중 절단 디스크에 손이 베임', prevention: '보호 덮개 장착, 안전장갑 착용, 고정 지그 사용', severity: '절단' },
-                { title: '칼날 교체 작업 중 베임', industry: '제조업', cause: '절단기 칼날 교체 중 전원 미차단 상태에서 베임 발생', prevention: '전원 차단 후 작업, 보호장갑 착용, 안전작업절차 준수', severity: '중상' }
-            ],
-            '무너짐': [
-                { title: '토사 붕괴에 의한 매몰', industry: '건설업', cause: '흙막이 설치 없이 굴착작업 중 토사 붕괴', prevention: '흙막이 설치, 기울기 준수, 지반조사 실시', severity: '사망' },
-                { title: '적재물 무너짐', industry: '제조업', cause: '과적된 자재가 불안정하게 쌓여 무너짐', prevention: '적재 높이 제한, 고임목 설치, 결속 고정', severity: '중상' }
-            ],
-            '중량물': [
-                { title: '중량물 운반 중 요통', industry: '제조업', cause: '무거운 자재를 수작업으로 반복 운반하여 요통 발생', prevention: '운반보조기구 사용, 2인 1조 운반, 스트레칭 실시', severity: '요통' },
-                { title: '중량물 낙하에 의한 압궤', industry: '건설업', cause: '양중 중 와이어 파단으로 중량물 낙하', prevention: '와이어로프 점검, 안전율 확인, 양중물 하부 출입금지', severity: '사망' }
-            ],
-            '산업안전': [
-                { title: '안전수칙 미준수에 의한 사고', industry: '전체', cause: '기본적인 안전수칙을 준수하지 않아 발생한 사고', prevention: '안전교육 실시, 작업 전 안전점검, 보호구 착용', severity: '다양' },
-                { title: '보호구 미착용에 의한 사고', industry: '전체', cause: '해당 작업에 필요한 보호구를 착용하지 않아 발생', prevention: '보호구 지급 및 착용 교육, 작업 전 보호구 점검', severity: '다양' }
-            ]
-        };
 
         async function searchKoshaAccidents(keywords) {
             const container = document.getElementById('koshaAccidents');
             let html = '';
 
             keywords.forEach(kw => {
-                const cases = ACCIDENT_CASES[kw] || ACCIDENT_CASES['산업안전'];
-
-                html += `<div style="margin-bottom:20px;">
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                        <span style="background:#e65100; color:white; padding:4px 12px; border-radius:6px; font-weight:600; font-size:0.85rem;">⚠ ${kw}</span>
-                        <span style="color:#666; font-size:0.85rem;">유사 사고사례 ${cases.length}건</span>
-                    </div>`;
-
-                cases.forEach(c => {
-                    const severityColor = c.severity === '사망' ? '#c62828' : c.severity === '절단' ? '#d84315' : c.severity === '중상' ? '#e65100' : '#f57f17';
-                    html += `
-                    <div style="padding:16px; background:white; border-radius:12px; border:1px solid #e0e0e0; margin-bottom:10px; border-left:4px solid ${severityColor};">
-                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-                            <span style="font-weight:700; font-size:0.95rem; color:#333;">${c.title}</span>
-                            <span style="background:#fff3e0; color:#e65100; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:600;">${c.industry}</span>
-                            <span style="background:${severityColor}15; color:${severityColor}; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:600;">${c.severity}</span>
-                        </div>
-                        <div style="margin-bottom:8px;">
-                            <div style="font-size:0.8rem; color:#888; font-weight:600; margin-bottom:2px;">사고 원인</div>
-                            <div style="font-size:0.88rem; color:#555; line-height:1.5;">${c.cause}</div>
-                        </div>
-                        <div style="background:#e8f5e9; padding:10px 12px; border-radius:8px;">
-                            <div style="font-size:0.8rem; color:#2e7d32; font-weight:600; margin-bottom:2px;">예방대책</div>
-                            <div style="font-size:0.88rem; color:#1b5e20; line-height:1.5;">${c.prevention}</div>
-                        </div>
-                    </div>`;
-                });
-
-                // "More cases" link to KOSHA portal
                 html += `
-                    <div onclick="window.open('https://portal.kosha.or.kr/archive/disaster-case/accident-case?keyword=' + encodeURIComponent('${kw}'), '_blank')"
-                        style="text-align:center; padding:8px 12px; color:#e65100; cursor:pointer; font-size:0.85rem; border:1px dashed #ffcc80; border-radius:8px; transition:all 0.2s; background:#fff8f0;"
-                        onmouseover="this.style.background='#fff3e0';"
-                        onmouseout="this.style.background='#fff8f0';">
-                        안전보건공단에서 "${kw}" 사고사례 더보기 →
+                <div onclick="window.open('https://portal.kosha.or.kr/archive/disaster-case/accident-case', '_blank')"
+                    style="display:flex; align-items:center; gap:12px; padding:12px 16px; background:white; border-radius:10px; border:1px solid #eee; cursor:pointer; transition:all 0.2s;"
+                    onmouseover="this.style.background='#fff7ed'; this.style.borderColor='#fed7aa';"
+                    onmouseout="this.style.background='white'; this.style.borderColor='#eee';">
+                    <div style="width:40px; height:40px; background:#ea580c; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <span style="color:white; font-size:1rem;">📋</span>
                     </div>
+                    <div style="flex:1;">
+                        <div style="font-weight:600; font-size:0.9rem;">"${kw}" 사고사례 자료</div>
+                        <div style="color:#999; font-size:0.8rem;">안전보건공단 재해사례 문서 보기</div>
+                    </div>
+                    <span style="color:#ccc; font-size:0.9rem;">→</span>
                 </div>`;
             });
+
+            // KOSHA serious accident whitepaper link
+            html += `
+                <div onclick="window.open('https://portal.kosha.or.kr/archive/disaster-case/serious-accident', '_blank')"
+                    style="display:flex; align-items:center; gap:12px; padding:12px 16px; background:linear-gradient(135deg,#fff7ed,#ffedd5); border-radius:10px; border:1px solid #fed7aa; cursor:pointer; transition:all 0.2s;"
+                    onmouseover="this.style.boxShadow='0 3px 10px rgba(0,0,0,0.08)';"
+                    onmouseout="this.style.boxShadow='none';">
+                    <div style="width:40px; height:40px; background:#c2410c; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <span style="color:white; font-size:1rem;">📕</span>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-weight:600; font-size:0.9rem;">중대재해 사고백서</div>
+                        <div style="color:#999; font-size:0.8rem;">안전보건공단 중대재해 분석 자료</div>
+                    </div>
+                    <span style="color:#ccc; font-size:0.9rem;">→</span>
+                </div>`;
 
             container.innerHTML = html;
         }
