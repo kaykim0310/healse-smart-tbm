@@ -717,6 +717,329 @@ function countRisksByCategory(sessions) {
     return categories;
 }
 
+/**
+ * AI 교육자료 상세 콘텐츠 생성
+ * POST /api/generate-education-content
+ *
+ * 위험성평가 데이터를 기반으로 각 위험요인별 상세 교육 콘텐츠를 생성합니다.
+ * - 유사 사고사례
+ * - 원인 분석 (직접/간접/근본)
+ * - 예방대책 (작업 전/중/후)
+ * - 관련 법령
+ */
+app.post('/api/generate-education-content', async (req, res) => {
+    const { risks, workContent, workLocation } = req.body;
+
+    if (!risks || risks.length === 0) {
+        return res.status(400).json({ error: '위험성평가 데이터가 필요합니다' });
+    }
+
+    try {
+        const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
+
+        if (CLAUDE_API_KEY) {
+            // Claude API를 사용하여 상세 콘텐츠 생성
+            const risksDescription = risks.map((r, i) =>
+                `${i + 1}. 위험요인: ${r.hazard}, 작업내용: ${r.activity || workContent}, 안전대책: ${r.countermeasure}, 작업장소: ${r.location || workLocation}`
+            ).join('\n');
+
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': CLAUDE_API_KEY,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 8192,
+                    messages: [{
+                        role: 'user',
+                        content: `당신은 한국 산업안전보건 전문가입니다. 다음 위험요인들에 대해 각각 상세한 안전교육 콘텐츠를 생성해주세요.
+
+[작업 정보]
+작업장소: ${workLocation || '건설 현장'}
+작업내용: ${workContent || '일반 작업'}
+
+[위험요인 목록]
+${risksDescription}
+
+각 위험요인에 대해 다음 정보를 JSON 형식으로 생성해주세요:
+
+1. accidentCase: 실제 발생 가능한 유사 사고사례를 구체적으로 작성 (2-3문장, 연도/장소유형/작업자 나이/구체적 상황/결과 포함, 현실감 있게)
+2. causeAnalysis: 사고원인 분석
+   - directCause: 직접원인 (작업자의 불안전한 행동)
+   - indirectCause: 간접원인 (불안전한 상태/환경)
+   - rootCause: 근본원인 (관리적 원인)
+3. detailedMeasures: 예방대책을 단계별로 작성
+   - before: 작업 전 조치사항 (3-4개)
+   - during: 작업 중 조치사항 (3-4개)
+   - after: 작업 후 조치사항 (2-3개)
+4. relatedLaw: 관련 안전 법규 (산업안전보건법, 산업안전보건기준에 관한 규칙 등 구체적 조항)
+
+반드시 다음 JSON 형식으로 응답해주세요:
+{
+  "educationContents": [
+    {
+      "hazardIndex": 0,
+      "accidentCase": "사고사례 설명...",
+      "causeAnalysis": {
+        "directCause": "직접원인...",
+        "indirectCause": "간접원인...",
+        "rootCause": "근본원인..."
+      },
+      "detailedMeasures": {
+        "before": ["조치1", "조치2", "조치3"],
+        "during": ["조치1", "조치2", "조치3"],
+        "after": ["조치1", "조치2"]
+      },
+      "relatedLaw": "관련 법령..."
+    }
+  ]
+}
+
+모든 내용은 한국어로 작성하고, 사고사례는 최대한 현실감 있게 구체적으로 작성해주세요.`
+                    }]
+                })
+            });
+
+            const data = await response.json();
+            try {
+                const content = data.content[0].text;
+                const jsonMatch = content.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const parsed = JSON.parse(jsonMatch[0]);
+                    console.log(`[교육 콘텐츠 AI 생성 완료] 위험요인: ${risks.length}건`);
+                    return res.json({ success: true, ...parsed });
+                }
+            } catch (e) {
+                console.error('AI 교육 콘텐츠 응답 파싱 오류:', e);
+            }
+        }
+
+        // API 키가 없거나 파싱 오류 시 로컬 생성
+        const educationContents = generateLocalEducationContent(risks, workContent, workLocation);
+        console.log(`[교육 콘텐츠 로컬 생성] 위험요인: ${risks.length}건`);
+        res.json({ success: true, educationContents });
+
+    } catch (error) {
+        console.error('교육 콘텐츠 생성 오류:', error);
+        // 오류 시에도 로컬 생성으로 폴백
+        try {
+            const educationContents = generateLocalEducationContent(risks, workContent, workLocation);
+            res.json({ success: true, educationContents });
+        } catch (fallbackError) {
+            res.status(500).json({ error: '교육 콘텐츠 생성 중 오류가 발생했습니다' });
+        }
+    }
+});
+
+/**
+ * 로컬 교육 콘텐츠 생성 (AI 사용 불가 시 폴백)
+ * 주요 위험유형별 사전 정의된 상세 콘텐츠
+ */
+function generateLocalEducationContent(risks, workContent, workLocation) {
+    const hazardTemplates = {
+        '추락': {
+            accidentCase: `2024년 5월, ${workLocation || '○○건설 현장'}에서 ${workContent || '비계 해체작업'} 중 작업자(45세)가 높이 약 7m 지점에서 추락하여 중상을 입는 사고가 발생하였다. 해당 작업자는 안전대를 착용하였으나 걸이 설비에 체결하지 않은 상태에서 작업 중 발을 헛디뎌 추락하였으며, 작업발판이 규격 미달인 상태였다.`,
+            causeAnalysis: {
+                directCause: '안전대 미체결 상태에서 고소작업 수행',
+                indirectCause: '작업발판 규격 미달, 안전난간 미설치',
+                rootCause: '작업 전 안전점검 미실시, TBM 미실시, 안전관리자 감독 부재'
+            },
+            detailedMeasures: {
+                before: ['안전대·안전모 착용 상태 상호 확인', '작업발판 및 안전난간 설치 상태 점검', '기상조건(강풍·강우·강설) 확인 후 작업 가능 여부 판단', '추락방지망 설치 상태 확인'],
+                during: ['안전대 걸이 설비에 항시 체결 유지', '2인 1조 작업 실시', '개구부 접근 시 안전난간 확보 후 작업', '자재 운반 시 달비계·리프트 활용'],
+                after: ['작업도구 및 잔재물 정리', '개구부 덮개 재설치 확인', '추락방지시설 이상 유무 최종 점검']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제42조(추락의 방지), 제44조(안전대의 부착설비 등)'
+        },
+        '감전': {
+            accidentCase: `2024년 7월, ${workLocation || '○○공장'}에서 ${workContent || '전기배선 작업'} 중 작업자(38세)가 활선 상태의 전선을 접촉하여 감전 사고가 발생하였다. 해당 작업자는 절연장갑을 착용하지 않은 상태에서 분전함 내부 작업을 수행하던 중 충전부에 접촉하였으며, 차단기 미조작으로 통전 상태가 유지되고 있었다.`,
+            causeAnalysis: {
+                directCause: '절연용 보호구 미착용 상태에서 전기 작업 수행',
+                indirectCause: '전원 미차단(LOTO 미실시), 활선 경고 표시 부재',
+                rootCause: '정전작업 절차 미수립, 전기안전 교육 미실시'
+            },
+            detailedMeasures: {
+                before: ['전원 차단(LOTO) 절차 실시 및 확인', '잔류전압 방전 확인(검전기 사용)', '절연장갑·절연화·절연매트 착용 확인', '작업구간 접지 실시'],
+                during: ['활선 접근 금지구역 설정 및 준수', '절연 공구만 사용', '감시인 배치 및 상호 안전 확인', '젖은 손으로 전기설비 접촉 금지'],
+                after: ['전원 복구 전 작업자 이격 확인', '잠금장치(LOTO) 해제 및 통전 확인', '절연저항 측정 및 이상 유무 확인']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제301조(전기 기계·기구 등의 충전부 방호), 제319조(정전 전로에서의 전기작업)'
+        },
+        '화재': {
+            accidentCase: `2024년 3월, ${workLocation || '○○플랜트 현장'}에서 ${workContent || '용접 작업'} 중 비산된 불꽃이 인근 가연물에 착화되어 화재가 발생하였다. 용접 작업 반경 내에 보온재(우레탄폼)가 방치되어 있었으며, 소화기가 작업장에서 30m 이상 떨어진 곳에 비치되어 있어 초기 진화가 지연되었다.`,
+            causeAnalysis: {
+                directCause: '불꽃 비산 방지 조치 없이 용접작업 수행',
+                indirectCause: '작업 반경 내 가연물 미제거, 소화설비 미비',
+                rootCause: '화기작업 허가제 미이행, 화재감시자 미배치'
+            },
+            detailedMeasures: {
+                before: ['화기작업 허가서 발급 및 검토', '작업 반경 11m 이내 가연물 제거', '방화포·불꽃 비산 방지막 설치', '소화기(ABC분말 2대 이상) 작업장 비치'],
+                during: ['화재감시자 전담 배치', '용접 불꽃 비산 방향 지속 확인', '환기 상태 유지 및 가스 누출 감지', '주변 가연물 지속 감시'],
+                after: ['용접 완료 후 30분 이상 잔불 감시', '작업장 주변 이상 발열 여부 확인', '소화기 사용 여부 확인 및 보충']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제241조(용접 등의 작업), 화재예방법 시행령 제5조(화기취급의 감독)'
+        },
+        '끼임': {
+            accidentCase: `2024년 9월, ${workLocation || '○○제조공장'}에서 ${workContent || '컨베이어 벨트 정비작업'} 중 작업자(52세)의 손이 롤러와 벨트 사이에 끼이는 사고가 발생하였다. 장비 가동 중 이물질을 제거하려다 장갑이 말려 들어가면서 손가락이 협착되었으며, 비상정지 스위치가 작업자 접근 범위 밖에 있어 즉시 정지가 불가능했다.`,
+            causeAnalysis: {
+                directCause: '기계 가동 중 회전체 접근 및 이물질 제거 시도',
+                indirectCause: '회전체 방호덮개 미설치, 비상정지장치 접근성 불량',
+                rootCause: 'LOTO(잠금·표지) 절차 미수립, 정비작업 안전수칙 미교육'
+            },
+            detailedMeasures: {
+                before: ['기계 정지 후 LOTO(잠금·표지) 실시', '회전체 방호덮개·안전가드 설치 확인', '비상정지 스위치 작동 상태 및 접근성 확인', '끼임 방지용 보호구(안전장갑) 적합성 확인'],
+                during: ['운전 중 회전체 접근 절대 금지', '이물질 제거 시 반드시 기계 정지 후 실시', '면장갑 착용 금지(말려 들어감 위험)', '2인 1조 작업 및 감시인 배치'],
+                after: ['방호장치 재설치 후 가동 재개', '장비 이상 유무 점검 및 기록']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제87조(회전기계의 돌출부), 제92조(덮개 등의 설치)'
+        },
+        '질식': {
+            accidentCase: `2024년 6월, ${workLocation || '○○하수처리장'}에서 ${workContent || '맨홀 내부 점검작업'} 중 작업자(41세)가 산소결핍으로 의식을 잃고 쓰러졌다. 밀폐공간 내 산소농도가 16%로 위험 수준이었으나 사전 측정 없이 진입하였으며, 환기 조치도 미실시된 상태였다. 구조하러 들어간 동료 작업자도 함께 의식을 잃어 2명이 동시에 구조된 사고였다.`,
+            causeAnalysis: {
+                directCause: '산소농도 측정 없이 밀폐공간 진입',
+                indirectCause: '환기설비 미설치, 구조용 장비 미비치',
+                rootCause: '밀폐공간 작업 프로그램 미수립, 특별안전교육 미실시'
+            },
+            detailedMeasures: {
+                before: ['밀폐공간 작업 허가 절차 이행', '산소농도(18% 이상) 및 유해가스 농도 측정', '충분한 환기 실시(30분 이상)', '비상구조 장비(송기마스크·구명밧줄) 비치'],
+                during: ['연속 가스 농도 측정(실시간 모니터링)', '감시인 상주 배치(외부에서 감시)', '송기마스크 또는 공기호흡기 착용', '비상연락 체계 유지(유선통신)'],
+                after: ['작업자 건강 상태 확인', '장비 회수 및 밀폐공간 출입금지 조치', '환기설비 철거 전 최종 가스 측정']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제618조(밀폐공간 작업 프로그램 수립 등), 제619조(밀폐공간 보건작업 프로그램)'
+        },
+        '넘어짐': {
+            accidentCase: `2024년 11월, ${workLocation || '○○물류센터'}에서 ${workContent || '자재 운반 작업'} 중 작업자(36세)가 바닥에 흘린 기름에 미끄러져 넘어지면서 허리를 다치는 사고가 발생하였다. 통행로에 자재가 적치되어 있어 우회 이동 중 미끄러운 바닥을 인지하지 못하였다.`,
+            causeAnalysis: {
+                directCause: '바닥 오염물질(기름) 미인지 상태에서 보행',
+                indirectCause: '통행로 자재 적치로 우회 보행, 바닥 미끄럼 방지 미조치',
+                rootCause: '정리정돈 미흡, 안전통로 관리 기준 미수립'
+            },
+            detailedMeasures: {
+                before: ['작업장 바닥 상태 점검 및 이물질 제거', '안전통로 확보 및 표시(노란색 라인)', '미끄럼 방지 안전화 착용 확인', '자재 적치 구역과 통행로 분리'],
+                during: ['바닥 오염 발생 즉시 제거', '자재 운반 시 전방 주시', '경사로·계단 이동 시 손잡이 활용', '보행 속도 준수(뛰지 않기)'],
+                after: ['작업장 정리정돈 실시', '바닥 청소 및 미끄럼 방지 조치 확인']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제3조(전도의 방지), 제22조(통로의 설치)'
+        },
+        '부딪힘': {
+            accidentCase: `2024년 4월, ${workLocation || '○○건설현장'}에서 ${workContent || '굴착기 주변 작업'} 중 작업자(48세)가 선회하는 굴착기 붐에 부딪혀 부상을 입는 사고가 발생하였다. 장비 운전자의 사각지대에서 작업 중이었으며, 유도원이 배치되지 않은 상태였다.`,
+            causeAnalysis: {
+                directCause: '중장비 작업 반경 내 무단 진입',
+                indirectCause: '유도원 미배치, 장비 작업반경 미설정',
+                rootCause: '장비·인력 동시작업 안전계획 미수립'
+            },
+            detailedMeasures: {
+                before: ['중장비 작업반경 설정 및 출입금지 구역 표시', '유도원(신호수) 배치 확인', '장비 경보장치(후진경보·선회경보) 작동 확인', '작업자-장비 운전원 신호체계 수립'],
+                during: ['장비 작업반경 내 보행 금지', '장비 이동 시 유도원 신호에 따라 이동', '사각지대 접근 시 운전원에게 사전 연락', '중장비 접근 시 눈 맞춤 확인'],
+                after: ['장비 주차 후 시동 차단 확인', '작업반경 내 잔여 인원 확인']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제196조(차량계 건설기계 등의 사용에 의한 위험 방지), 제38조(사전조사 및 작업계획서)'
+        },
+        '무너짐': {
+            accidentCase: `2024년 8월, ${workLocation || '○○아파트 건설현장'}에서 ${workContent || '터파기 작업'} 중 굴착면이 붕괴하여 작업자(50세)가 매몰되는 사고가 발생하였다. 굴착 깊이 3m 이상이었으나 흙막이 가시설이 설치되지 않았으며, 연속 강우 후 지반이 약화된 상태에서 작업을 강행하였다.`,
+            causeAnalysis: {
+                directCause: '흙막이 가시설 미설치 상태에서 굴착면 접근',
+                indirectCause: '강우 후 지반 약화, 굴착 기울기 미준수',
+                rootCause: '가설구조물 설계·시공 미흡, 지반조사 미실시'
+            },
+            detailedMeasures: {
+                before: ['지반조사 실시 및 토질 확인', '굴착 깊이에 맞는 흙막이 가시설 설계·설치', '강우 후 지반 상태 재점검', '굴착면 기울기 안전 기준 확인(토질별)'],
+                during: ['굴착면 변위 관측(계측관리)', '중장비 굴착면 접근 제한', '작업자 대피로 확보', '이상 징후(균열·침하) 발생 시 즉시 대피'],
+                after: ['굴착면 상태 최종 점검', '되메우기 또는 구조물 시공 전 안전 확인']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제338조(굴착작업시 지반 등의 위험 방지), 제339조(토석붕괴 위험 방지)'
+        },
+        '중량물': {
+            accidentCase: `2024년 10월, ${workLocation || '○○조선소'}에서 ${workContent || '크레인을 이용한 중량물 인양 작업'} 중 와이어로프가 파단되면서 자재(약 2톤)가 낙하하여 하부 작업자(44세)가 중상을 입는 사고가 발생하였다. 와이어로프 안전계수 미달 상태에서 과적 인양을 시도하였으며, 인양물 하부 출입통제가 이루어지지 않았다.`,
+            causeAnalysis: {
+                directCause: '인양물 하부 출입통제 미실시',
+                indirectCause: '와이어로프 마모·손상 상태에서 사용, 과적 인양',
+                rootCause: '양중작업 계획서 미작성, 장비 정기검사 미실시'
+            },
+            detailedMeasures: {
+                before: ['양중작업 계획서 작성 및 검토', '와이어로프·슬링벨트 상태 점검(마모·꼬임·절단)', '크레인 정격하중 확인 및 과부하방지장치 점검', '신호수(유도자) 지정 및 신호체계 수립'],
+                during: ['인양물 하부 출입통제 철저', '신호수 신호에 따라 인양·이동', '인양 중 급선회·급정지 금지', '풍속 10m/s 이상 시 작업 중지'],
+                after: ['인양장비 정위치 후 시동 차단', '와이어로프·체결기구 정리·보관', '작업반경 내 잔여 자재 확인']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제132조(양중기의 와이어로프 등), 제38조(사전조사 및 작업계획서)'
+        },
+        '베임': {
+            accidentCase: `2024년 2월, ${workLocation || '○○금속가공 공장'}에서 ${workContent || '철판 절단 작업'} 중 작업자(33세)가 날카로운 절단면에 손을 베어 심부 열상을 입는 사고가 발생하였다. 보호장갑을 착용하지 않은 상태에서 절단된 철판 모서리를 맨손으로 취급하였다.`,
+            causeAnalysis: {
+                directCause: '보호장갑 미착용 상태에서 절단물 취급',
+                indirectCause: '절단면 면취(디버링) 미실시, 날카로운 모서리 방치',
+                rootCause: '절단물 취급 안전수칙 미교육, 보호구 착용 감독 미흡'
+            },
+            detailedMeasures: {
+                before: ['절단 작업 전 방검장갑(케블라 등) 착용 확인', '절단 장비 안전장치 작동 상태 점검', '절단물 적치 장소 사전 확보', '구급함 비치 및 위치 확인'],
+                during: ['절단면 즉시 면취(디버링) 처리', '날카로운 모서리에 보호캡 설치', '절단물 취급 시 반드시 방검장갑 착용', '절단 작업 시 신체 부위 절단선 접근 금지'],
+                after: ['절단 잔재물 안전하게 수거·처리', '절단면 면취 상태 최종 확인']
+            },
+            relatedLaw: '산업안전보건기준에 관한 규칙 제118조(날·칼 부분의 방호), 산업안전보건법 제38조(안전조치)'
+        }
+    };
+
+    // 기본 템플릿 (매칭되지 않는 위험요인용)
+    const defaultTemplate = {
+        accidentCase: `최근 ${workLocation || '○○작업현장'}에서 ${workContent || '작업'} 중 안전수칙 미준수로 인한 사고가 발생하였다. 작업자가 기본 안전수칙을 준수하지 않은 상태에서 작업을 수행하던 중 부상을 입었으며, 사전 안전교육 및 위험요인 점검이 충분히 이루어지지 않은 것이 원인으로 확인되었다.`,
+        causeAnalysis: {
+            directCause: '안전수칙 미준수 및 부주의한 작업 수행',
+            indirectCause: '안전시설 미비, 작업환경 불량',
+            rootCause: '안전관리 체계 미흡, 안전교육 부족'
+        },
+        detailedMeasures: {
+            before: ['작업 전 TBM(Tool Box Meeting) 실시', '위험요인 사전 파악 및 안전대책 수립', '개인보호구 착용 상태 상호 확인', '비상연락망 및 대피경로 확인'],
+            during: ['안전수칙 준수 여부 지속 확인', '이상 징후 발견 시 즉시 작업 중지', '2인 1조 작업 원칙 준수', '주변 작업자와 소통 유지'],
+            after: ['작업장 정리정돈 실시', '장비·공구 이상 유무 점검', '잔여 위험요인 제거 확인']
+        },
+        relatedLaw: '산업안전보건법 제38조(안전조치), 제39조(보건조치)'
+    };
+
+    return risks.map((risk, index) => {
+        // 위험요인 키워드 매칭
+        const hazardText = (risk.hazard || '').toLowerCase();
+        let template = null;
+
+        for (const [keyword, tmpl] of Object.entries(hazardTemplates)) {
+            if (hazardText.includes(keyword)) {
+                template = tmpl;
+                break;
+            }
+        }
+
+        // 추가 키워드 매칭
+        if (!template) {
+            if (hazardText.includes('떨어') || hazardText.includes('높이') || hazardText.includes('고소')) template = hazardTemplates['추락'];
+            else if (hazardText.includes('전기') || hazardText.includes('전류') || hazardText.includes('통전')) template = hazardTemplates['감전'];
+            else if (hazardText.includes('화상') || hazardText.includes('용접') || hazardText.includes('불꽃')) template = hazardTemplates['화재'];
+            else if (hazardText.includes('협착') || hazardText.includes('말림') || hazardText.includes('회전')) template = hazardTemplates['끼임'];
+            else if (hazardText.includes('산소') || hazardText.includes('밀폐') || hazardText.includes('유해가스')) template = hazardTemplates['질식'];
+            else if (hazardText.includes('미끄') || hazardText.includes('전도')) template = hazardTemplates['넘어짐'];
+            else if (hazardText.includes('충돌') || hazardText.includes('접촉') || hazardText.includes('장비')) template = hazardTemplates['부딪힘'];
+            else if (hazardText.includes('붕괴') || hazardText.includes('토사') || hazardText.includes('굴착')) template = hazardTemplates['무너짐'];
+            else if (hazardText.includes('낙하') || hazardText.includes('인양') || hazardText.includes('크레인')) template = hazardTemplates['중량물'];
+            else if (hazardText.includes('절단') || hazardText.includes('날카') || hazardText.includes('찔림')) template = hazardTemplates['베임'];
+        }
+
+        if (!template) template = defaultTemplate;
+
+        return {
+            hazardIndex: index,
+            accidentCase: template.accidentCase,
+            causeAnalysis: { ...template.causeAnalysis },
+            detailedMeasures: {
+                before: [...template.detailedMeasures.before],
+                during: [...template.detailedMeasures.during],
+                after: [...template.detailedMeasures.after]
+            },
+            relatedLaw: template.relatedLaw
+        };
+    });
+}
+
 // ============== 서버 시작 ==============
 app.listen(PORT, () => {
     console.log('╔════════════════════════════════════════════╗');

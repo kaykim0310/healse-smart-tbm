@@ -1125,6 +1125,169 @@
             margin-top: 10px;
         }
 
+        /* ====== 상세 교육자료 카드 스타일 ====== */
+        .risk-detail-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+        }
+
+        .risk-detail-card .risk-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+        }
+        .risk-detail-card .risk-header .hazard-icon { font-size: 1.8rem; }
+        .risk-detail-card .risk-header .hazard-name { font-weight: 700; font-size: 1.15rem; flex: 1; }
+        .risk-detail-card .risk-header .risk-level {
+            padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
+        }
+        .risk-level.high   { background: #e74c3c; color: white; }
+        .risk-level.medium { background: #f39c12; color: white; }
+        .risk-level.low    { background: #27ae60; color: white; }
+
+        /* 사고사례 섹션 */
+        .accident-case-section {
+            padding: 14px 20px;
+            background: #fffbe6;
+            border-left: 4px solid #f1c40f;
+        }
+        .accident-case-section .section-label,
+        .cause-analysis-section .section-label,
+        .prevention-section .section-label {
+            font-weight: 800;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #2c3e50;
+        }
+        .accident-case-content p {
+            font-size: 0.92rem;
+            line-height: 1.7;
+            color: #333;
+            margin: 0;
+        }
+
+        /* 원인분석 섹션 */
+        .cause-analysis-section {
+            padding: 14px 20px;
+            background: #eaf6ff;
+            border-left: 4px solid #3498db;
+        }
+        .cause-items { display: flex; flex-direction: column; gap: 6px; }
+        .cause-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .cause-type {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            white-space: nowrap;
+            min-width: 62px;
+            text-align: center;
+        }
+        .cause-type.direct   { background: #e74c3c; color: white; }
+        .cause-type.indirect { background: #f39c12; color: white; }
+        .cause-type.root     { background: #8e44ad; color: white; }
+
+        /* 예방대책 섹션 */
+        .prevention-section {
+            padding: 14px 20px;
+            background: #f0faf0;
+            border-left: 4px solid #27ae60;
+        }
+        .prevention-phases {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .prevention-phases .phase {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+        }
+        .prevention-phases .phase-label {
+            font-weight: 800;
+            font-size: 0.88rem;
+            color: #27ae60;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #27ae60;
+            text-align: center;
+        }
+        .prevention-phases .phase ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .prevention-phases .phase ul li {
+            font-size: 0.84rem;
+            line-height: 1.6;
+            padding-left: 16px;
+            position: relative;
+            color: #333;
+        }
+        .prevention-phases .phase ul li::before {
+            content: '\\2713';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: 700;
+        }
+
+        /* 관련 법령 */
+        .law-section {
+            padding: 10px 20px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #555;
+            border-top: 1px solid #e0e0e0;
+        }
+        .law-icon { font-size: 1.1rem; }
+
+        /* 교육자료 로딩 오버레이 */
+        .education-loading-overlay {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .education-loading-overlay .loading-spinner {
+            width: 50px; height: 50px;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .education-loading-overlay .loading-text {
+            font-size: 1.1rem; font-weight: 700; color: #2c3e50;
+        }
+        .education-loading-overlay .loading-sub {
+            font-size: 0.9rem; color: #7f8c8d; margin-top: 8px;
+        }
+
         /* 반응형 */
         @media (max-width: 768px) {
             .risk-flow-card {
@@ -1140,6 +1303,10 @@
                 flex-direction: column;
                 gap: 15px;
                 align-items: flex-start;
+            }
+
+            .prevention-phases {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -1168,6 +1335,16 @@
             .app-header {
                 display: none !important;
             }
+
+            .risk-detail-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+            .accident-case-section { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .cause-analysis-section { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .prevention-section { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .risk-detail-card .risk-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .risk-level { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .cause-type { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .prevention-phases .phase-label { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .education-loading-overlay { display: none !important; }
         }
     </style>
 </head>
@@ -3018,7 +3195,7 @@
         }
 
         // ==================== 인포그래픽 교육자료 생성 ====================
-        function generateOnePageEducation() {
+        async function generateOnePageEducation() {
             const risks = sessionData?.riskAssessments || [];
 
             if (risks.length === 0) {
@@ -3042,33 +3219,11 @@
                 '전도': '🔄', '낙상': '🦶', '분진': '💨', '고온': '🌡️', '저온': '❄️'
             };
 
-            // 안전대책별 아이콘 매핑
-            const measureIcons = {
-                '안전대': '🦺', '안전벨트': '🦺', '안전모': '🪖', '헬멧': '🪖',
-                '안전화': '👟', '안전장갑': '🧤', '장갑': '🧤', '보안경': '🥽', '고글': '🥽',
-                '마스크': '😷', '방진마스크': '😷', '방독마스크': '😷', '귀마개': '🔇',
-                '소화기': '🧯', '방화': '🧯', '전원': '🔌', '차단': '⛔', '전기': '🔌',
-                '환기': '💨', '산소': '💨', '측정': '📊', '감시': '👁️', '감시인': '👁️',
-                '2인': '👥', '작업자': '👷', '작업발판': '🪜', '발판': '🪜', '사다리': '🪜',
-                '표지판': '⚠️', '경고': '⚠️', '바리케이드': '🚧', '펜스': '🚧',
-                '절연': '🧤', '접지': '⏚️', '잠금': '🔒', 'LOTO': '🔒',
-                '확인': '✅', '점검': '🔍', '교육': '📚', '훈련': '📚',
-                '비상': '🚨', '대피': '🏃', '연락': '📞', '신고': '📞',
-                '청소': '🧹', '정리': '📦', '보관': '📦', '덮개': '🛡️', '커버': '🛡️'
-            };
-
             function getHazardIcon(hazard) {
                 for (const [key, icon] of Object.entries(hazardIcons)) {
                     if (hazard.includes(key)) return icon;
                 }
                 return '⚠️';
-            }
-
-            function getMeasureIcon(measure) {
-                for (const [key, icon] of Object.entries(measureIcons)) {
-                    if (measure.includes(key)) return icon;
-                }
-                return '✅';
             }
 
             // PPE 정보
@@ -3082,6 +3237,47 @@
                 ppe6: { icon: '🔇', name: '귀마개' },
                 ppe7: { icon: '🦺', name: '안전대' }
             };
+
+            // 로딩 상태 표시
+            document.getElementById('educationPlaceholder').style.display = 'none';
+            document.getElementById('educationContainer').style.display = 'block';
+            document.getElementById('onepagePreview').innerHTML = `
+                <div class="education-loading-overlay">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">AI가 상세 교육자료를 생성하고 있습니다...</div>
+                    <div class="loading-sub">유사 사고사례, 원인분석, 예방대책을 작성 중입니다</div>
+                </div>
+            `;
+
+            // AI 교육 콘텐츠 생성 요청
+            let educationContents = null;
+            try {
+                const response = await fetch(`${API_BASE_URL}/generate-education-content`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        risks: risks.map(r => ({
+                            hazard: r.hazard,
+                            activity: r.activity,
+                            countermeasure: r.countermeasure,
+                            location: r.location
+                        })),
+                        workContent,
+                        workLocation
+                    })
+                });
+                const data = await response.json();
+                if (data.success && data.educationContents) {
+                    educationContents = data.educationContents;
+                }
+            } catch (e) {
+                console.warn('AI 교육 콘텐츠 서버 요청 실패, 로컬 폴백 사용:', e);
+            }
+
+            // 서버 실패 시 로컬 폴백
+            if (!educationContents) {
+                educationContents = generateLocalEducationFallback(risks, workContent, workLocation);
+            }
 
             // 인포그래픽 HTML 생성
             const html = `
@@ -3097,7 +3293,7 @@
                             <div>${time} ${department ? '| ' + department : ''} ${leader ? '| ' + leader : ''}</div>
                         </div>
                     </div>
-                    
+
                     <!-- 작업 정보 바 -->
                     <div class="info-work-bar">
                         <div class="work-item">
@@ -3113,46 +3309,91 @@
                             <span class="work-item-text"><strong>위험요인</strong>${risks.length}건 식별</span>
                         </div>
                     </div>
-                    
-                    <!-- 위험요인 플로우 -->
+
+                    <!-- 상세 위험요인별 교육 콘텐츠 -->
                     <div class="info-risks">
                         <div class="info-section-title">
-                            ⚠️ 위험요인 → 안전대책
+                            ⚠️ 위험요인별 상세 안전교육
                             <span class="count-badge">${risks.length}건</span>
                         </div>
-                        
-                        <div class="risk-flow-cards">
-                            ${risks.map((risk, idx) => {
-                const score = risk.frequency * risk.severity;
+
+                        ${risks.map((risk, idx) => {
+                const score = (risk.frequency || 3) * (risk.severity || 3);
                 let levelClass = 'low', levelText = '낮음';
                 if (score >= 12) { levelClass = 'high'; levelText = '높음'; }
                 else if (score >= 6) { levelClass = 'medium'; levelText = '보통'; }
 
                 const icon = getHazardIcon(risk.hazard);
-                const measures = risk.countermeasure.split(',').map(m => m.trim()).filter(m => m);
+                const edu = educationContents[idx] || {};
+                const ca = edu.causeAnalysis || {};
+                const dm = edu.detailedMeasures || {};
 
                 return `
-                                    <div class="risk-flow-card">
-                                        <div class="risk-flow-hazard ${levelClass}">
-                                            <span class="hazard-icon">${icon}</span>
-                                            <span class="hazard-name">${risk.hazard}</span>
-                                            <span class="hazard-level">위험도: ${levelText}</span>
-                                        </div>
-                                        <div class="risk-flow-arrow">➡️</div>
-                                        <div class="risk-flow-measures">
-                                            ${measures.map(m => `
-                                                <div class="measure-chip">
-                                                    <span class="chip-icon">${getMeasureIcon(m)}</span>
-                                                    <span>${m}</span>
-                                                </div>
-                                            `).join('')}
-                                        </div>
+                        <div class="risk-detail-card">
+                            <div class="risk-header">
+                                <span class="hazard-icon">${icon}</span>
+                                <span class="hazard-name">${risk.hazard}</span>
+                                <span class="risk-level ${levelClass}">위험도: ${levelText}</span>
+                            </div>
+
+                            <div class="accident-case-section">
+                                <div class="section-label">📋 유사 사고사례</div>
+                                <div class="accident-case-content">
+                                    <p>${edu.accidentCase || '관련 사고사례 정보를 불러올 수 없습니다.'}</p>
+                                </div>
+                            </div>
+
+                            <div class="cause-analysis-section">
+                                <div class="section-label">🔍 사고원인 분석</div>
+                                <div class="cause-items">
+                                    <div class="cause-item">
+                                        <span class="cause-type direct">직접원인</span>
+                                        <span>${ca.directCause || '-'}</span>
                                     </div>
-                                `;
-            }).join('')}
+                                    <div class="cause-item">
+                                        <span class="cause-type indirect">간접원인</span>
+                                        <span>${ca.indirectCause || '-'}</span>
+                                    </div>
+                                    <div class="cause-item">
+                                        <span class="cause-type root">근본원인</span>
+                                        <span>${ca.rootCause || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="prevention-section">
+                                <div class="section-label">✅ 예방대책</div>
+                                <div class="prevention-phases">
+                                    <div class="phase">
+                                        <div class="phase-label">작업 전</div>
+                                        <ul>
+                                            ${(dm.before || ['안전교육 실시', '보호구 착용 확인', '작업환경 점검']).map(m => `<li>${m}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <div class="phase">
+                                        <div class="phase-label">작업 중</div>
+                                        <ul>
+                                            ${(dm.during || ['안전수칙 준수', '이상 시 작업 중지', '상호 안전 확인']).map(m => `<li>${m}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <div class="phase">
+                                        <div class="phase-label">작업 후</div>
+                                        <ul>
+                                            ${(dm.after || ['작업장 정리정돈', '장비 점검']).map(m => `<li>${m}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="law-section">
+                                <span class="law-icon">⚖️</span>
+                                <span>${edu.relatedLaw || '산업안전보건법 제38조(안전조치)'}</span>
+                            </div>
                         </div>
+                        `;
+            }).join('')}
                     </div>
-                    
+
                     <!-- 필수 보호구 -->
                     ${ppeChecked.length > 0 ? `
                     <div class="info-ppe">
@@ -3170,7 +3411,7 @@
                         </div>
                     </div>
                     ` : ''}
-                    
+
                     <!-- 슬로건 푸터 -->
                     <div class="info-footer">
                         <div class="main-slogan">🦺 안전제일! 무재해 달성! 🦺</div>
@@ -3181,10 +3422,115 @@
             `;
 
             document.getElementById('onepagePreview').innerHTML = html;
-            document.getElementById('educationPlaceholder').style.display = 'none';
-            document.getElementById('educationContainer').style.display = 'block';
+            showNotification('상세 교육자료가 생성되었습니다!', 'success');
+        }
 
-            showNotification('인포그래픽이 생성되었습니다!', 'success');
+        /**
+         * 로컬 교육 콘텐츠 폴백 생성 (서버 연결 실패 시)
+         * 주요 위험유형별 사전 정의된 상세 콘텐츠
+         */
+        function generateLocalEducationFallback(risks, workContent, workLocation) {
+            const templates = {
+                '추락': {
+                    accidentCase: `2024년 5월, ${workLocation || '○○건설 현장'}에서 비계 작업 중 작업자(45세)가 높이 약 7m 지점에서 추락하여 중상을 입는 사고가 발생하였다. 안전대를 착용하였으나 걸이 설비에 체결하지 않은 상태에서 작업 중 발을 헛디뎌 추락하였으며, 작업발판이 규격 미달인 상태였다.`,
+                    causeAnalysis: { directCause: '안전대 미체결 상태에서 고소작업 수행', indirectCause: '작업발판 규격 미달, 안전난간 미설치', rootCause: '작업 전 안전점검 미실시, 안전관리자 감독 부재' },
+                    detailedMeasures: { before: ['안전대·안전모 착용 상태 상호 확인', '작업발판 및 안전난간 설치 상태 점검', '기상조건(강풍·강우) 확인', '추락방지망 설치 상태 확인'], during: ['안전대 걸이 설비에 항시 체결 유지', '2인 1조 작업 실시', '개구부 접근 시 안전난간 확보 후 작업'], after: ['작업도구 및 잔재물 정리', '개구부 덮개 재설치 확인', '추락방지시설 최종 점검'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제42조(추락의 방지), 제44조(안전대의 부착설비 등)'
+                },
+                '감전': {
+                    accidentCase: `2024년 7월, ${workLocation || '○○공장'}에서 전기배선 작업 중 작업자(38세)가 활선 상태의 전선을 접촉하여 감전 사고가 발생하였다. 절연장갑을 착용하지 않은 상태에서 분전함 내부 작업 중 충전부에 접촉하였다.`,
+                    causeAnalysis: { directCause: '절연용 보호구 미착용 상태에서 전기 작업 수행', indirectCause: '전원 미차단(LOTO 미실시), 활선 경고 표시 부재', rootCause: '정전작업 절차 미수립, 전기안전 교육 미실시' },
+                    detailedMeasures: { before: ['전원 차단(LOTO) 절차 실시 및 확인', '잔류전압 방전 확인(검전기 사용)', '절연장갑·절연화 착용 확인', '작업구간 접지 실시'], during: ['활선 접근 금지구역 설정', '절연 공구만 사용', '감시인 배치 및 상호 확인'], after: ['전원 복구 전 작업자 이격 확인', 'LOTO 해제 및 통전 확인', '절연저항 측정'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제301조(충전부 방호), 제319조(정전 전로에서의 전기작업)'
+                },
+                '화재': {
+                    accidentCase: `2024년 3월, ${workLocation || '○○플랜트'}에서 용접 작업 중 비산된 불꽃이 인근 가연물에 착화되어 화재가 발생하였다. 용접 반경 내에 보온재가 방치되어 있었으며, 소화기가 30m 이상 떨어져 초기 진화가 지연되었다.`,
+                    causeAnalysis: { directCause: '불꽃 비산 방지 조치 없이 용접작업 수행', indirectCause: '작업 반경 내 가연물 미제거, 소화설비 미비', rootCause: '화기작업 허가제 미이행, 화재감시자 미배치' },
+                    detailedMeasures: { before: ['화기작업 허가서 발급', '반경 11m 이내 가연물 제거', '방화포·비산 방지막 설치', '소화기 2대 이상 비치'], during: ['화재감시자 전담 배치', '불꽃 비산 방향 확인', '환기 상태 유지'], after: ['완료 후 30분 이상 잔불 감시', '이상 발열 여부 확인'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제241조(용접 등의 작업)'
+                },
+                '끼임': {
+                    accidentCase: `2024년 9월, ${workLocation || '○○제조공장'}에서 컨베이어 벨트 정비 중 작업자(52세)의 손이 롤러 사이에 끼이는 사고가 발생하였다. 장비 가동 중 이물질을 제거하려다 장갑이 말려 들어가면서 협착되었다.`,
+                    causeAnalysis: { directCause: '기계 가동 중 회전체 접근', indirectCause: '회전체 방호덮개 미설치, 비상정지장치 접근성 불량', rootCause: 'LOTO 절차 미수립, 정비작업 안전수칙 미교육' },
+                    detailedMeasures: { before: ['기계 정지 후 LOTO 실시', '방호덮개·안전가드 확인', '비상정지 스위치 작동 확인'], during: ['운전 중 회전체 접근 금지', '이물질 제거 시 기계 정지 후 실시', '면장갑 착용 금지'], after: ['방호장치 재설치 후 가동', '장비 이상 유무 점검'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제87조(회전기계의 돌출부), 제92조(덮개 등의 설치)'
+                },
+                '질식': {
+                    accidentCase: `2024년 6월, ${workLocation || '○○하수처리장'}에서 맨홀 내부 점검 중 작업자(41세)가 산소결핍으로 의식을 잃고 쓰러졌다. 산소농도 16%로 위험 수준이었으나 사전 측정 없이 진입하였다.`,
+                    causeAnalysis: { directCause: '산소농도 측정 없이 밀폐공간 진입', indirectCause: '환기설비 미설치, 구조용 장비 미비치', rootCause: '밀폐공간 작업 프로그램 미수립, 특별안전교육 미실시' },
+                    detailedMeasures: { before: ['밀폐공간 작업 허가 절차 이행', '산소농도 및 유해가스 측정', '환기 실시(30분 이상)', '비상구조 장비 비치'], during: ['연속 가스 농도 모니터링', '감시인 상주 배치', '송기마스크 착용'], after: ['작업자 건강 상태 확인', '밀폐공간 출입금지 조치'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제618조(밀폐공간 작업 프로그램 수립 등)'
+                },
+                '넘어짐': {
+                    accidentCase: `2024년 11월, ${workLocation || '○○물류센터'}에서 자재 운반 중 작업자(36세)가 바닥 기름에 미끄러져 허리를 다치는 사고가 발생하였다. 통행로에 자재가 적치되어 우회 이동 중 미끄러운 바닥을 인지하지 못하였다.`,
+                    causeAnalysis: { directCause: '바닥 오염물질 미인지 상태에서 보행', indirectCause: '통행로 자재 적치, 미끄럼 방지 미조치', rootCause: '정리정돈 미흡, 안전통로 관리 기준 미수립' },
+                    detailedMeasures: { before: ['바닥 상태 점검 및 이물질 제거', '안전통로 확보 및 표시', '미끄럼 방지 안전화 착용', '자재 적치 구역 분리'], during: ['바닥 오염 즉시 제거', '전방 주시', '경사로 이동 시 손잡이 활용'], after: ['작업장 정리정돈', '바닥 청소'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제3조(전도의 방지), 제22조(통로의 설치)'
+                },
+                '부딪힘': {
+                    accidentCase: `2024년 4월, ${workLocation || '○○건설현장'}에서 굴착기 주변 작업 중 작업자(48세)가 선회하는 굴착기 붐에 부딪혀 부상을 입는 사고가 발생하였다. 장비 사각지대에서 작업 중이었으며 유도원이 미배치 상태였다.`,
+                    causeAnalysis: { directCause: '중장비 작업 반경 내 무단 진입', indirectCause: '유도원 미배치, 작업반경 미설정', rootCause: '장비·인력 동시작업 안전계획 미수립' },
+                    detailedMeasures: { before: ['작업반경 설정 및 출입금지 구역 표시', '유도원(신호수) 배치', '장비 경보장치 작동 확인'], during: ['작업반경 내 보행 금지', '유도원 신호에 따라 이동', '사각지대 접근 시 사전 연락'], after: ['장비 주차 후 시동 차단', '작업반경 내 잔여 인원 확인'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제196조(차량계 건설기계 등의 위험 방지)'
+                },
+                '무너짐': {
+                    accidentCase: `2024년 8월, ${workLocation || '○○건설현장'}에서 터파기 작업 중 굴착면이 붕괴하여 작업자(50세)가 매몰되는 사고가 발생하였다. 깊이 3m 이상 굴착에 흙막이 가시설이 미설치된 상태였다.`,
+                    causeAnalysis: { directCause: '흙막이 가시설 미설치 상태에서 굴착면 접근', indirectCause: '강우 후 지반 약화, 굴착 기울기 미준수', rootCause: '가설구조물 설계 미흡, 지반조사 미실시' },
+                    detailedMeasures: { before: ['지반조사 및 토질 확인', '흙막이 가시설 설계·설치', '강우 후 지반 상태 재점검'], during: ['굴착면 변위 관측', '중장비 굴착면 접근 제한', '이상 징후 시 즉시 대피'], after: ['굴착면 상태 최종 점검', '되메우기 전 안전 확인'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제338조(굴착작업시 지반 등의 위험 방지)'
+                },
+                '중량물': {
+                    accidentCase: `2024년 10월, ${workLocation || '○○조선소'}에서 크레인 인양 작업 중 와이어로프가 파단되면서 자재(약 2톤)가 낙하하여 하부 작업자(44세)가 중상을 입는 사고가 발생하였다.`,
+                    causeAnalysis: { directCause: '인양물 하부 출입통제 미실시', indirectCause: '와이어로프 마모·손상 상태에서 사용, 과적 인양', rootCause: '양중작업 계획서 미작성, 장비 정기검사 미실시' },
+                    detailedMeasures: { before: ['양중작업 계획서 작성', '와이어로프·슬링벨트 상태 점검', '정격하중 확인', '신호수 지정'], during: ['인양물 하부 출입통제', '신호수 신호에 따라 작업', '풍속 10m/s 이상 시 중지'], after: ['인양장비 정위치 후 시동 차단', '와이어로프 정리·보관'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제132조(양중기의 와이어로프 등)'
+                },
+                '베임': {
+                    accidentCase: `2024년 2월, ${workLocation || '○○금속가공 공장'}에서 철판 절단 작업 중 작업자(33세)가 절단면에 손을 베어 심부 열상을 입는 사고가 발생하였다. 보호장갑 미착용 상태에서 절단된 철판을 맨손으로 취급하였다.`,
+                    causeAnalysis: { directCause: '보호장갑 미착용 상태에서 절단물 취급', indirectCause: '절단면 면취(디버링) 미실시', rootCause: '절단물 취급 안전수칙 미교육' },
+                    detailedMeasures: { before: ['방검장갑 착용 확인', '절단 장비 안전장치 점검', '구급함 비치 확인'], during: ['절단면 즉시 면취 처리', '날카로운 모서리에 보호캡 설치', '방검장갑 착용'], after: ['절단 잔재물 안전 수거', '절단면 면취 상태 확인'] },
+                    relatedLaw: '산업안전보건기준에 관한 규칙 제118조(날·칼 부분의 방호)'
+                }
+            };
+
+            const defaultTemplate = {
+                accidentCase: `최근 ${workLocation || '작업현장'}에서 ${workContent || '작업'} 중 안전수칙 미준수로 인한 사고가 발생하였다. 작업자가 기본 안전수칙을 준수하지 않은 상태에서 작업을 수행하던 중 부상을 입었다.`,
+                causeAnalysis: { directCause: '안전수칙 미준수 및 부주의', indirectCause: '안전시설 미비, 작업환경 불량', rootCause: '안전관리 체계 미흡, 안전교육 부족' },
+                detailedMeasures: { before: ['TBM 실시', '위험요인 사전 파악', '보호구 착용 확인', '비상연락망 확인'], during: ['안전수칙 준수', '이상 시 작업 중지', '2인 1조 작업'], after: ['작업장 정리정돈', '장비 점검'] },
+                relatedLaw: '산업안전보건법 제38조(안전조치), 제39조(보건조치)'
+            };
+
+            return risks.map((risk, index) => {
+                const hazardText = (risk.hazard || '').toLowerCase();
+                let template = null;
+
+                for (const [keyword, tmpl] of Object.entries(templates)) {
+                    if (hazardText.includes(keyword)) { template = tmpl; break; }
+                }
+
+                if (!template) {
+                    if (hazardText.includes('떨어') || hazardText.includes('높이') || hazardText.includes('고소')) template = templates['추락'];
+                    else if (hazardText.includes('전기') || hazardText.includes('전류')) template = templates['감전'];
+                    else if (hazardText.includes('화상') || hazardText.includes('용접')) template = templates['화재'];
+                    else if (hazardText.includes('협착') || hazardText.includes('말림') || hazardText.includes('회전')) template = templates['끼임'];
+                    else if (hazardText.includes('산소') || hazardText.includes('밀폐')) template = templates['질식'];
+                    else if (hazardText.includes('미끄') || hazardText.includes('전도')) template = templates['넘어짐'];
+                    else if (hazardText.includes('충돌') || hazardText.includes('장비')) template = templates['부딪힘'];
+                    else if (hazardText.includes('붕괴') || hazardText.includes('토사')) template = templates['무너짐'];
+                    else if (hazardText.includes('낙하') || hazardText.includes('크레인')) template = templates['중량물'];
+                    else if (hazardText.includes('절단') || hazardText.includes('날카')) template = templates['베임'];
+                }
+
+                if (!template) template = defaultTemplate;
+
+                return {
+                    hazardIndex: index,
+                    accidentCase: template.accidentCase,
+                    causeAnalysis: { ...template.causeAnalysis },
+                    detailedMeasures: { before: [...template.detailedMeasures.before], during: [...template.detailedMeasures.during], after: [...template.detailedMeasures.after] },
+                    relatedLaw: template.relatedLaw
+                };
+            });
         }
 
         function regenerateEducation() {
