@@ -1771,8 +1771,7 @@
 
         function changeLanguage() {
             localStorage.removeItem('tbm_language');
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('languageSelection').style.display = 'flex';
+            location.reload();
         }
 
         // ==================== 세션 관리 ====================
