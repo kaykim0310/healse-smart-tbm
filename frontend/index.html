@@ -1988,6 +1988,12 @@
                 const el = document.getElementById(id);
                 if (el && t[koText]) el.textContent = t[koText];
             });
+
+            // innerHTML 포함 버튼 직접 교체
+            const aiBtn = document.getElementById('aiAnalyzeBtn');
+            if (aiBtn && t['AI 분석 시작']) aiBtn.innerHTML = '🤖 ' + t['AI 분석 시작'];
+            const vidBtn = document.getElementById('generateVideoBtn');
+            if (vidBtn && t['교육 영상 생성']) vidBtn.innerHTML = '🎬 ' + t['교육 영상 생성'];
         }
 
         // ==================== 언어 선택 ====================
