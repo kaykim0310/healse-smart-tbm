@@ -2372,7 +2372,7 @@
 
             // Add KOSHA TV channel link
             links.push(`
-                <a href="https://www.youtube.com/@koshatv" target="_blank" rel="noopener"
+                <a href="https://www.youtube.com/@koshamovie" target="_blank" rel="noopener"
                    style="display:flex; align-items:center; gap:12px; padding:15px; background:linear-gradient(135deg,#fff3e0,#ffe0b2); border-radius:12px; border:1px solid #ffcc80; text-decoration:none; color:#333; transition:all 0.2s;"
                    onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
                    onmouseout="this.style.boxShadow='none';">
@@ -2428,7 +2428,7 @@
                     const koshaKeyword = (item.keyword || item.searchKeyword || '').replace(/'/g, "\\'");
 
                     return `
-                        <div onclick="window.open('https://portal.kosha.or.kr/acccase-industry/ser-industry?keyword=' + encodeURIComponent('${koshaKeyword}'), '_blank')"
+                        <div onclick="window.open('https://portal.kosha.or.kr/archive/disaster-case/accident-case?keyword=' + encodeURIComponent('${koshaKeyword}'), '_blank')"
                            style="display:block; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; color:#333; transition:all 0.2s; cursor:pointer;"
                            onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.borderColor='#e65100';"
                            onmouseout="this.style.boxShadow='none'; this.style.borderColor='#e0e0e0';">
@@ -2444,7 +2444,7 @@
             } else {
                 const fallbackHtml = keywords.map(kw => {
                     return `
-                        <div onclick="window.open('https://portal.kosha.or.kr/acccase-industry/ser-industry?keyword=' + encodeURIComponent('${kw}'), '_blank')"
+                        <div onclick="window.open('https://portal.kosha.or.kr/archive/disaster-case/accident-case?keyword=' + encodeURIComponent('${kw}'), '_blank')"
                            style="display:flex; align-items:center; gap:12px; padding:15px; background:white; border-radius:12px; border:1px solid #e0e0e0; color:#333; transition:all 0.2s; cursor:pointer;"
                            onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.borderColor='#e65100';"
                            onmouseout="this.style.boxShadow='none'; this.style.borderColor='#e0e0e0';">
