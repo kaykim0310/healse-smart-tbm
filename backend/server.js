@@ -21,7 +21,16 @@ const PORT = process.env.PORT || 3000;
 // ============== 미들웨어 설정 ==============
 app.use(cors()); // 다른 도메인에서도 접근 가능
 app.use(bodyParser.json({ limit: '50mb' })); // JSON 데이터 처리
-app.use(express.static(path.join(__dirname, '../frontend'))); // 프론트엔드 파일 제공
+// HTML 파일은 캐시하지 않도록 설정 (항상 최신 버전 제공)
+app.use(express.static(path.join(__dirname, '../frontend'), {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        }
+    }
+}));
 
 // ============== 임시 데이터베이스 (메모리) ==============
 // 실제 서비스에서는 MySQL이나 MongoDB로 교체
