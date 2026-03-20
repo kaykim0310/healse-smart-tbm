@@ -1292,7 +1292,7 @@
                 <div class="session-badge">
                     <span id="sessionLabel">세션:</span> <strong id="currentSessionCode"></strong>
                 </div>
-                <button class="btn btn-outline" onclick="logout()" style="padding: 8px 16px;">로그아웃</button>
+                <button class="btn btn-outline" onclick="logout()" id="logoutBtn" style="padding: 8px 16px;">로그아웃</button>
             </div>
         </div>
 
@@ -1323,28 +1323,28 @@
 
         <!-- 음성 녹음 탭 -->
         <div class="tab-content active" id="voiceTab">
-            <h2>🎤 음성으로 회의 진행</h2>
+            <h2 id="voiceTitle">🎤 음성으로 회의 진행</h2>
 
             <div class="voice-section">
-                <p>회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다</p>
+                <p id="voiceDesc">회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다</p>
 
                 <button class="voice-record-btn" id="voiceRecordBtn" onclick="toggleVoiceRecording()">🎤</button>
                 <p class="voice-status" id="voiceStatus">준비 완료</p>
             </div>
             <div class="voice-transcript" id="voiceTranscript">
                 <!-- 음성 텍스트 표시 영역 -->
-                <div style="text-align: center; color: #999; margin-top: 40px;">
+                <div style="text-align: center; color: #999; margin-top: 40px;" id="voicePlaceholder">
                     마이크 버튼을 눌러 회의를 시작하세요.
                 </div>
             </div>
 
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <button class="ai-analyze-btn" id="aiAnalyzeBtn" onclick="analyzeWithAI()">
-                    🤖 AI 분석 시작
+                    🤖 <span id="aiAnalyzeText">AI 분석 시작</span>
                 </button>
                 <button class="ai-analyze-btn" id="generateVideoBtn" onclick="generateVideo()"
                     style="background: linear-gradient(135deg, #a78bfa, #8b5cf6);">
-                    🎬 교육 영상 생성
+                    🎬 <span id="generateVideoText">교육 영상 생성</span>
                 </button>
             </div>
 
@@ -1735,7 +1735,10 @@
                 '안전조치사항': 'Safety Measures', '주의사항': 'Precautions',
                 '저장': 'Save', '서명': 'Sign', '서명 완료': 'Signed',
                 '위험요인': 'Hazard', '대책': 'Countermeasure',
-                '빈도': 'Frequency', '강도': 'Severity', '위험도': 'Risk Level'
+                '빈도': 'Frequency', '강도': 'Severity', '위험도': 'Risk Level',
+                '세션:': 'Session:',
+                '마이크 버튼을 눌러 회의를 시작하세요.': 'Press the mic button to start the meeting.',
+                '교육 영상 생성': 'Create Education Video'
             },
             'zh': {
                 '🎤 TBM 회의 참여': '🎤 参加TBM会议',
@@ -1759,7 +1762,10 @@
                 '안전조치사항': '安全措施', '주의사항': '注意事项',
                 '저장': '保存', '서명': '签名', '서명 완료': '已签名',
                 '위험요인': '危险因素', '대책': '对策',
-                '빈도': '频率', '강도': '严重性', '위험도': '风险等级'
+                '빈도': '频率', '강도': '严重性', '위험도': '风险等级',
+                '세션:': '会议:',
+                '마이크 버튼을 눌러 회의를 시작하세요.': '按麦克风按钮开始会议。',
+                '교육 영상 생성': '生成教育视频'
             },
             'vi': {
                 '🎤 TBM 회의 참여': '🎤 Tham gia cuộc họp TBM',
@@ -1782,7 +1788,10 @@
                 '작업장소': 'Địa điểm', '작업내용': 'Nội dung công việc',
                 '저장': 'Lưu', '서명': 'Ký tên', '서명 완료': 'Đã ký',
                 '위험요인': 'Nguy hiểm', '대책': 'Biện pháp',
-                '빈도': 'Tần suất', '강도': 'Mức độ', '위험도': 'Mức rủi ro'
+                '빈도': 'Tần suất', '강도': 'Mức độ', '위험도': 'Mức rủi ro',
+                '세션:': 'Phiên:',
+                '마이크 버튼을 눌러 회의를 시작하세요.': 'Nhấn nút micro để bắt đầu cuộc họp.',
+                '교육 영상 생성': 'Tạo video giáo dục'
             },
             'th': {
                 '🎤 TBM 회의 참여': '🎤 เข้าร่วมประชุม TBM',
@@ -1791,7 +1800,16 @@
                 '세션 코드 (새 세션은 비워두세요)': 'รหัสเซสชัน (เว้นว่างเพื่อสร้างใหม่)',
                 '음성 녹음': 'บันทึกเสียง', '기본 정보': 'ข้อมูลพื้นฐาน', '보호구': 'อุปกรณ์ป้องกัน',
                 '참석자': 'ผู้เข้าร่วม', '위험성평가': 'ประเมินความเสี่ยง', '교육자료': 'สื่อการศึกษา',
-                '🌐 언어 변경 / Change Language': '🌐 เปลี่ยนภาษา'
+                '🌐 언어 변경 / Change Language': '🌐 เปลี่ยนภาษา',
+                '세션:': 'เซสชัน:',
+                'TBM 안전회의 시스템': 'ระบบประชุมความปลอดภัย TBM',
+                '로그아웃': 'ออกจากระบบ',
+                '🎤 음성으로 회의 진행': '🎤 ประชุมด้วยเสียง',
+                '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다': 'พูดแล้ว AI จะสร้างการประเมินความเสี่ยงอัตโนมัติ',
+                '준비 완료': 'พร้อม',
+                '마이크 버튼을 눌러 회의를 시작하세요.': 'กดปุ่มไมค์เพื่อเริ่มประชุม',
+                'AI 분석 시작': 'เริ่มวิเคราะห์ AI',
+                '교육 영상 생성': 'สร้างวิดีโอการศึกษา'
             },
             'id': {
                 '🎤 TBM 회의 참여': '🎤 Bergabung Rapat TBM',
@@ -1800,7 +1818,22 @@
                 '세션 코드 (새 세션은 비워두세요)': 'Kode sesi (kosongkan untuk baru)',
                 '음성 녹음': 'Rekaman Suara', '기본 정보': 'Info Dasar', '보호구': 'APD',
                 '참석자': 'Peserta', '위험성평가': 'Penilaian Risiko', '교육자료': 'Materi Edukasi',
-                '🌐 언어 변경 / Change Language': '🌐 Ganti Bahasa'
+                '🌐 언어 변경 / Change Language': '🌐 Ganti Bahasa',
+                'TBM 안전회의 시스템': 'Sistem Rapat Keselamatan TBM',
+                '로그아웃': 'Keluar',
+                '세션:': 'Sesi:',
+                '🎤 음성으로 회의 진행': '🎤 Rapat dengan Suara',
+                '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다': 'Bicara dan AI akan otomatis membuat penilaian risiko',
+                '준비 완료': 'Siap',
+                '마이크 버튼을 눌러 회의를 시작하세요.': 'Tekan tombol mikrofon untuk memulai rapat.',
+                'AI 분석 시작': 'Mulai Analisis AI',
+                '교육 영상 생성': 'Buat Video Edukasi',
+                '녹음 시작': 'Mulai Rekaman', '녹음 중지': 'Hentikan Rekaman',
+                '날짜': 'Tanggal', '시간': 'Waktu', '부서/업체명': 'Departemen/Perusahaan',
+                '작업장소': 'Lokasi Kerja', '작업내용': 'Deskripsi Pekerjaan',
+                '저장': 'Simpan', '서명': 'Tanda Tangan', '서명 완료': 'Sudah Tanda Tangan',
+                '위험요인': 'Bahaya', '대책': 'Tindakan',
+                '빈도': 'Frekuensi', '강도': 'Keparahan', '위험도': 'Tingkat Risiko'
             },
             'uz': {
                 '🎤 TBM 회의 참여': "🎤 TBM yig'ilishiga qo'shilish",
@@ -1893,7 +1926,10 @@
                 '작업장소': 'Место работы', '작업내용': 'Описание работ',
                 '저장': 'Сохранить', '서명': 'Подпись', '서명 완료': 'Подписано',
                 '위험요인': 'Опасный фактор', '대책': 'Меры безопасности',
-                '빈도': 'Частота', '강도': 'Тяжесть', '위험도': 'Уровень риска'
+                '빈도': 'Частота', '강도': 'Тяжесть', '위험도': 'Уровень риска',
+                '세션:': 'Сессия:',
+                '마이크 버튼을 눌러 회의를 시작하세요.': 'Нажмите кнопку микрофона для начала совещания.',
+                '교육 영상 생성': 'Создать учебное видео'
             }
         };
 
@@ -1933,7 +1969,25 @@
 
             // 내부 버튼 직접 교체 (번역 대상)
             const joinBtn = document.getElementById('joinBtn');
-            if(joinBtn && joinBtn.textContent.trim() === '참여하기' && t['참여하기']) joinBtn.textContent = t['참여하기'];
+            if(joinBtn && t['참여하기']) joinBtn.textContent = t['참여하기'];
+
+            // ID 기반 번역 (확실한 매칭)
+            const idMap = {
+                'appTitle': 'TBM 안전회의 시스템',
+                'logoutBtn': '로그아웃',
+                'sessionLabel': '세션:',
+                'voiceTitle': '🎤 음성으로 회의 진행',
+                'voiceDesc': '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다',
+                'voiceStatus': '준비 완료',
+                'voicePlaceholder': '마이크 버튼을 눌러 회의를 시작하세요.',
+                'aiAnalyzeText': 'AI 분석 시작',
+                'generateVideoText': '교육 영상 생성',
+                'loginTitle': '🎤 TBM 회의 참여'
+            };
+            Object.entries(idMap).forEach(([id, koText]) => {
+                const el = document.getElementById(id);
+                if (el && t[koText]) el.textContent = t[koText];
+            });
         }
 
         // ==================== 언어 선택 ====================
