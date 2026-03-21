@@ -3356,7 +3356,19 @@
                 showNotification('AI 분석이 완료되었습니다!', 'success');
 
             } catch (error) {
-                showNotification('AI 분석 중 오류가 발생했습니다', 'error');
+                console.error('AI 분석 오류:', error);
+                // 서버 실패 시 로컬 분석으로 폴백
+                const transcriptText = transcriptData.map(t => t.text).join(' ');
+                aiAnalysisResult = performLocalAIAnalysis(transcriptText);
+
+                if (aiAnalysisResult.risks?.length > 0) {
+                    document.getElementById('aiResultPreview').style.display = 'block';
+                    document.getElementById('aiResultSummary').textContent =
+                        `${aiAnalysisResult.risks.length}건의 위험요인이 식별되었습니다. (로컬 분석)`;
+                    showNotification('서버 연결 실패로 로컬 분석을 수행했습니다', 'info');
+                } else {
+                    showNotification('AI 분석 중 오류가 발생했습니다', 'error');
+                }
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '🤖 AI 분석 시작';
@@ -3635,66 +3647,109 @@
 
         function performLocalAIAnalysis(transcript) {
             const risks = [];
-            const text = transcript.toLowerCase();
+            const text = transcript;
             const location = document.getElementById('workLocation').value || '작업 현장';
 
-            if (text.includes('고소') || text.includes('사다리') || text.includes('높은')) {
-                risks.push({
-                    id: Date.now() + 1,
-                    location,
-                    activity: '고소작업',
-                    hazard: '추락 위험',
-                    frequency: 3,
-                    severity: 4,
-                    countermeasure: '안전대 착용, 2인 1조 작업, 작업발판 설치'
-                });
-            }
+            // 위험요인 패턴 DB (키워드 → 위험요인)
+            const hazardPatterns = [
+                {
+                    keywords: ['고소', '사다리', '높은', '높이', '비계', '지붕', '옥상', '안전대', '추락', '개구부', '난간'],
+                    activity: '고소작업', hazard: '추락 위험',
+                    frequency: 3, severity: 4,
+                    countermeasure: '안전대 착용, 2인 1조 작업, 작업발판 설치, 안전난간 설치'
+                },
+                {
+                    keywords: ['용접', '화재', '불꽃', '그라인더', '절단기', '화기', '가연물', '인화'],
+                    activity: '용접/화기 작업', hazard: '화재/화상 위험',
+                    frequency: 3, severity: 3,
+                    countermeasure: '소화기 비치, 불꽃 비산 방지막 설치, 화기작업 허가서 발행'
+                },
+                {
+                    keywords: ['전원', '전기', '감전', '차단', '활선', '배선', '전압', '누전', '콘센트'],
+                    activity: '전기 작업', hazard: '감전 위험',
+                    frequency: 2, severity: 4,
+                    countermeasure: '전원 차단 확인(LOTO), 잔류전압 확인, 절연장갑·절연장화 착용'
+                },
+                {
+                    keywords: ['밀폐', '산소', '환기', '맨홀', '탱크', '피트', '지하', '질식', '유해가스'],
+                    activity: '밀폐공간 작업', hazard: '질식/중독 위험',
+                    frequency: 2, severity: 4,
+                    countermeasure: '산소농도 측정, 환기 실시, 감시인 배치, 공기호흡기 준비'
+                },
+                {
+                    keywords: ['배관', '잔압', '압력', '밸브', '배수', '증기', '스팀'],
+                    activity: '배관 작업', hazard: '잔압 분출 위험',
+                    frequency: 3, severity: 3,
+                    countermeasure: '잔압 확인 및 배출, 밸브 잠금(LOTO), 보안경 착용'
+                },
+                {
+                    keywords: ['크레인', '호이스트', '인양', '양중', '와이어', '슬링', '달기'],
+                    activity: '양중 작업', hazard: '낙하/충돌 위험',
+                    frequency: 3, severity: 4,
+                    countermeasure: '신호수 배치, 인양물 하부 출입금지, 과부하 방지'
+                },
+                {
+                    keywords: ['지게차', '포크리프트', '차량', '운반', '이동', '운전'],
+                    activity: '차량/운반 작업', hazard: '부딪힘/깔림 위험',
+                    frequency: 3, severity: 3,
+                    countermeasure: '보행로 분리, 후방카메라 확인, 제한속도 준수'
+                },
+                {
+                    keywords: ['회전', '기계', '프레스', '롤러', '컨베이어', '끼임', '협착', '벨트'],
+                    activity: '기계 작업', hazard: '끼임/협착 위험',
+                    frequency: 3, severity: 3,
+                    countermeasure: '방호덮개 설치, 비상정지장치 확인, 전원 차단 후 정비'
+                },
+                {
+                    keywords: ['중량', '무거운', '운반', '들어올', '자재', '하역', '적재'],
+                    activity: '중량물 취급', hazard: '근골격계 질환/깔림 위험',
+                    frequency: 3, severity: 2,
+                    countermeasure: '보조기구 사용, 2인 1조 운반, 적정 중량 준수'
+                },
+                {
+                    keywords: ['미끄', '젖은', '바닥', '계단', '경사', '넘어', '빙판'],
+                    activity: '보행/이동', hazard: '넘어짐/미끄러짐 위험',
+                    frequency: 3, severity: 2,
+                    countermeasure: '미끄럼 방지 조치, 바닥 청소, 안전화 착용'
+                },
+                {
+                    keywords: ['소음', '시끄', '청력', '귀'],
+                    activity: '소음 작업', hazard: '청력 손상 위험',
+                    frequency: 3, severity: 2,
+                    countermeasure: '귀마개/귀덮개 착용, 소음원 격리, 작업시간 제한'
+                },
+                {
+                    keywords: ['분진', '먼지', '가루', '석면', '유해물질', '화학', '약품', '세척'],
+                    activity: '유해물질 취급', hazard: '중독/건강장해 위험',
+                    frequency: 2, severity: 3,
+                    countermeasure: '방진마스크/방독마스크 착용, 국소배기장치, MSDS 비치'
+                }
+            ];
 
-            if (text.includes('용접') || text.includes('화재') || text.includes('불꽃')) {
-                risks.push({
-                    id: Date.now() + 2,
-                    location,
-                    activity: '용접 작업',
-                    hazard: '화재/화상 위험',
-                    frequency: 3,
-                    severity: 3,
-                    countermeasure: '소화기 비치, 불꽃 비산 방지막 설치, 화기작업 허가'
-                });
-            }
+            hazardPatterns.forEach((pattern, idx) => {
+                if (pattern.keywords.some(kw => text.includes(kw))) {
+                    risks.push({
+                        id: Date.now() + idx + 1,
+                        location,
+                        activity: pattern.activity,
+                        hazard: pattern.hazard,
+                        frequency: pattern.frequency,
+                        severity: pattern.severity,
+                        countermeasure: pattern.countermeasure
+                    });
+                }
+            });
 
-            if (text.includes('전원') || text.includes('전기') || text.includes('감전')) {
+            // 아무것도 매칭 안 되면 기본 안전 항목 추가
+            if (risks.length === 0) {
                 risks.push({
-                    id: Date.now() + 3,
+                    id: Date.now(),
                     location,
-                    activity: '전기 작업',
-                    hazard: '감전 위험',
+                    activity: '일반 작업',
+                    hazard: '안전수칙 미준수 위험',
                     frequency: 2,
-                    severity: 4,
-                    countermeasure: '전원 차단 확인, 잔류전압 확인, 절연장갑 착용'
-                });
-            }
-
-            if (text.includes('밀폐') || text.includes('산소') || text.includes('환기')) {
-                risks.push({
-                    id: Date.now() + 4,
-                    location,
-                    activity: '밀폐공간 작업',
-                    hazard: '질식 위험',
-                    frequency: 2,
-                    severity: 4,
-                    countermeasure: '산소농도 측정, 환기 실시, 감시인 배치'
-                });
-            }
-
-            if (text.includes('배관') || text.includes('잔압')) {
-                risks.push({
-                    id: Date.now() + 5,
-                    location,
-                    activity: '배관 작업',
-                    hazard: '잔압 분출 위험',
-                    frequency: 3,
-                    severity: 3,
-                    countermeasure: '잔압 확인 및 배출, 보안경 착용'
+                    severity: 2,
+                    countermeasure: '작업 전 안전교육 실시, 보호구 착용, 정리정돈'
                 });
             }
 
