@@ -766,7 +766,9 @@ ${risksDescription}
 
 각 위험요인에 대해 다음 정보를 JSON 형식으로 생성해주세요:
 
-1. accidentCase: 실제 발생 가능한 유사 사고사례를 구체적으로 작성 (2-3문장, 연도/장소유형/작업자 나이/구체적 상황/결과 포함, 현실감 있게)
+1. accidentCase: 유사 사고사례를 아래와 같은 구조화된 형식으로 작성 (줄바꿈은 \\n 사용):
+   예시: "사업장: ○○건설(건설업)\\n일시: 2024년 3월 15일\\n사고내용: 비계 해체작업 중 안전대 미착용 상태에서 8m 높이에서 추락하여 사망\\n사고원인: 안전대 미착용, 작업발판 미설치"
+   반드시 사업장/일시/사고내용/사고원인 4개 항목을 포함하고, 각 항목은 "항목: 내용" 형식으로 작성하세요.
 2. causeAnalysis: 사고원인 분석
    - directCause: 직접원인 (작업자의 불안전한 행동)
    - indirectCause: 간접원인 (불안전한 상태/환경)
@@ -782,7 +784,7 @@ ${risksDescription}
   "educationContents": [
     {
       "hazardIndex": 0,
-      "accidentCase": "사고사례 설명...",
+      "accidentCase": "사업장: ○○건설(건설업)\\n일시: 2024년 3월 15일\\n사고내용: 비계 해체작업 중 안전대 미착용 상태에서 8m 높이에서 추락하여 사망\\n사고원인: 안전대 미착용, 작업발판 미설치",
       "causeAnalysis": {
         "directCause": "직접원인...",
         "indirectCause": "간접원인...",
@@ -841,7 +843,7 @@ ${risksDescription}
 function generateLocalEducationContent(risks, workContent, workLocation) {
     const hazardTemplates = {
         '추락': {
-            accidentCase: `2024년 5월, ${workLocation || '○○건설 현장'}에서 ${workContent || '비계 해체작업'} 중 작업자(45세)가 높이 약 7m 지점에서 추락하여 중상을 입는 사고가 발생하였다. 해당 작업자는 안전대를 착용하였으나 걸이 설비에 체결하지 않은 상태에서 작업 중 발을 헛디뎌 추락하였으며, 작업발판이 규격 미달인 상태였다.`,
+            accidentCase: `사업장: ${workLocation || '○○건설'}(건설업)\n일시: 2024년 5월\n사고내용: ${workContent || '비계 해체작업'} 중 안전대 미체결 상태에서 7m 높이에서 추락, 중상\n사고원인: 안전대 미체결, 작업발판 규격 미달, 안전난간 미설치`,
             causeAnalysis: {
                 directCause: '안전대 미체결 상태에서 고소작업 수행',
                 indirectCause: '작업발판 규격 미달, 안전난간 미설치',
@@ -855,7 +857,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
             relatedLaw: '산업안전보건기준에 관한 규칙 제42조(추락의 방지), 제44조(안전대의 부착설비 등)'
         },
         '감전': {
-            accidentCase: `2024년 7월, ${workLocation || '○○공장'}에서 ${workContent || '전기배선 작업'} 중 작업자(38세)가 활선 상태의 전선을 접촉하여 감전 사고가 발생하였다. 해당 작업자는 절연장갑을 착용하지 않은 상태에서 분전함 내부 작업을 수행하던 중 충전부에 접촉하였으며, 차단기 미조작으로 통전 상태가 유지되고 있었다.`,
+            accidentCase: `사업장: ${workLocation || '○○공장'}(제조업)\n일시: 2024년 7월\n사고내용: ${workContent || '전기배선 작업'} 중 절연장갑 미착용 상태에서 분전함 충전부 접촉, 감전\n사고원인: 절연장갑 미착용, 전원 미차단(LOTO 미실시), 활선 경고 표시 부재`,
             causeAnalysis: {
                 directCause: '절연용 보호구 미착용 상태에서 전기 작업 수행',
                 indirectCause: '전원 미차단(LOTO 미실시), 활선 경고 표시 부재',
@@ -869,7 +871,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
             relatedLaw: '산업안전보건기준에 관한 규칙 제301조(전기 기계·기구 등의 충전부 방호), 제319조(정전 전로에서의 전기작업)'
         },
         '화재': {
-            accidentCase: `2024년 3월, ${workLocation || '○○플랜트 현장'}에서 ${workContent || '용접 작업'} 중 비산된 불꽃이 인근 가연물에 착화되어 화재가 발생하였다. 용접 작업 반경 내에 보온재(우레탄폼)가 방치되어 있었으며, 소화기가 작업장에서 30m 이상 떨어진 곳에 비치되어 있어 초기 진화가 지연되었다.`,
+            accidentCase: `사업장: ${workLocation || '○○플랜트'}(건설업)\n일시: 2024년 3월\n사고내용: ${workContent || '용접 작업'} 중 비산 불꽃이 인근 보온재(우레탄폼)에 착화, 화재 발생\n사고원인: 불꽃 비산 방지 미조치, 가연물 미제거, 소화기 원거리 비치`,
             causeAnalysis: {
                 directCause: '불꽃 비산 방지 조치 없이 용접작업 수행',
                 indirectCause: '작업 반경 내 가연물 미제거, 소화설비 미비',
@@ -883,7 +885,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
             relatedLaw: '산업안전보건기준에 관한 규칙 제241조(용접 등의 작업), 화재예방법 시행령 제5조(화기취급의 감독)'
         },
         '끼임': {
-            accidentCase: `2024년 9월, ${workLocation || '○○제조공장'}에서 ${workContent || '컨베이어 벨트 정비작업'} 중 작업자(52세)의 손이 롤러와 벨트 사이에 끼이는 사고가 발생하였다. 장비 가동 중 이물질을 제거하려다 장갑이 말려 들어가면서 손가락이 협착되었으며, 비상정지 스위치가 작업자 접근 범위 밖에 있어 즉시 정지가 불가능했다.`,
+            accidentCase: `사업장: ${workLocation || '○○제조공장'}(제조업)\n일시: 2024년 9월\n사고내용: ${workContent || '컨베이어 벨트 정비작업'} 중 가동 상태에서 이물질 제거 시도, 롤러에 손 협착\n사고원인: 기계 가동 중 회전체 접근, 방호덮개 미설치, 비상정지장치 접근성 불량`,
             causeAnalysis: {
                 directCause: '기계 가동 중 회전체 접근 및 이물질 제거 시도',
                 indirectCause: '회전체 방호덮개 미설치, 비상정지장치 접근성 불량',
@@ -897,7 +899,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
             relatedLaw: '산업안전보건기준에 관한 규칙 제87조(회전기계의 돌출부), 제92조(덮개 등의 설치)'
         },
         '질식': {
-            accidentCase: `2024년 6월, ${workLocation || '○○하수처리장'}에서 ${workContent || '맨홀 내부 점검작업'} 중 작업자(41세)가 산소결핍으로 의식을 잃고 쓰러졌다. 밀폐공간 내 산소농도가 16%로 위험 수준이었으나 사전 측정 없이 진입하였으며, 환기 조치도 미실시된 상태였다. 구조하러 들어간 동료 작업자도 함께 의식을 잃어 2명이 동시에 구조된 사고였다.`,
+            accidentCase: `사업장: ${workLocation || '○○하수처리장'}(환경업)\n일시: 2024년 6월\n사고내용: ${workContent || '맨홀 내부 점검작업'} 중 산소농도 16% 상태에서 사전 측정 없이 진입, 산소결핍으로 실신\n사고원인: 산소농도 측정 미실시, 환기 미실시, 구조용 장비 미비치`,
             causeAnalysis: {
                 directCause: '산소농도 측정 없이 밀폐공간 진입',
                 indirectCause: '환기설비 미설치, 구조용 장비 미비치',
@@ -911,7 +913,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
             relatedLaw: '산업안전보건기준에 관한 규칙 제618조(밀폐공간 작업 프로그램 수립 등), 제619조(밀폐공간 보건작업 프로그램)'
         },
         '넘어짐': {
-            accidentCase: `2024년 11월, ${workLocation || '○○물류센터'}에서 ${workContent || '자재 운반 작업'} 중 작업자(36세)가 바닥에 흘린 기름에 미끄러져 넘어지면서 허리를 다치는 사고가 발생하였다. 통행로에 자재가 적치되어 있어 우회 이동 중 미끄러운 바닥을 인지하지 못하였다.`,
+            accidentCase: `사업장: ${workLocation || '○○물류센터'}(물류업)\n일시: 2024년 11월\n사고내용: ${workContent || '자재 운반 작업'} 중 바닥 기름에 미끄러져 넘어짐, 허리 부상\n사고원인: 바닥 오염물질 미제거, 통행로 자재 적치, 미끄럼 방지 미조치`,
             causeAnalysis: {
                 directCause: '바닥 오염물질(기름) 미인지 상태에서 보행',
                 indirectCause: '통행로 자재 적치로 우회 보행, 바닥 미끄럼 방지 미조치',
@@ -925,7 +927,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
             relatedLaw: '산업안전보건기준에 관한 규칙 제3조(전도의 방지), 제22조(통로의 설치)'
         },
         '부딪힘': {
-            accidentCase: `2024년 4월, ${workLocation || '○○건설현장'}에서 ${workContent || '굴착기 주변 작업'} 중 작업자(48세)가 선회하는 굴착기 붐에 부딪혀 부상을 입는 사고가 발생하였다. 장비 운전자의 사각지대에서 작업 중이었으며, 유도원이 배치되지 않은 상태였다.`,
+            accidentCase: `사업장: ${workLocation || '○○건설현장'}(건설업)\n일시: 2024년 4월\n사고내용: ${workContent || '굴착기 주변 작업'} 중 선회하는 굴착기 붐에 부딪혀 부상\n사고원인: 중장비 작업반경 내 무단 진입, 유도원 미배치, 사각지대 작업`,
             causeAnalysis: {
                 directCause: '중장비 작업 반경 내 무단 진입',
                 indirectCause: '유도원 미배치, 장비 작업반경 미설정',
@@ -939,7 +941,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
             relatedLaw: '산업안전보건기준에 관한 규칙 제196조(차량계 건설기계 등의 사용에 의한 위험 방지), 제38조(사전조사 및 작업계획서)'
         },
         '무너짐': {
-            accidentCase: `2024년 8월, ${workLocation || '○○아파트 건설현장'}에서 ${workContent || '터파기 작업'} 중 굴착면이 붕괴하여 작업자(50세)가 매몰되는 사고가 발생하였다. 굴착 깊이 3m 이상이었으나 흙막이 가시설이 설치되지 않았으며, 연속 강우 후 지반이 약화된 상태에서 작업을 강행하였다.`,
+            accidentCase: `사업장: ${workLocation || '○○건설현장'}(건설업)\n일시: 2024년 8월\n사고내용: ${workContent || '터파기 작업'} 중 굴착면 붕괴로 작업자 매몰\n사고원인: 흙막이 가시설 미설치, 강우 후 지반 약화, 굴착 기울기 미준수`,
             causeAnalysis: {
                 directCause: '흙막이 가시설 미설치 상태에서 굴착면 접근',
                 indirectCause: '강우 후 지반 약화, 굴착 기울기 미준수',
@@ -953,7 +955,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
             relatedLaw: '산업안전보건기준에 관한 규칙 제338조(굴착작업시 지반 등의 위험 방지), 제339조(토석붕괴 위험 방지)'
         },
         '중량물': {
-            accidentCase: `2024년 10월, ${workLocation || '○○조선소'}에서 ${workContent || '크레인을 이용한 중량물 인양 작업'} 중 와이어로프가 파단되면서 자재(약 2톤)가 낙하하여 하부 작업자(44세)가 중상을 입는 사고가 발생하였다. 와이어로프 안전계수 미달 상태에서 과적 인양을 시도하였으며, 인양물 하부 출입통제가 이루어지지 않았다.`,
+            accidentCase: `사업장: ${workLocation || '○○조선소'}(조선업)\n일시: 2024년 10월\n사고내용: ${workContent || '크레인 중량물 인양 작업'} 중 와이어로프 파단으로 자재(2톤) 낙하, 하부 작업자 중상\n사고원인: 와이어로프 안전계수 미달, 과적 인양, 인양물 하부 출입통제 미실시`,
             causeAnalysis: {
                 directCause: '인양물 하부 출입통제 미실시',
                 indirectCause: '와이어로프 마모·손상 상태에서 사용, 과적 인양',
@@ -967,7 +969,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
             relatedLaw: '산업안전보건기준에 관한 규칙 제132조(양중기의 와이어로프 등), 제38조(사전조사 및 작업계획서)'
         },
         '베임': {
-            accidentCase: `2024년 2월, ${workLocation || '○○금속가공 공장'}에서 ${workContent || '철판 절단 작업'} 중 작업자(33세)가 날카로운 절단면에 손을 베어 심부 열상을 입는 사고가 발생하였다. 보호장갑을 착용하지 않은 상태에서 절단된 철판 모서리를 맨손으로 취급하였다.`,
+            accidentCase: `사업장: ${workLocation || '○○금속가공 공장'}(제조업)\n일시: 2024년 2월\n사고내용: ${workContent || '철판 절단 작업'} 중 보호장갑 미착용 상태에서 절단면에 손 베임, 심부 열상\n사고원인: 보호장갑 미착용, 절단면 면취(디버링) 미실시, 맨손 취급`,
             causeAnalysis: {
                 directCause: '보호장갑 미착용 상태에서 절단물 취급',
                 indirectCause: '절단면 면취(디버링) 미실시, 날카로운 모서리 방치',
@@ -984,7 +986,7 @@ function generateLocalEducationContent(risks, workContent, workLocation) {
 
     // 기본 템플릿 (매칭되지 않는 위험요인용)
     const defaultTemplate = {
-        accidentCase: `최근 ${workLocation || '○○작업현장'}에서 ${workContent || '작업'} 중 안전수칙 미준수로 인한 사고가 발생하였다. 작업자가 기본 안전수칙을 준수하지 않은 상태에서 작업을 수행하던 중 부상을 입었으며, 사전 안전교육 및 위험요인 점검이 충분히 이루어지지 않은 것이 원인으로 확인되었다.`,
+        accidentCase: `사업장: ${workLocation || '○○작업현장'}(일반)\n일시: 2024년\n사고내용: ${workContent || '작업'} 중 안전수칙 미준수로 부상 발생\n사고원인: 안전수칙 미준수, 사전 안전교육 미실시, 위험요인 점검 미흡`,
         causeAnalysis: {
             directCause: '안전수칙 미준수 및 부주의한 작업 수행',
             indirectCause: '안전시설 미비, 작업환경 불량',
