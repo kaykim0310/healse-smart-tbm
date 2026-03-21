@@ -1353,7 +1353,7 @@
     <!-- 연결 상태 표시 -->
     <div class="connection-status online" id="connectionStatus">
         <span class="status-dot"></span>
-        <span id="statusText">서버 연결됨</span>
+        <span id="statusText" data-i18n="serverConnected">서버 연결됨</span>
     </div>
 
     <!-- 언어 선택 -->
@@ -1444,17 +1444,17 @@
     <!-- 로그인 -->
     <div class="login-container" id="loginContainer">
         <div class="login-box">
-            <h2 id="loginTitle">🎤 TBM 회의 참여</h2>
+            <h2 id="loginTitle" data-i18n="loginTitle">🎤 TBM 회의 참여</h2>
             <div class="login-form">
                 <input type="text" id="userName" data-i18n-placeholder="namePlaceholder" placeholder="이름을 입력하세요">
                 <input type="text" id="sessionCode" data-i18n-placeholder="sessionPlaceholder"
                     placeholder="세션 코드 (새 세션은 비워두세요)">
-                <button onclick="joinSession()" id="joinBtn">참여하기</button>
+                <button onclick="joinSession()" id="joinBtn" data-i18n="joinBtn">참여하기</button>
             </div>
             <div class="session-info" id="newSessionInfo" style="display: none;">
-                <p id="newSessionText">✅ 새 세션이 생성되었습니다!</p>
+                <p id="newSessionText" data-i18n="newSessionCreated">✅ 새 세션이 생성되었습니다!</p>
                 <div class="session-code" id="displaySessionCode"></div>
-                <p style="font-size: 0.9rem; color: #666;">이 코드를 팀원들과 공유하세요</p>
+                <p style="font-size: 0.9rem; color: #666;" data-i18n="shareCode">이 코드를 팀원들과 공유하세요</p>
             </div>
             <button onclick="changeLanguage()" style="margin-top: 12px; background: transparent; border: 1px solid #ccc; border-radius: 8px; padding: 8px 16px; cursor: pointer; color: #888; font-size: 0.85rem;">🌐 언어 변경 / Change Language</button>
         </div>
@@ -1463,13 +1463,13 @@
     <!-- 메인 앱 -->
     <div class="app-container" id="appContainer">
         <div class="app-header">
-            <h1>🦺 <span id="appTitle">TBM 안전회의 시스템</span></h1>
+            <h1>🦺 <span id="appTitle" data-i18n="appTitle">TBM 안전회의 시스템</span></h1>
             <div class="header-info">
                 <div class="online-users" id="onlineUsers"></div>
                 <div class="session-badge">
-                    <span id="sessionLabel">세션:</span> <strong id="currentSessionCode"></strong>
+                    <span id="sessionLabel" data-i18n="sessionLabel">세션:</span> <strong id="currentSessionCode"></strong>
                 </div>
-                <button class="btn btn-outline" onclick="logout()" id="logoutBtn" style="padding: 8px 16px;">로그아웃</button>
+                <button class="btn btn-outline" onclick="logout()" id="logoutBtn" data-i18n="logoutBtn" style="padding: 8px 16px;">로그아웃</button>
             </div>
         </div>
 
@@ -1500,137 +1500,137 @@
 
         <!-- 음성 녹음 탭 -->
         <div class="tab-content active" id="voiceTab">
-            <h2 id="voiceTitle">🎤 음성으로 회의 진행</h2>
+            <h2 id="voiceTitle" data-i18n="voiceTitle">🎤 음성으로 회의 진행</h2>
 
             <div class="voice-section">
-                <p id="voiceDesc">회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다</p>
+                <p id="voiceDesc" data-i18n="voiceDesc">회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다</p>
 
                 <button class="voice-record-btn" id="voiceRecordBtn" onclick="toggleVoiceRecording()">🎤</button>
-                <p class="voice-status" id="voiceStatus">준비 완료</p>
+                <p class="voice-status" id="voiceStatus" data-i18n="voiceReady">준비 완료</p>
             </div>
             <div class="voice-transcript" id="voiceTranscript">
                 <!-- 음성 텍스트 표시 영역 -->
-                <div style="text-align: center; color: #999; margin-top: 40px;" id="voicePlaceholder">
+                <div style="text-align: center; color: #999; margin-top: 40px;" id="voicePlaceholder" data-i18n="voicePlaceholder">
                     마이크 버튼을 눌러 회의를 시작하세요.
                 </div>
             </div>
 
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <button class="ai-analyze-btn" id="aiAnalyzeBtn" onclick="analyzeWithAI()">
-                    🤖 <span id="aiAnalyzeText">AI 분석 시작</span>
+                    🤖 <span id="aiAnalyzeText" data-i18n="aiAnalyzeStart">AI 분석 시작</span>
                 </button>
                 <button class="ai-analyze-btn" id="generateVideoBtn" onclick="loadEducationResources()"
                     style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
-                    🔍 <span id="generateVideoText">교육자료 검색</span>
+                    🔍 <span id="generateVideoText" data-i18n="searchEducation">교육자료 검색</span>
                 </button>
             </div>
 
             <div id="aiResultPreview"
                 style="display: none; margin-top: 25px; padding: 20px; background: white; border-radius: 15px; border-left: 5px solid #7eb8da; text-align: left;">
-                <h3 style="color: #2e7d32; margin-bottom: 15px;">✅ AI 분석 완료!</h3>
+                <h3 style="color: #2e7d32; margin-bottom: 15px;" data-i18n="aiAnalysisDone">✅ AI 분석 완료!</h3>
                 <p id="aiResultSummary"></p>
                 <div class="btn-group">
-                    <button class="btn btn-success" onclick="applyAIResult()">결과 적용하기</button>
+                    <button class="btn btn-success" onclick="applyAIResult()" data-i18n="applyResult">결과 적용하기</button>
                 </div>
             </div>
         </div>
 
         <!-- 기본 정보 탭 -->
         <div class="tab-content" id="basicTab">
-            <h2>📋 TBM 기본 정보</h2>
+            <h2 data-i18n="basicInfoTitle">📋 TBM 기본 정보</h2>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>날짜</label>
+                    <label data-i18n="dateLabel">날짜</label>
                     <input type="date" id="tbmDate">
                 </div>
                 <div class="form-group">
-                    <label>시간</label>
+                    <label data-i18n="timeLabel">시간</label>
                     <input type="time" id="tbmTime">
                 </div>
                 <div class="form-group">
-                    <label>장소</label>
-                    <input type="text" id="tbmLocation" placeholder="회의 장소">
+                    <label data-i18n="locationLabel">장소</label>
+                    <input type="text" id="tbmLocation" data-i18n-placeholder="meetingLocationPlaceholder" placeholder="회의 장소">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>부서/팀</label>
-                    <input type="text" id="tbmDepartment" placeholder="소속 부서">
+                    <label data-i18n="departmentLabel">부서/팀</label>
+                    <input type="text" id="tbmDepartment" data-i18n-placeholder="departmentPlaceholder" placeholder="소속 부서">
                 </div>
                 <div class="form-group">
-                    <label>TBM 리더</label>
-                    <input type="text" id="tbmLeader" placeholder="리더 이름">
+                    <label data-i18n="tbmLeaderLabel">TBM 리더</label>
+                    <input type="text" id="tbmLeader" data-i18n-placeholder="leaderNamePlaceholder" placeholder="리더 이름">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>작업 장소</label>
-                <input type="text" id="workLocation" placeholder="실제 작업이 진행되는 장소">
+                <label data-i18n="workLocationLabel">작업 장소</label>
+                <input type="text" id="workLocation" data-i18n-placeholder="workLocationPlaceholder" placeholder="실제 작업이 진행되는 장소">
             </div>
 
             <div class="form-group">
-                <label>작업 내용</label>
-                <textarea id="workContent" rows="3" placeholder="오늘 진행할 작업 내용을 입력하세요"></textarea>
+                <label data-i18n="workContentLabel">작업 내용</label>
+                <textarea id="workContent" rows="3" data-i18n-placeholder="workContentPlaceholder" placeholder="오늘 진행할 작업 내용을 입력하세요"></textarea>
             </div>
 
             <div class="form-group">
-                <label>준비물</label>
-                <textarea id="preparation" rows="2" placeholder="필요한 장비, 자재, 도구 등"></textarea>
+                <label data-i18n="preparationLabel">준비물</label>
+                <textarea id="preparation" rows="2" data-i18n-placeholder="preparationPlaceholder" placeholder="필요한 장비, 자재, 도구 등"></textarea>
             </div>
 
             <div class="form-group">
-                <label>주의사항</label>
-                <textarea id="precautions" rows="2" placeholder="특별히 주의해야 할 사항"></textarea>
+                <label data-i18n="precautionsLabel">주의사항</label>
+                <textarea id="precautions" rows="2" data-i18n-placeholder="precautionsPlaceholder" placeholder="특별히 주의해야 할 사항"></textarea>
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="saveBasicInfo()">💾 저장</button>
+                <button class="btn btn-primary" onclick="saveBasicInfo()" data-i18n="saveBtn">💾 저장</button>
             </div>
         </div>
 
         <!-- PPE 탭 -->
         <div class="tab-content" id="ppeTab">
-            <h2>🦺 개인보호구 체크리스트</h2>
+            <h2 data-i18n="ppeTitle">🦺 개인보호구 체크리스트</h2>
 
             <div class="ppe-grid" id="ppeGrid"></div>
 
             <div class="form-group">
-                <label>기타 보호구</label>
-                <input type="text" id="otherPPE" placeholder="추가로 필요한 보호구">
+                <label data-i18n="otherPPELabel">기타 보호구</label>
+                <input type="text" id="otherPPE" data-i18n-placeholder="otherPPEPlaceholder" placeholder="추가로 필요한 보호구">
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="savePPE()">💾 저장</button>
+                <button class="btn btn-primary" onclick="savePPE()" data-i18n="saveBtn">💾 저장</button>
             </div>
         </div>
 
         <!-- 참석자 탭 -->
         <div class="tab-content" id="attendeeTab">
-            <h2>👥 참석자 명단</h2>
+            <h2 data-i18n="attendeeTitle">👥 참석자 명단</h2>
 
             <div class="attendee-list" id="attendeeList"></div>
 
             <div class="signature-container">
-                <h3>📝 TBM 리더 서명</h3>
+                <h3 data-i18n="leaderSignatureTitle">📝 TBM 리더 서명</h3>
                 <div class="signature-canvas-wrapper">
                     <canvas class="signature-canvas" id="leaderSignatureCanvas"></canvas>
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-outline" onclick="clearLeaderSignature()">서명 지우기</button>
-                    <button class="btn btn-success" onclick="saveLeaderSignature()">서명 저장</button>
+                    <button class="btn btn-outline" onclick="clearLeaderSignature()" data-i18n="clearSignature">서명 지우기</button>
+                    <button class="btn btn-success" onclick="saveLeaderSignature()" data-i18n="saveSignature">서명 저장</button>
                 </div>
             </div>
         </div>
 
         <!-- 위험성평가 탭 -->
         <div class="tab-content" id="riskTab">
-            <h2>⚠️ 위험성 평가</h2>
+            <h2 data-i18n="riskTitle">⚠️ 위험성 평가</h2>
 
             <div class="btn-group" style="margin-bottom: 20px;">
-                <button class="btn btn-primary" onclick="openAddRiskModal()">➕ 위험요인 추가</button>
-                <button class="btn btn-outline" onclick="showTab('voice')">🎤 음성으로 추가</button>
+                <button class="btn btn-primary" onclick="openAddRiskModal()" data-i18n="addRiskBtn">➕ 위험요인 추가</button>
+                <button class="btn btn-outline" onclick="showTab('voice')" data-i18n="voiceAddBtn">🎤 음성으로 추가</button>
             </div>
 
             <div class="risk-table-container">
@@ -1638,19 +1638,19 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>장소</th>
-                            <th>작업내용</th>
-                            <th>위험요인</th>
-                            <th>빈도</th>
-                            <th>강도</th>
-                            <th>위험도</th>
-                            <th>안전대책</th>
-                            <th>관리</th>
+                            <th data-i18n="thLocation">장소</th>
+                            <th data-i18n="thActivity">작업내용</th>
+                            <th data-i18n="thHazard">위험요인</th>
+                            <th data-i18n="thFrequency">빈도</th>
+                            <th data-i18n="thSeverity">강도</th>
+                            <th data-i18n="thRiskLevel">위험도</th>
+                            <th data-i18n="thCountermeasure">안전대책</th>
+                            <th data-i18n="thManage">관리</th>
                         </tr>
                     </thead>
                     <tbody id="riskTableBody">
                         <tr id="noRiskRow">
-                            <td colspan="9" style="text-align: center; color: #999; padding: 40px;">
+                            <td colspan="9" style="text-align: center; color: #999; padding: 40px;" data-i18n="noRiskMessage">
                                 등록된 위험요인이 없습니다.<br>위험요인을 추가하거나 음성으로 회의를 진행하세요.
                             </td>
                         </tr>
@@ -1659,27 +1659,27 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-success" onclick="completeSession()">✅ 회의 완료</button>
-                <button class="btn btn-outline" onclick="exportToExcel()">📥 Excel 내보내기</button>
-                <button class="btn btn-outline" style="background: linear-gradient(135deg, #7c3aed, #2563eb); color: white; border: none;" onclick="exportToRA()">📤 위험성평가 프로그램으로 내보내기</button>
+                <button class="btn btn-success" onclick="completeSession()" data-i18n="completeSessionBtn">✅ 회의 완료</button>
+                <button class="btn btn-outline" onclick="exportToExcel()" data-i18n="exportExcelBtn">📥 Excel 내보내기</button>
+                <button class="btn btn-outline" style="background: linear-gradient(135deg, #7c3aed, #2563eb); color: white; border: none;" onclick="exportToRA()" data-i18n="exportRABtn">📤 위험성평가 프로그램으로 내보내기</button>
             </div>
         </div>
 
         <!-- 교육자료 탭 -->
         <div class="tab-content" id="educationTab">
-            <h2>📚 맞춤형 안전교육자료</h2>
+            <h2 data-i18n="educationTitle">📚 맞춤형 안전교육자료</h2>
 
             <!-- Placeholder before loading -->
             <div id="educationPlaceholder">
                 <div style="text-align: center; padding: 60px; background: linear-gradient(135deg, #f8fafb, #e8f4f8); border-radius: 20px;">
                     <div style="font-size: 4rem; margin-bottom: 20px;">📄</div>
-                    <h3 style="color: #2c5f5f; margin-bottom: 10px;">맞춤형 안전교육자료</h3>
-                    <p style="color: #666; margin-bottom: 30px;">AI 분석 결과를 바탕으로 원페이지 교육자료를 생성하고<br>관련 영상 및 사고사례 자료를 검색합니다.</p>
+                    <h3 style="color: #2c5f5f; margin-bottom: 10px;" data-i18n="eduPlaceholderTitle">맞춤형 안전교육자료</h3>
+                    <p style="color: #666; margin-bottom: 30px;" data-i18n="eduPlaceholderDesc">AI 분석 결과를 바탕으로 원페이지 교육자료를 생성하고<br>관련 영상 및 사고사례 자료를 검색합니다.</p>
                     <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
-                        <button class="btn btn-primary" onclick="generateOnePageEducation()" style="padding: 18px 40px; font-size: 1.2rem; font-weight: 700; border-radius: 14px; box-shadow: 0 4px 14px rgba(44,95,95,0.3);">
+                        <button class="btn btn-primary" onclick="generateOnePageEducation()" style="padding: 18px 40px; font-size: 1.2rem; font-weight: 700; border-radius: 14px; box-shadow: 0 4px 14px rgba(44,95,95,0.3);" data-i18n="generateOnePage">
                             📄 원페이지 교육자료 생성
                         </button>
-                        <button class="btn btn-outline" onclick="loadEducationResources()" style="padding: 12px 28px; font-size: 0.95rem;">
+                        <button class="btn btn-outline" onclick="loadEducationResources()" style="padding: 12px 28px; font-size: 0.95rem;" data-i18n="searchRelatedMaterials">
                             🔍 관련 자료 검색
                         </button>
                     </div>
@@ -1695,9 +1695,9 @@
 
                 <!-- 버튼 -->
                 <div class="btn-group" style="justify-content: center; margin-top: 25px;">
-                    <button class="btn btn-success" onclick="printOnePage()">🖨️ 인쇄하기</button>
-                    <button class="btn btn-primary" onclick="downloadOnePage()">📥 이미지 저장</button>
-                    <button class="btn btn-outline" onclick="regenerateEducation()">🔄 다시 생성</button>
+                    <button class="btn btn-success" onclick="printOnePage()" data-i18n="printBtn">🖨️ 인쇄하기</button>
+                    <button class="btn btn-primary" onclick="downloadOnePage()" data-i18n="saveImageBtn">📥 이미지 저장</button>
+                    <button class="btn btn-outline" onclick="regenerateEducation()" data-i18n="regenerateBtn">🔄 다시 생성</button>
                 </div>
             </div>
 
@@ -1705,15 +1705,15 @@
             <div id="educationResourcesContainer" style="display: none;">
                 <!-- Main CTA: One-page education material -->
                 <div style="text-align:center; margin-bottom:28px; padding:24px; background:linear-gradient(135deg,#e8f4f8,#d1ecf1); border-radius:16px;">
-                    <button class="btn btn-primary" onclick="generateOnePageEducation()" style="padding:16px 36px; font-size:1.15rem; font-weight:700; border-radius:12px; box-shadow:0 4px 14px rgba(44,95,95,0.25);">
+                    <button class="btn btn-primary" onclick="generateOnePageEducation()" style="padding:16px 36px; font-size:1.15rem; font-weight:700; border-radius:12px; box-shadow:0 4px 14px rgba(44,95,95,0.25);" data-i18n="generateOnePage">
                         📄 원페이지 교육자료 생성
                     </button>
-                    <div style="color:#666; font-size:0.85rem; margin-top:10px;">AI 분석 기반 맞춤형 안전교육 자료를 바로 만들어보세요</div>
+                    <div style="color:#666; font-size:0.85rem; margin-top:10px;" data-i18n="eduResourceCTA">AI 분석 기반 맞춤형 안전교육 자료를 바로 만들어보세요</div>
                 </div>
 
                 <!-- YouTube Section -->
                 <div style="margin-bottom: 24px;">
-                    <h3 style="color: #ff0000; margin-bottom: 12px; font-size:1.05rem;">🎬 관련 영상 바로가기</h3>
+                    <h3 style="color: #ff0000; margin-bottom: 12px; font-size:1.05rem;" data-i18n="relatedVideos">🎬 관련 영상 바로가기</h3>
                     <div id="youtubeLinks" style="display: grid; gap: 10px;">
                         <!-- Dynamically filled -->
                     </div>
@@ -1721,7 +1721,7 @@
 
                 <!-- KOSHA Accident Cases Section -->
                 <div style="margin-bottom: 24px;">
-                    <h3 style="color: #e65100; margin-bottom: 12px; font-size:1.05rem;">⚠️ 사고사례 자료</h3>
+                    <h3 style="color: #e65100; margin-bottom: 12px; font-size:1.05rem;" data-i18n="accidentCases">⚠️ 사고사례 자료</h3>
                     <div id="koshaAccidents" style="display: grid; gap: 10px;">
                         <!-- Dynamically filled -->
                     </div>
@@ -1729,15 +1729,15 @@
 
                 <!-- Prevention Summary Section -->
                 <div style="margin-bottom: 24px;">
-                    <h3 style="color: #2e7d32; margin-bottom: 12px; font-size:1.05rem;">💡 예방대책 요약</h3>
+                    <h3 style="color: #2e7d32; margin-bottom: 12px; font-size:1.05rem;" data-i18n="preventionSummaryTitle">💡 예방대책 요약</h3>
                     <div id="preventionSummary" style="background: #f1f8e9; padding: 20px; border-radius: 12px; border-left: 4px solid #4caf50;">
                         <!-- Dynamically filled -->
                     </div>
                 </div>
 
                 <div class="btn-group" style="justify-content: center; margin-top: 20px;">
-                    <button class="btn btn-outline" onclick="loadEducationResources()">🔄 다시 검색</button>
-                    <button class="btn btn-primary" onclick="generateOnePageEducation()">📄 원페이지 교육자료 생성</button>
+                    <button class="btn btn-outline" onclick="loadEducationResources()" data-i18n="searchAgainBtn">🔄 다시 검색</button>
+                    <button class="btn btn-primary" onclick="generateOnePageEducation()" data-i18n="generateOnePage">📄 원페이지 교육자료 생성</button>
                 </div>
             </div>
 
@@ -1751,24 +1751,24 @@
     <div class="modal" id="addRiskModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>➕ 위험요인 추가</h3>
+                <h3 data-i18n="addRiskModalTitle">➕ 위험요인 추가</h3>
                 <button class="modal-close" onclick="closeModal('addRiskModal')">&times;</button>
             </div>
             <div class="form-group">
-                <label>장소</label>
+                <label data-i18n="modalLocationLabel">장소</label>
                 <input type="text" id="riskLocation">
             </div>
             <div class="form-group">
-                <label>작업내용</label>
+                <label data-i18n="modalActivityLabel">작업내용</label>
                 <input type="text" id="riskActivity">
             </div>
             <div class="form-group">
-                <label>위험요인</label>
+                <label data-i18n="modalHazardLabel">위험요인</label>
                 <textarea id="riskHazard" rows="2"></textarea>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>빈도 (1-5)</label>
+                    <label data-i18n="modalFrequencyLabel">빈도 (1-5)</label>
                     <select id="riskFrequency">
                         <option value="1">1 - 연 1~2회</option>
                         <option value="2">2 - 분기 1회</option>
@@ -1778,7 +1778,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>강도 (1-4)</label>
+                    <label data-i18n="modalSeverityLabel">강도 (1-4)</label>
                     <select id="riskSeverity">
                         <option value="1">1 - 아차사고</option>
                         <option value="2">2 - 경상</option>
@@ -1788,12 +1788,12 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>안전대책</label>
+                <label data-i18n="modalCountermeasureLabel">안전대책</label>
                 <textarea id="riskCountermeasure" rows="3"></textarea>
             </div>
             <div class="btn-group">
-                <button class="btn btn-outline" onclick="closeModal('addRiskModal')">취소</button>
-                <button class="btn btn-success" onclick="saveRisk()">저장</button>
+                <button class="btn btn-outline" onclick="closeModal('addRiskModal')" data-i18n="cancelBtn">취소</button>
+                <button class="btn btn-success" onclick="saveRisk()" data-i18n="saveBtnPlain">저장</button>
             </div>
         </div>
     </div>
@@ -1802,15 +1802,15 @@
     <div class="modal" id="signatureModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="signatureModalTitle">서명</h3>
+                <h3 id="signatureModalTitle" data-i18n="signatureTitle">서명</h3>
                 <button class="modal-close" onclick="closeModal('signatureModal')">&times;</button>
             </div>
             <div class="signature-canvas-wrapper">
                 <canvas class="signature-canvas" id="modalSignatureCanvas"></canvas>
             </div>
             <div class="btn-group">
-                <button class="btn btn-outline" onclick="clearModalSignature()">지우기</button>
-                <button class="btn btn-success" onclick="confirmSignature()">서명 완료</button>
+                <button class="btn btn-outline" onclick="clearModalSignature()" data-i18n="clearBtn">지우기</button>
+                <button class="btn btn-success" onclick="confirmSignature()" data-i18n="signDoneBtn">서명 완료</button>
             </div>
         </div>
     </div>
@@ -1873,13 +1873,15 @@
         function updateConnectionStatus(isOnline) {
             const status = document.getElementById('connectionStatus');
             const text = document.getElementById('statusText');
+            const lang = localStorage.getItem('tbm_language') || 'ko';
+            const t = window.tbmTranslations?.[lang] || {};
 
             if (isOnline) {
                 status.className = 'connection-status online';
-                text.textContent = '서버 연결됨';
+                text.textContent = t.serverConnected || '서버 연결됨';
             } else {
                 status.className = 'connection-status offline';
-                text.textContent = '오프라인 모드';
+                text.textContent = t.offlineMode || '오프라인 모드';
             }
         }
 
@@ -1895,10 +1897,93 @@
             }
         }
 
-        // ==================== 번역 데이터 ====================
+        // ==================== 번역 데이터 (key-based) ====================
         window.tbmTranslations = {
             'ko': {}, // 기본 한국어 - 변환 불필요
             'en': {
+                // Connection status
+                serverConnected: 'Server connected',
+                offlineMode: 'Offline mode',
+                // Login
+                loginTitle: '🎤 Join TBM Meeting',
+                namePlaceholder: 'Enter your name',
+                sessionPlaceholder: 'Session code (leave empty for new)',
+                joinBtn: 'Join',
+                newSessionCreated: '✅ New session created!',
+                shareCode: 'Share this code with your team',
+                // App header
+                appTitle: 'TBM Safety Meeting System',
+                sessionLabel: 'Session:',
+                logoutBtn: 'Logout',
+                // Tabs
+                voiceTab: 'Voice Recording', basicTab: 'Basic Info', ppeTab: 'PPE',
+                attendeeTab: 'Attendees', riskTab: 'Risk Assessment', educationTab: 'Education',
+                // Voice tab
+                voiceTitle: '🎤 Voice Meeting',
+                voiceDesc: 'Speak and AI will automatically create a risk assessment',
+                voiceReady: 'Ready',
+                voicePlaceholder: 'Press the mic button to start the meeting.',
+                aiAnalyzeStart: 'AI Analysis Start',
+                searchEducation: 'Search Education Materials',
+                aiAnalysisDone: '✅ AI Analysis Complete!',
+                applyResult: 'Apply Results',
+                // Basic info tab
+                basicInfoTitle: '📋 TBM Basic Information',
+                dateLabel: 'Date', timeLabel: 'Time', locationLabel: 'Location',
+                departmentLabel: 'Dept/Team', tbmLeaderLabel: 'TBM Leader',
+                workLocationLabel: 'Work Location', workContentLabel: 'Work Description',
+                preparationLabel: 'Preparation', precautionsLabel: 'Precautions',
+                meetingLocationPlaceholder: 'Meeting location',
+                departmentPlaceholder: 'Department',
+                leaderNamePlaceholder: 'Leader name',
+                workLocationPlaceholder: 'Actual work location',
+                workContentPlaceholder: 'Enter today\'s work details',
+                preparationPlaceholder: 'Required equipment, materials, tools, etc.',
+                precautionsPlaceholder: 'Special precautions',
+                saveBtn: '💾 Save',
+                // PPE tab
+                ppeTitle: '🦺 PPE Checklist',
+                otherPPELabel: 'Other PPE',
+                otherPPEPlaceholder: 'Additional required PPE',
+                ppeHelmet: 'Hard Hat', ppeSafetyShoes: 'Safety Shoes', ppeGloves: 'Safety Gloves',
+                ppeGoggles: 'Safety Goggles', ppeMask: 'Dust Mask', ppeEarplug: 'Ear Plugs', ppeHarness: 'Safety Harness',
+                // Attendee tab
+                attendeeTitle: '👥 Attendee List',
+                leaderSignatureTitle: '📝 TBM Leader Signature',
+                clearSignature: 'Clear Signature', saveSignature: 'Save Signature',
+                // Risk tab
+                riskTitle: '⚠️ Risk Assessment',
+                addRiskBtn: '➕ Add Hazard', voiceAddBtn: '🎤 Add by Voice',
+                thLocation: 'Location', thActivity: 'Activity', thHazard: 'Hazard',
+                thFrequency: 'Freq.', thSeverity: 'Severity', thRiskLevel: 'Risk Level',
+                thCountermeasure: 'Countermeasure', thManage: 'Manage',
+                noRiskMessage: 'No hazards registered.<br>Add hazards or conduct a voice meeting.',
+                completeSessionBtn: '✅ Complete Meeting',
+                exportExcelBtn: '📥 Export Excel',
+                exportRABtn: '📤 Export to Risk Assessment Program',
+                deleteBtn: 'Delete',
+                // Education tab
+                educationTitle: '📚 Customized Safety Education Material',
+                eduPlaceholderTitle: 'Customized Safety Education Material',
+                eduPlaceholderDesc: 'Generate one-page education material based on AI analysis<br>and search related videos and accident case materials.',
+                generateOnePage: '📄 Generate One-Page Education Material',
+                searchRelatedMaterials: '🔍 Search Related Materials',
+                printBtn: '🖨️ Print', saveImageBtn: '📥 Save Image', regenerateBtn: '🔄 Regenerate',
+                searchAgainBtn: '🔄 Search Again',
+                eduResourceCTA: 'Create customized safety education material based on AI analysis',
+                relatedVideos: '🎬 Related Video Links',
+                accidentCases: '⚠️ Accident Case Materials',
+                preventionSummaryTitle: '💡 Prevention Summary',
+                // Risk modal
+                addRiskModalTitle: '➕ Add Hazard',
+                modalLocationLabel: 'Location', modalActivityLabel: 'Activity',
+                modalHazardLabel: 'Hazard', modalFrequencyLabel: 'Frequency (1-5)',
+                modalSeverityLabel: 'Severity (1-4)', modalCountermeasureLabel: 'Countermeasure',
+                cancelBtn: 'Cancel', saveBtnPlain: 'Save',
+                // Signature modal
+                signatureTitle: 'Signature',
+                clearBtn: 'Clear', signDoneBtn: 'Signature Complete',
+                // Legacy text-node keys (kept for backward compatibility)
                 '🎤 TBM 회의 참여': '🎤 Join TBM Meeting',
                 '참여하기': 'Join',
                 '이름을 입력하세요': 'Enter your name',
@@ -1913,28 +1998,82 @@
                 '🎤 음성으로 회의 진행': '🎤 Voice Meeting',
                 '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다': 'Speak and AI will automatically create a risk assessment',
                 '준비 완료': 'Ready',
-                '🤖 AI 분석 시작': '🤖 Start AI Analysis',
-                '녹음 시작': 'Start Recording', '녹음 중지': 'Stop Recording',
-                '날짜': 'Date', '시간': 'Time', '부서/업체명': 'Dept/Company',
-                '작업장소': 'Work Location', '작업내용': 'Work Description',
-                '안전조치사항': 'Safety Measures', '주의사항': 'Precautions',
-                '저장': 'Save', '서명': 'Sign', '서명 완료': 'Signed',
-                '위험요인': 'Hazard', '대책': 'Countermeasure',
-                '빈도': 'Frequency', '강도': 'Severity', '위험도': 'Risk Level',
-                '세션:': 'Session:',
-                '마이크 버튼을 눌러 회의를 시작하세요.': 'Press the mic button to start the meeting.',
-                '교육 영상 생성': 'Create Education Video',
+                'AI 분석 시작': 'AI Analysis Start',
                 '교육자료 검색': 'Search Education Materials',
-                '원페이지 교육자료 생성': 'Generate One-Page Education Material',
-                '📄 원페이지 교육자료 생성': '📄 Generate One-Page Education Material',
-                '맞춤형 안전교육자료': 'Customized Safety Education Material',
-                '🔍 관련 자료 검색': '🔍 Search Related Materials',
-                '🖨️ 인쇄하기': '🖨️ Print',
-                '📥 이미지 저장': '📥 Save Image',
-                '🔄 다시 생성': '🔄 Regenerate',
-                '🔄 다시 검색': '🔄 Search Again'
+                '세션:': 'Session:',
+                '마이크 버튼을 눌러 회의를 시작하세요.': 'Press the mic button to start the meeting.'
             },
             'zh': {
+                serverConnected: '服务器已连接',
+                offlineMode: '离线模式',
+                loginTitle: '🎤 参加TBM会议',
+                namePlaceholder: '请输入姓名',
+                sessionPlaceholder: '会议代码（新建请留空）',
+                joinBtn: '参加',
+                newSessionCreated: '✅ 新会议已创建！',
+                shareCode: '请与团队成员分享此代码',
+                appTitle: 'TBM安全会议系统',
+                sessionLabel: '会议:',
+                logoutBtn: '退出',
+                voiceTab: '语音录制', basicTab: '基本信息', ppeTab: '防护用品',
+                attendeeTab: '参加者', riskTab: '风险评估', educationTab: '教育资料',
+                voiceTitle: '🎤 语音会议',
+                voiceDesc: '说出会议内容，AI将自动生成风险评估',
+                voiceReady: '准备就绪',
+                voicePlaceholder: '按麦克风按钮开始会议。',
+                aiAnalyzeStart: 'AI分析开始',
+                searchEducation: '搜索教育资料',
+                aiAnalysisDone: '✅ AI分析完成！',
+                applyResult: '应用结果',
+                basicInfoTitle: '📋 TBM基本信息',
+                dateLabel: '日期', timeLabel: '时间', locationLabel: '场所',
+                departmentLabel: '部门/团队', tbmLeaderLabel: 'TBM组长',
+                workLocationLabel: '作业场所', workContentLabel: '作业内容',
+                preparationLabel: '准备物品', precautionsLabel: '注意事项',
+                meetingLocationPlaceholder: '会议场所',
+                departmentPlaceholder: '所属部门',
+                leaderNamePlaceholder: '组长姓名',
+                workLocationPlaceholder: '实际作业场所',
+                workContentPlaceholder: '请输入今天的作业内容',
+                preparationPlaceholder: '所需设备、材料、工具等',
+                precautionsPlaceholder: '特别注意事项',
+                saveBtn: '💾 保存',
+                ppeTitle: '🦺 个人防护用品检查清单',
+                otherPPELabel: '其他防护用品',
+                otherPPEPlaceholder: '需要的其他防护用品',
+                ppeHelmet: '安全帽', ppeSafetyShoes: '安全鞋', ppeGloves: '安全手套',
+                ppeGoggles: '护目镜', ppeMask: '防尘口罩', ppeEarplug: '耳塞', ppeHarness: '安全带',
+                attendeeTitle: '👥 参加者名单',
+                leaderSignatureTitle: '📝 TBM组长签名',
+                clearSignature: '清除签名', saveSignature: '保存签名',
+                riskTitle: '⚠️ 风险评估',
+                addRiskBtn: '➕ 添加危险因素', voiceAddBtn: '🎤 语音添加',
+                thLocation: '场所', thActivity: '作业内容', thHazard: '危险因素',
+                thFrequency: '频率', thSeverity: '强度', thRiskLevel: '风险等级',
+                thCountermeasure: '安全对策', thManage: '管理',
+                noRiskMessage: '没有登记的危险因素。<br>请添加危险因素或进行语音会议。',
+                completeSessionBtn: '✅ 会议完成',
+                exportExcelBtn: '📥 导出Excel',
+                exportRABtn: '📤 导出到风险评估系统',
+                deleteBtn: '删除',
+                educationTitle: '📚 定制安全教育资料',
+                eduPlaceholderTitle: '定制安全教育资料',
+                eduPlaceholderDesc: '基于AI分析结果生成一页教育资料<br>并搜索相关视频和事故案例资料。',
+                generateOnePage: '📄 生成一页教育资料',
+                searchRelatedMaterials: '🔍 搜索相关资料',
+                printBtn: '🖨️ 打印', saveImageBtn: '📥 保存图片', regenerateBtn: '🔄 重新生成',
+                searchAgainBtn: '🔄 重新搜索',
+                eduResourceCTA: '基于AI分析立即制作定制安全教育资料',
+                relatedVideos: '🎬 相关视频链接',
+                accidentCases: '⚠️ 事故案例资料',
+                preventionSummaryTitle: '💡 预防对策摘要',
+                addRiskModalTitle: '➕ 添加危险因素',
+                modalLocationLabel: '场所', modalActivityLabel: '作业内容',
+                modalHazardLabel: '危险因素', modalFrequencyLabel: '频率 (1-5)',
+                modalSeverityLabel: '强度 (1-4)', modalCountermeasureLabel: '安全对策',
+                cancelBtn: '取消', saveBtnPlain: '保存',
+                signatureTitle: '签名',
+                clearBtn: '清除', signDoneBtn: '签名完成',
                 '🎤 TBM 회의 참여': '🎤 参加TBM会议',
                 '참여하기': '参加',
                 '이름을 입력하세요': '请输入姓名',
@@ -1949,127 +2088,314 @@
                 '🎤 음성으로 회의 진행': '🎤 语音会议',
                 '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다': '说出会议内容，AI将自动生成风险评估',
                 '준비 완료': '准备就绪',
-                '🤖 AI 분석 시작': '🤖 开始AI分析',
-                '녹음 시작': '开始录音', '녹음 중지': '停止录音',
-                '날짜': '日期', '시간': '时间', '부서/업체명': '部门/公司',
-                '작업장소': '工作地点', '작업내용': '工作内容',
-                '안전조치사항': '安全措施', '주의사항': '注意事项',
-                '저장': '保存', '서명': '签名', '서명 완료': '已签名',
-                '위험요인': '危险因素', '대책': '对策',
-                '빈도': '频率', '강도': '严重性', '위험도': '风险等级',
-                '세션:': '会议:',
-                '마이크 버튼을 눌러 회의를 시작하세요.': '按麦克风按钮开始会议。',
-                '교육 영상 생성': '生成教育视频',
+                'AI 분석 시작': 'AI分析开始',
                 '교육자료 검색': '搜索教育资料',
-                '원페이지 교육자료 생성': '生成一页教育资料',
-                '📄 원페이지 교육자료 생성': '📄 生成一页教育资料',
-                '맞춤형 안전교육자료': '定制安全教育资料',
-                '🔍 관련 자료 검색': '🔍 搜索相关资料',
-                '🖨️ 인쇄하기': '🖨️ 打印',
-                '📥 이미지 저장': '📥 保存图片',
-                '🔄 다시 생성': '🔄 重新生成',
-                '🔄 다시 검색': '🔄 重新搜索'
+                '세션:': '会议:',
+                '마이크 버튼을 눌러 회의를 시작하세요.': '按麦克风按钮开始会议。'
             },
             'vi': {
+                serverConnected: 'Đã kết nối máy chủ',
+                offlineMode: 'Chế độ ngoại tuyến',
+                loginTitle: '🎤 Tham gia cuộc họp TBM',
+                namePlaceholder: 'Nhập tên của bạn',
+                sessionPlaceholder: 'Mã phiên (để trống nếu tạo mới)',
+                joinBtn: 'Tham gia',
+                newSessionCreated: '✅ Phiên mới đã được tạo!',
+                shareCode: 'Chia sẻ mã này với nhóm của bạn',
+                appTitle: 'Hệ thống họp an toàn TBM',
+                sessionLabel: 'Phiên:',
+                logoutBtn: 'Đăng xuất',
+                voiceTab: 'Ghi âm', basicTab: 'Thông tin', ppeTab: 'Bảo hộ',
+                attendeeTab: 'Người tham dự', riskTab: 'Đánh giá rủi ro', educationTab: 'Tài liệu',
+                voiceTitle: '🎤 Họp bằng giọng nói',
+                voiceDesc: 'Nói nội dung cuộc họp, AI sẽ tự động tạo đánh giá rủi ro',
+                voiceReady: 'Sẵn sàng',
+                voicePlaceholder: 'Nhấn nút micro để bắt đầu cuộc họp.',
+                aiAnalyzeStart: 'Bắt đầu phân tích AI',
+                searchEducation: 'Tìm kiếm tài liệu giáo dục',
+                aiAnalysisDone: '✅ Phân tích AI hoàn tất!',
+                applyResult: 'Áp dụng kết quả',
+                basicInfoTitle: '📋 Thông tin cơ bản TBM',
+                dateLabel: 'Ngày', timeLabel: 'Giờ', locationLabel: 'Địa điểm',
+                departmentLabel: 'Bộ phận/Nhóm', tbmLeaderLabel: 'Trưởng nhóm TBM',
+                workLocationLabel: 'Địa điểm làm việc', workContentLabel: 'Nội dung công việc',
+                preparationLabel: 'Chuẩn bị', precautionsLabel: 'Lưu ý',
+                meetingLocationPlaceholder: 'Địa điểm họp',
+                departmentPlaceholder: 'Bộ phận',
+                leaderNamePlaceholder: 'Tên trưởng nhóm',
+                workLocationPlaceholder: 'Nơi làm việc thực tế',
+                workContentPlaceholder: 'Nhập nội dung công việc hôm nay',
+                preparationPlaceholder: 'Thiết bị, vật liệu, dụng cụ cần thiết',
+                precautionsPlaceholder: 'Các lưu ý đặc biệt',
+                saveBtn: '💾 Lưu',
+                ppeTitle: '🦺 Danh sách kiểm tra PPE',
+                otherPPELabel: 'PPE khác',
+                otherPPEPlaceholder: 'PPE bổ sung cần thiết',
+                ppeHelmet: 'Mũ bảo hiểm', ppeSafetyShoes: 'Giày bảo hộ', ppeGloves: 'Găng tay',
+                ppeGoggles: 'Kính bảo hộ', ppeMask: 'Khẩu trang', ppeEarplug: 'Nút tai', ppeHarness: 'Dây an toàn',
+                attendeeTitle: '👥 Danh sách người tham dự',
+                leaderSignatureTitle: '📝 Chữ ký trưởng nhóm TBM',
+                clearSignature: 'Xóa chữ ký', saveSignature: 'Lưu chữ ký',
+                riskTitle: '⚠️ Đánh giá rủi ro',
+                addRiskBtn: '➕ Thêm mối nguy', voiceAddBtn: '🎤 Thêm bằng giọng nói',
+                thLocation: 'Địa điểm', thActivity: 'Công việc', thHazard: 'Mối nguy',
+                thFrequency: 'Tần suất', thSeverity: 'Mức độ', thRiskLevel: 'Mức rủi ro',
+                thCountermeasure: 'Biện pháp', thManage: 'Quản lý',
+                noRiskMessage: 'Chưa có mối nguy nào.<br>Thêm mối nguy hoặc tiến hành họp bằng giọng nói.',
+                completeSessionBtn: '✅ Hoàn thành cuộc họp',
+                exportExcelBtn: '📥 Xuất Excel',
+                exportRABtn: '📤 Xuất sang chương trình đánh giá rủi ro',
+                deleteBtn: 'Xóa',
+                educationTitle: '📚 Tài liệu giáo dục an toàn tùy chỉnh',
+                eduPlaceholderTitle: 'Tài liệu giáo dục an toàn tùy chỉnh',
+                eduPlaceholderDesc: 'Tạo tài liệu giáo dục một trang dựa trên phân tích AI<br>và tìm kiếm video và tài liệu tai nạn liên quan.',
+                generateOnePage: '📄 Tạo tài liệu giáo dục một trang',
+                searchRelatedMaterials: '🔍 Tìm tài liệu liên quan',
+                printBtn: '🖨️ In', saveImageBtn: '📥 Lưu hình ảnh', regenerateBtn: '🔄 Tạo lại',
+                searchAgainBtn: '🔄 Tìm lại',
+                eduResourceCTA: 'Tạo tài liệu giáo dục an toàn tùy chỉnh dựa trên phân tích AI',
+                relatedVideos: '🎬 Video liên quan',
+                accidentCases: '⚠️ Tài liệu tai nạn',
+                preventionSummaryTitle: '💡 Tóm tắt biện pháp phòng ngừa',
+                addRiskModalTitle: '➕ Thêm mối nguy',
+                modalLocationLabel: 'Địa điểm', modalActivityLabel: 'Công việc',
+                modalHazardLabel: 'Mối nguy', modalFrequencyLabel: 'Tần suất (1-5)',
+                modalSeverityLabel: 'Mức độ (1-4)', modalCountermeasureLabel: 'Biện pháp',
+                cancelBtn: 'Hủy', saveBtnPlain: 'Lưu',
+                signatureTitle: 'Chữ ký',
+                clearBtn: 'Xóa', signDoneBtn: 'Hoàn thành chữ ký',
                 '🎤 TBM 회의 참여': '🎤 Tham gia cuộc họp TBM',
                 '참여하기': 'Tham gia',
                 '이름을 입력하세요': 'Nhập tên của bạn',
                 '세션 코드 (새 세션은 비워두세요)': 'Mã phiên (để trống nếu tạo mới)',
-                '✅ 새 세션이 생성되었습니다!': '✅ Phiên mới đã được tạo!',
-                '이 코드를 팀원들과 공유하세요': 'Chia sẻ mã này với nhóm của bạn',
                 '음성 녹음': 'Ghi âm', '기본 정보': 'Thông tin', '보호구': 'Bảo hộ',
                 '참석자': 'Người tham dự', '위험성평가': 'Đánh giá rủi ro', '교육자료': 'Tài liệu',
                 '🌐 언어 변경 / Change Language': '🌐 Đổi ngôn ngữ',
-                'TBM 안전회의 시스템': 'Hệ thống họp an toàn TBM',
-                '로그아웃': 'Đăng xuất',
-                '🎤 음성으로 회의 진행': '🎤 Họp bằng giọng nói',
-                '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다': 'Nói nội dung cuộc họp, AI sẽ tự động tạo đánh giá rủi ro',
-                '준비 완료': 'Sẵn sàng',
-                '🤖 AI 분석 시작': '🤖 Bắt đầu phân tích AI',
-                '녹음 시작': 'Bắt đầu ghi âm', '녹음 중지': 'Dừng ghi âm',
-                '날짜': 'Ngày', '시간': 'Giờ', '부서/업체명': 'Bộ phận/Công ty',
-                '작업장소': 'Địa điểm', '작업내용': 'Nội dung công việc',
-                '저장': 'Lưu', '서명': 'Ký tên', '서명 완료': 'Đã ký',
-                '위험요인': 'Nguy hiểm', '대책': 'Biện pháp',
-                '빈도': 'Tần suất', '강도': 'Mức độ', '위험도': 'Mức rủi ro',
                 '세션:': 'Phiên:',
-                '마이크 버튼을 눌러 회의를 시작하세요.': 'Nhấn nút micro để bắt đầu cuộc họp.',
-                '교육 영상 생성': 'Tạo video giáo dục',
-                '교육자료 검색': 'Tìm kiếm tài liệu giáo dục',
-                '원페이지 교육자료 생성': 'Tạo tài liệu giáo dục một trang',
-                '📄 원페이지 교육자료 생성': '📄 Tạo tài liệu giáo dục một trang',
-                '맞춤형 안전교육자료': 'Tài liệu giáo dục an toàn tùy chỉnh',
-                '🔍 관련 자료 검색': '🔍 Tìm tài liệu liên quan',
-                '🖨️ 인쇄하기': '🖨️ In',
-                '📥 이미지 저장': '📥 Lưu hình ảnh',
-                '🔄 다시 생성': '🔄 Tạo lại',
-                '🔄 다시 검색': '🔄 Tìm lại'
+                '마이크 버튼을 눌러 회의를 시작하세요.': 'Nhấn nút micro để bắt đầu cuộc họp.'
             },
             'th': {
-                '🎤 TBM 회의 참여': '🎤 เข้าร่วมประชุม TBM',
-                '참여하기': 'เข้าร่วม',
-                '이름을 입력하세요': 'กรอกชื่อของคุณ',
-                '세션 코드 (새 세션은 비워두세요)': 'รหัสเซสชัน (เว้นว่างเพื่อสร้างใหม่)',
+                serverConnected: 'เชื่อมต่อเซิร์ฟเวอร์แล้ว',
+                offlineMode: 'โหมดออฟไลน์',
+                loginTitle: '🎤 เข้าร่วมประชุม TBM',
+                namePlaceholder: 'กรอกชื่อของคุณ',
+                sessionPlaceholder: 'รหัสเซสชัน (เว้นว่างเพื่อสร้างใหม่)',
+                joinBtn: 'เข้าร่วม',
+                newSessionCreated: '✅ สร้างเซสชันใหม่แล้ว!',
+                shareCode: 'แชร์โค้ดนี้กับทีมของคุณ',
+                appTitle: 'ระบบประชุมความปลอดภัย TBM',
+                sessionLabel: 'เซสชัน:',
+                logoutBtn: 'ออกจากระบบ',
+                voiceTab: 'บันทึกเสียง', basicTab: 'ข้อมูลพื้นฐาน', ppeTab: 'อุปกรณ์ป้องกัน',
+                attendeeTab: 'ผู้เข้าร่วม', riskTab: 'ประเมินความเสี่ยง', educationTab: 'สื่อการศึกษา',
+                voiceTitle: '🎤 ประชุมด้วยเสียง',
+                voiceDesc: 'พูดแล้ว AI จะสร้างการประเมินความเสี่ยงอัตโนมัติ',
+                voiceReady: 'พร้อม',
+                voicePlaceholder: 'กดปุ่มไมค์เพื่อเริ่มประชุม',
+                aiAnalyzeStart: 'เริ่มวิเคราะห์ AI',
+                searchEducation: 'ค้นหาสื่อการศึกษา',
+                aiAnalysisDone: '✅ วิเคราะห์ AI เสร็จแล้ว!',
+                applyResult: 'นำผลลัพธ์ไปใช้',
+                basicInfoTitle: '📋 ข้อมูลพื้นฐาน TBM',
+                dateLabel: 'วันที่', timeLabel: 'เวลา', locationLabel: 'สถานที่',
+                departmentLabel: 'แผนก/ทีม', tbmLeaderLabel: 'หัวหน้า TBM',
+                workLocationLabel: 'สถานที่ทำงาน', workContentLabel: 'รายละเอียดงาน',
+                preparationLabel: 'เตรียมการ', precautionsLabel: 'ข้อควรระวัง',
+                meetingLocationPlaceholder: 'สถานที่ประชุม',
+                departmentPlaceholder: 'แผนก',
+                leaderNamePlaceholder: 'ชื่อหัวหน้า',
+                workLocationPlaceholder: 'สถานที่ทำงานจริง',
+                workContentPlaceholder: 'กรอกรายละเอียดงานวันนี้',
+                preparationPlaceholder: 'อุปกรณ์ วัสดุ เครื่องมือที่ต้องใช้',
+                precautionsPlaceholder: 'ข้อควรระวังพิเศษ',
+                saveBtn: '💾 บันทึก',
+                ppeTitle: '🦺 รายการตรวจ PPE',
+                otherPPELabel: 'PPE อื่นๆ',
+                otherPPEPlaceholder: 'PPE เพิ่มเติมที่ต้องการ',
+                ppeHelmet: 'หมวกนิรภัย', ppeSafetyShoes: 'รองเท้านิรภัย', ppeGloves: 'ถุงมือนิรภัย',
+                ppeGoggles: 'แว่นตานิรภัย', ppeMask: 'หน้ากาก', ppeEarplug: 'ที่อุดหู', ppeHarness: 'สายรัดนิรภัย',
+                attendeeTitle: '👥 รายชื่อผู้เข้าร่วม',
+                leaderSignatureTitle: '📝 ลายเซ็นหัวหน้า TBM',
+                clearSignature: 'ล้างลายเซ็น', saveSignature: 'บันทึกลายเซ็น',
+                riskTitle: '⚠️ ประเมินความเสี่ยง',
+                addRiskBtn: '➕ เพิ่มอันตราย', voiceAddBtn: '🎤 เพิ่มด้วยเสียง',
+                thLocation: 'สถานที่', thActivity: 'งาน', thHazard: 'อันตราย',
+                thFrequency: 'ความถี่', thSeverity: 'ความรุนแรง', thRiskLevel: 'ระดับความเสี่ยง',
+                thCountermeasure: 'มาตรการ', thManage: 'จัดการ',
+                noRiskMessage: 'ยังไม่มีอันตรายที่ลงทะเบียน<br>เพิ่มอันตรายหรือประชุมด้วยเสียง',
+                completeSessionBtn: '✅ ประชุมเสร็จ',
+                exportExcelBtn: '📥 ส่งออก Excel',
+                exportRABtn: '📤 ส่งออกไปยังโปรแกรมประเมินความเสี่ยง',
+                deleteBtn: 'ลบ',
+                educationTitle: '📚 สื่อการศึกษาความปลอดภัยเฉพาะ',
+                eduPlaceholderTitle: 'สื่อการศึกษาความปลอดภัยเฉพาะ',
+                generateOnePage: '📄 สร้างสื่อการศึกษาหนึ่งหน้า',
+                searchRelatedMaterials: '🔍 ค้นหาข้อมูลที่เกี่ยวข้อง',
+                printBtn: '🖨️ พิมพ์', saveImageBtn: '📥 บันทึกรูปภาพ', regenerateBtn: '🔄 สร้างใหม่',
+                searchAgainBtn: '🔄 ค้นหาใหม่',
+                addRiskModalTitle: '➕ เพิ่มอันตราย',
+                modalLocationLabel: 'สถานที่', modalActivityLabel: 'งาน',
+                modalHazardLabel: 'อันตราย', modalFrequencyLabel: 'ความถี่ (1-5)',
+                modalSeverityLabel: 'ความรุนแรง (1-4)', modalCountermeasureLabel: 'มาตรการ',
+                cancelBtn: 'ยกเลิก', saveBtnPlain: 'บันทึก',
+                signatureTitle: 'ลายเซ็น',
+                clearBtn: 'ล้าง', signDoneBtn: 'เซ็นเสร็จ',
                 '음성 녹음': 'บันทึกเสียง', '기본 정보': 'ข้อมูลพื้นฐาน', '보호구': 'อุปกรณ์ป้องกัน',
                 '참석자': 'ผู้เข้าร่วม', '위험성평가': 'ประเมินความเสี่ยง', '교육자료': 'สื่อการศึกษา',
                 '🌐 언어 변경 / Change Language': '🌐 เปลี่ยนภาษา',
-                '세션:': 'เซสชัน:',
-                'TBM 안전회의 시스템': 'ระบบประชุมความปลอดภัย TBM',
-                '로그아웃': 'ออกจากระบบ',
-                '🎤 음성으로 회의 진행': '🎤 ประชุมด้วยเสียง',
-                '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다': 'พูดแล้ว AI จะสร้างการประเมินความเสี่ยงอัตโนมัติ',
-                '준비 완료': 'พร้อม',
-                '마이크 버튼을 눌러 회의를 시작하세요.': 'กดปุ่มไมค์เพื่อเริ่มประชุม',
-                'AI 분석 시작': 'เริ่มวิเคราะห์ AI',
-                '교육 영상 생성': 'สร้างวิดีโอการศึกษา',
-                '교육자료 검색': 'ค้นหาสื่อการศึกษา',
-                '원페이지 교육자료 생성': 'สร้างสื่อการศึกษาหนึ่งหน้า',
-                '📄 원페이지 교육자료 생성': '📄 สร้างสื่อการศึกษาหนึ่งหน้า',
-                '맞춤형 안전교육자료': 'สื่อการศึกษาความปลอดภัยเฉพาะ',
-                '🔍 관련 자료 검색': '🔍 ค้นหาข้อมูลที่เกี่ยวข้อง',
-                '🖨️ 인쇄하기': '🖨️ พิมพ์',
-                '📥 이미지 저장': '📥 บันทึกรูปภาพ',
-                '🔄 다시 생성': '🔄 สร้างใหม่',
-                '🔄 다시 검색': '🔄 ค้นหาใหม่',
-                '녹음 시작': 'เริ่มบันทึก', '녹음 중지': 'หยุดบันทึก',
-                '날짜': 'วันที่', '시간': 'เวลา', '부서/업체명': 'แผนก/บริษัท',
-                '작업장소': 'สถานที่ทำงาน', '작업내용': 'รายละเอียดงาน',
-                '저장': 'บันทึก', '서명': 'ลายเซ็น', '서명 완료': 'เซ็นแล้ว',
-                '위험요인': 'อันตราย', '대책': 'มาตรการ',
-                '빈도': 'ความถี่', '강도': 'ความรุนแรง', '위험도': 'ระดับความเสี่ยง'
+                '세션:': 'เซสชัน:'
             },
             'id': {
-                '🎤 TBM 회의 참여': '🎤 Bergabung Rapat TBM',
-                '참여하기': 'Bergabung',
-                '이름을 입력하세요': 'Masukkan nama Anda',
-                '세션 코드 (새 세션은 비워두세요)': 'Kode sesi (kosongkan untuk baru)',
+                serverConnected: 'Server terhubung',
+                offlineMode: 'Mode offline',
+                loginTitle: '🎤 Bergabung Rapat TBM',
+                namePlaceholder: 'Masukkan nama Anda',
+                sessionPlaceholder: 'Kode sesi (kosongkan untuk baru)',
+                joinBtn: 'Bergabung',
+                newSessionCreated: '✅ Sesi baru telah dibuat!',
+                shareCode: 'Bagikan kode ini dengan tim Anda',
+                appTitle: 'Sistem Rapat Keselamatan TBM',
+                sessionLabel: 'Sesi:',
+                logoutBtn: 'Keluar',
+                voiceTab: 'Rekaman Suara', basicTab: 'Info Dasar', ppeTab: 'APD',
+                attendeeTab: 'Peserta', riskTab: 'Penilaian Risiko', educationTab: 'Materi Edukasi',
+                voiceTitle: '🎤 Rapat dengan Suara',
+                voiceDesc: 'Bicara dan AI akan otomatis membuat penilaian risiko',
+                voiceReady: 'Siap',
+                voicePlaceholder: 'Tekan tombol mikrofon untuk memulai rapat.',
+                aiAnalyzeStart: 'Mulai Analisis AI',
+                searchEducation: 'Cari Materi Edukasi',
+                aiAnalysisDone: '✅ Analisis AI Selesai!',
+                applyResult: 'Terapkan Hasil',
+                basicInfoTitle: '📋 Informasi Dasar TBM',
+                dateLabel: 'Tanggal', timeLabel: 'Waktu', locationLabel: 'Lokasi',
+                departmentLabel: 'Departemen/Tim', tbmLeaderLabel: 'Pemimpin TBM',
+                workLocationLabel: 'Lokasi Kerja', workContentLabel: 'Deskripsi Pekerjaan',
+                preparationLabel: 'Persiapan', precautionsLabel: 'Perhatian',
+                meetingLocationPlaceholder: 'Lokasi rapat',
+                departmentPlaceholder: 'Departemen',
+                leaderNamePlaceholder: 'Nama pemimpin',
+                workLocationPlaceholder: 'Lokasi kerja sebenarnya',
+                workContentPlaceholder: 'Masukkan detail pekerjaan hari ini',
+                preparationPlaceholder: 'Peralatan, bahan, alat yang diperlukan',
+                precautionsPlaceholder: 'Perhatian khusus',
+                saveBtn: '💾 Simpan',
+                ppeTitle: '🦺 Daftar Periksa APD',
+                otherPPELabel: 'APD Lainnya',
+                otherPPEPlaceholder: 'APD tambahan yang diperlukan',
+                ppeHelmet: 'Helm', ppeSafetyShoes: 'Sepatu Safety', ppeGloves: 'Sarung Tangan',
+                ppeGoggles: 'Kacamata Safety', ppeMask: 'Masker', ppeEarplug: 'Penutup Telinga', ppeHarness: 'Body Harness',
+                attendeeTitle: '👥 Daftar Peserta',
+                leaderSignatureTitle: '📝 Tanda Tangan Pemimpin TBM',
+                clearSignature: 'Hapus Tanda Tangan', saveSignature: 'Simpan Tanda Tangan',
+                riskTitle: '⚠️ Penilaian Risiko',
+                addRiskBtn: '➕ Tambah Bahaya', voiceAddBtn: '🎤 Tambah dengan Suara',
+                thLocation: 'Lokasi', thActivity: 'Pekerjaan', thHazard: 'Bahaya',
+                thFrequency: 'Frekuensi', thSeverity: 'Keparahan', thRiskLevel: 'Tingkat Risiko',
+                thCountermeasure: 'Tindakan', thManage: 'Kelola',
+                noRiskMessage: 'Belum ada bahaya terdaftar.<br>Tambahkan bahaya atau lakukan rapat suara.',
+                completeSessionBtn: '✅ Selesai Rapat',
+                exportExcelBtn: '📥 Ekspor Excel',
+                exportRABtn: '📤 Ekspor ke Program Penilaian Risiko',
+                deleteBtn: 'Hapus',
+                educationTitle: '📚 Materi Edukasi Keselamatan Khusus',
+                eduPlaceholderTitle: 'Materi Edukasi Keselamatan Khusus',
+                eduPlaceholderDesc: 'Buat materi edukasi satu halaman berdasarkan analisis AI<br>dan cari video dan materi kasus kecelakaan terkait.',
+                generateOnePage: '📄 Buat Materi Edukasi Satu Halaman',
+                searchRelatedMaterials: '🔍 Cari Materi Terkait',
+                printBtn: '🖨️ Cetak', saveImageBtn: '📥 Simpan Gambar', regenerateBtn: '🔄 Buat Ulang',
+                searchAgainBtn: '🔄 Cari Ulang',
+                eduResourceCTA: 'Buat materi edukasi keselamatan berdasarkan analisis AI',
+                relatedVideos: '🎬 Tautan Video Terkait',
+                accidentCases: '⚠️ Materi Kasus Kecelakaan',
+                preventionSummaryTitle: '💡 Ringkasan Pencegahan',
+                addRiskModalTitle: '➕ Tambah Bahaya',
+                modalLocationLabel: 'Lokasi', modalActivityLabel: 'Pekerjaan',
+                modalHazardLabel: 'Bahaya', modalFrequencyLabel: 'Frekuensi (1-5)',
+                modalSeverityLabel: 'Keparahan (1-4)', modalCountermeasureLabel: 'Tindakan',
+                cancelBtn: 'Batal', saveBtnPlain: 'Simpan',
+                signatureTitle: 'Tanda Tangan',
+                clearBtn: 'Hapus', signDoneBtn: 'Tanda Tangan Selesai',
                 '음성 녹음': 'Rekaman Suara', '기본 정보': 'Info Dasar', '보호구': 'APD',
                 '참석자': 'Peserta', '위험성평가': 'Penilaian Risiko', '교육자료': 'Materi Edukasi',
                 '🌐 언어 변경 / Change Language': '🌐 Ganti Bahasa',
-                'TBM 안전회의 시스템': 'Sistem Rapat Keselamatan TBM',
-                '로그아웃': 'Keluar',
-                '세션:': 'Sesi:',
-                '🎤 음성으로 회의 진행': '🎤 Rapat dengan Suara',
-                '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다': 'Bicara dan AI akan otomatis membuat penilaian risiko',
-                '준비 완료': 'Siap',
-                '마이크 버튼을 눌러 회의를 시작하세요.': 'Tekan tombol mikrofon untuk memulai rapat.',
-                'AI 분석 시작': 'Mulai Analisis AI',
-                '교육 영상 생성': 'Buat Video Edukasi',
-                '녹음 시작': 'Mulai Rekaman', '녹음 중지': 'Hentikan Rekaman',
-                '날짜': 'Tanggal', '시간': 'Waktu', '부서/업체명': 'Departemen/Perusahaan',
-                '작업장소': 'Lokasi Kerja', '작업내용': 'Deskripsi Pekerjaan',
-                '저장': 'Simpan', '서명': 'Tanda Tangan', '서명 완료': 'Sudah Tanda Tangan',
-                '위험요인': 'Bahaya', '대책': 'Tindakan',
-                '빈도': 'Frekuensi', '강도': 'Keparahan', '위험도': 'Tingkat Risiko',
-                '교육자료 검색': 'Cari Materi Edukasi',
-                '원페이지 교육자료 생성': 'Buat Materi Edukasi Satu Halaman',
-                '📄 원페이지 교육자료 생성': '📄 Buat Materi Edukasi Satu Halaman',
-                '맞춤형 안전교육자료': 'Materi Edukasi Keselamatan Khusus',
-                '🔍 관련 자료 검색': '🔍 Cari Materi Terkait',
-                '🖨️ 인쇄하기': '🖨️ Cetak',
-                '📥 이미지 저장': '📥 Simpan Gambar',
-                '🔄 다시 생성': '🔄 Buat Ulang',
-                '🔄 다시 검색': '🔄 Cari Ulang'
+                '세션:': 'Sesi:'
+            },
+            'ru': {
+                serverConnected: 'Сервер подключен',
+                offlineMode: 'Автономный режим',
+                loginTitle: '🎤 Присоединиться к собранию TBM',
+                namePlaceholder: 'Введите ваше имя',
+                sessionPlaceholder: 'Код сессии (оставьте пустым для новой)',
+                joinBtn: 'Присоединиться',
+                newSessionCreated: '✅ Новая сессия создана!',
+                shareCode: 'Поделитесь этим кодом с командой',
+                appTitle: 'Система безопасности TBM',
+                sessionLabel: 'Сессия:',
+                logoutBtn: 'Выход',
+                voiceTab: 'Запись голоса', basicTab: 'Основная информация', ppeTab: 'Средства защиты',
+                attendeeTab: 'Участники', riskTab: 'Оценка рисков', educationTab: 'Учебные материалы',
+                voiceTitle: '🎤 Голосовое совещание',
+                voiceDesc: 'Говорите — ИИ автоматически составит оценку рисков',
+                voiceReady: 'Готово',
+                voicePlaceholder: 'Нажмите кнопку микрофона для начала совещания.',
+                aiAnalyzeStart: 'Начать анализ ИИ',
+                searchEducation: 'Поиск учебных материалов',
+                aiAnalysisDone: '✅ Анализ ИИ завершен!',
+                applyResult: 'Применить результаты',
+                basicInfoTitle: '📋 Основная информация TBM',
+                dateLabel: 'Дата', timeLabel: 'Время', locationLabel: 'Место',
+                departmentLabel: 'Отдел/Команда', tbmLeaderLabel: 'Руководитель TBM',
+                workLocationLabel: 'Место работы', workContentLabel: 'Описание работ',
+                preparationLabel: 'Подготовка', precautionsLabel: 'Меры предосторожности',
+                meetingLocationPlaceholder: 'Место совещания',
+                departmentPlaceholder: 'Отдел',
+                leaderNamePlaceholder: 'Имя руководителя',
+                workLocationPlaceholder: 'Фактическое место работы',
+                workContentPlaceholder: 'Введите описание работ на сегодня',
+                preparationPlaceholder: 'Необходимое оборудование, материалы, инструменты',
+                precautionsPlaceholder: 'Особые меры предосторожности',
+                saveBtn: '💾 Сохранить',
+                ppeTitle: '🦺 Контрольный список СИЗ',
+                otherPPELabel: 'Другие СИЗ',
+                otherPPEPlaceholder: 'Дополнительные необходимые СИЗ',
+                ppeHelmet: 'Каска', ppeSafetyShoes: 'Защитная обувь', ppeGloves: 'Перчатки',
+                ppeGoggles: 'Защитные очки', ppeMask: 'Маска', ppeEarplug: 'Беруши', ppeHarness: 'Страховочная привязь',
+                attendeeTitle: '👥 Список участников',
+                leaderSignatureTitle: '📝 Подпись руководителя TBM',
+                clearSignature: 'Очистить подпись', saveSignature: 'Сохранить подпись',
+                riskTitle: '⚠️ Оценка рисков',
+                addRiskBtn: '➕ Добавить опасность', voiceAddBtn: '🎤 Добавить голосом',
+                thLocation: 'Место', thActivity: 'Работа', thHazard: 'Опасность',
+                thFrequency: 'Частота', thSeverity: 'Тяжесть', thRiskLevel: 'Уровень риска',
+                thCountermeasure: 'Меры', thManage: 'Управление',
+                noRiskMessage: 'Нет зарегистрированных опасностей.<br>Добавьте опасности или проведите голосовое совещание.',
+                completeSessionBtn: '✅ Завершить совещание',
+                exportExcelBtn: '📥 Экспорт Excel',
+                exportRABtn: '📤 Экспорт в программу оценки рисков',
+                deleteBtn: 'Удалить',
+                educationTitle: '📚 Индивидуальные учебные материалы',
+                eduPlaceholderTitle: 'Индивидуальные учебные материалы',
+                eduPlaceholderDesc: 'Создайте одностраничный учебный материал на основе анализа ИИ<br>и найдите связанные видео и материалы о несчастных случаях.',
+                generateOnePage: '📄 Создать одностраничный учебный материал',
+                searchRelatedMaterials: '🔍 Поиск материалов',
+                printBtn: '🖨️ Печать', saveImageBtn: '📥 Сохранить изображение', regenerateBtn: '🔄 Пересоздать',
+                searchAgainBtn: '🔄 Искать снова',
+                eduResourceCTA: 'Создайте учебный материал на основе анализа ИИ',
+                relatedVideos: '🎬 Связанные видео',
+                accidentCases: '⚠️ Материалы о несчастных случаях',
+                preventionSummaryTitle: '💡 Сводка мер профилактики',
+                addRiskModalTitle: '➕ Добавить опасность',
+                modalLocationLabel: 'Место', modalActivityLabel: 'Работа',
+                modalHazardLabel: 'Опасность', modalFrequencyLabel: 'Частота (1-5)',
+                modalSeverityLabel: 'Тяжесть (1-4)', modalCountermeasureLabel: 'Меры',
+                cancelBtn: 'Отмена', saveBtnPlain: 'Сохранить',
+                signatureTitle: 'Подпись',
+                clearBtn: 'Очистить', signDoneBtn: 'Подпись завершена',
+                '음성 녹음': 'Запись голоса', '기본 정보': 'Основная информация', '보호구': 'Средства защиты',
+                '참석자': 'Участники', '위험성평가': 'Оценка рисков', '교육자료': 'Учебные материалы',
+                '🌐 언어 변경 / Change Language': '🌐 Изменить язык',
+                '세션:': 'Сессия:'
             },
             'uz': {
                 '🎤 TBM 회의 참여': "🎤 TBM yig'ilishiga qo'shilish",
@@ -2078,7 +2404,10 @@
                 '세션 코드 (새 세션은 비워두세요)': "Sessiya kodi (yangi uchun bo'sh qoldiring)",
                 '음성 녹음': 'Ovoz yozish', '기본 정보': "Asosiy ma'lumot", '보호구': 'Himoya vositalari',
                 '참석자': 'Ishtirokchilar', '위험성평가': 'Xavf baholash', '교육자료': "Ta'lim materiallari",
-                '🌐 언어 변경 / Change Language': '🌐 Tilni almashtirish'
+                '🌐 언어 변경 / Change Language': '🌐 Tilni almashtirish',
+                joinBtn: "Qo'shilish", loginTitle: "🎤 TBM yig'ilishiga qo'shilish",
+                voiceTab: 'Ovoz yozish', basicTab: "Asosiy ma'lumot", ppeTab: 'Himoya vositalari',
+                attendeeTab: 'Ishtirokchilar', riskTab: 'Xavf baholash', educationTab: "Ta'lim materiallari"
             },
             'km': {
                 '🎤 TBM 회의 참여': '🎤 ចូលរួមប្រជុំ TBM',
@@ -2087,7 +2416,10 @@
                 '세션 코드 (새 세션은 비워두세요)': 'កូដសម័យ (ទុកទទេដើម្បីបង្កើតថ្មី)',
                 '음성 녹음': 'ថតសម្លេង', '기본 정보': 'ព័ត៌មានមូលដ្ឋាន', '보호구': 'ឧបករណ៍ការពារ',
                 '참석자': 'អ្នកចូលរួម', '위험성평가': 'វាយតម្លៃហានិភ័យ', '교육자료': 'សម្ភារៈអប់រំ',
-                '🌐 언어 변경 / Change Language': '🌐 ប្តូរភាសា'
+                '🌐 언어 변경 / Change Language': '🌐 ប្តូរភាសា',
+                joinBtn: 'ចូលរួម', loginTitle: '🎤 ចូលរួមប្រជុំ TBM',
+                voiceTab: 'ថតសម្លេង', basicTab: 'ព័ត៌មានមូលដ្ឋាន', ppeTab: 'ឧបករណ៍ការពារ',
+                attendeeTab: 'អ្នកចូលរួម', riskTab: 'វាយតម្លៃហានិភ័យ', educationTab: 'សម្ភារៈអប់រំ'
             },
             'mn': {
                 '🎤 TBM 회의 참여': '🎤 TBM уулзалтад нэгдэх',
@@ -2096,7 +2428,10 @@
                 '세션 코드 (새 세션은 비워두세요)': 'Сешн код (шинээр үүсгэхийг хоосон орхино)',
                 '음성 녹음': 'Дуу бичлэг', '기본 정보': 'Үндсэн мэдээлэл', '보호구': 'Хамгаалах хэрэгсэл',
                 '참석자': 'Оролцогчид', '위험성평가': 'Эрсдэлийн үнэлгээ', '교육자료': 'Сургалтын материал',
-                '🌐 언어 변경 / Change Language': '🌐 Хэл солих'
+                '🌐 언어 변경 / Change Language': '🌐 Хэл солих',
+                joinBtn: 'Нэгдэх', loginTitle: '🎤 TBM уулзалтад нэгдэх',
+                voiceTab: 'Дуу бичлэг', basicTab: 'Үндсэн мэдээлэл', ppeTab: 'Хамгаалах хэрэгсэл',
+                attendeeTab: 'Оролцогчид', riskTab: 'Эрсдэлийн үнэлгээ', educationTab: 'Сургалтын материал'
             },
             'tl': {
                 '🎤 TBM 회의 참여': '🎤 Sumali sa TBM Meeting',
@@ -2105,7 +2440,10 @@
                 '세션 코드 (새 세션은 비워두세요)': 'Session code (iwanan blangko para sa bago)',
                 '음성 녹음': 'Voice Recording', '기본 정보': 'Basic Info', '보호구': 'PPE',
                 '참석자': 'Mga Kalahok', '위험성평가': 'Risk Assessment', '교육자료': 'Edukasyon',
-                '🌐 언어 변경 / Change Language': '🌐 Palitan ang Wika'
+                '🌐 언어 변경 / Change Language': '🌐 Palitan ang Wika',
+                joinBtn: 'Sumali', loginTitle: '🎤 Sumali sa TBM Meeting',
+                voiceTab: 'Voice Recording', basicTab: 'Basic Info', ppeTab: 'PPE',
+                attendeeTab: 'Mga Kalahok', riskTab: 'Risk Assessment', educationTab: 'Edukasyon'
             },
             'ne': {
                 '🎤 TBM 회의 참여': '🎤 TBM बैठकमा सामेल हुनुहोस्',
@@ -2114,7 +2452,10 @@
                 '세션 코드 (새 세션은 비워두세요)': 'सत्र कोड (नयाँको लागि खाली छोड्नुहोस्)',
                 '음성 녹음': 'आवाज रेकर्डिङ', '기본 정보': 'आधारभूत जानकारी', '보호구': 'सुरक्षा उपकरण',
                 '참석자': 'सहभागीहरू', '위험성평가': 'जोखिम मूल्याङ्कन', '교육자료': 'शैक्षिक सामग्री',
-                '🌐 언어 변경 / Change Language': '🌐 भाषा परिवर्तन'
+                '🌐 언어 변경 / Change Language': '🌐 भाषा परिवर्तन',
+                joinBtn: 'सामेल हुनुहोस्', loginTitle: '🎤 TBM बैठकमा सामेल हुनुहोस्',
+                voiceTab: 'आवाज रेकर्डिङ', basicTab: 'आधारभूत जानकारी', ppeTab: 'सुरक्षा उपकरण',
+                attendeeTab: 'सहभागीहरू', riskTab: 'जोखिम मूल्याङ्कन', educationTab: 'शैक्षिक सामग्री'
             },
             'si': {
                 '🎤 TBM 회의 참여': '🎤 TBM රැස්වීමට සම්බන්ධ වන්න',
@@ -2123,7 +2464,10 @@
                 '세션 코드 (새 세션은 비워두세요)': 'සැසි කේතය (අලුත් සඳහා හිස්ව තබන්න)',
                 '음성 녹음': 'හඬ පටිගත කිරීම', '기본 정보': 'මූලික තොරතුරු', '보호구': 'ආරක්ෂක උපකරණ',
                 '참석자': 'සහභාගිවන්නන්', '위험성평가': 'අවදානම් තක්සේරුව', '교육자료': 'අධ්‍යාපන ද්‍රව්‍ය',
-                '🌐 언어 변경 / Change Language': '🌐 භාෂාව වෙනස් කරන්න'
+                '🌐 언어 변경 / Change Language': '🌐 භාෂාව වෙනස් කරන්න',
+                joinBtn: 'සම්බන්ධ වන්න', loginTitle: '🎤 TBM රැස්වීමට සම්බන්ධ වන්න',
+                voiceTab: 'හඬ පටිගත කිරීම', basicTab: 'මූලික තොරතුරු', ppeTab: 'ආරක්ෂක උපකරණ',
+                attendeeTab: 'සහභාගිවන්නන්', riskTab: 'අවදානම් තක්සේරුව', educationTab: 'අධ්‍යාපන ද්‍රව්‍ය'
             },
             'my': {
                 '🎤 TBM 회의 참여': '🎤 TBM အစည်းအဝေးဝင်ရန်',
@@ -2132,7 +2476,10 @@
                 '세션 코드 (새 세션은 비워두세요)': 'Session code (အသစ်အတွက် ဗလာထားပါ)',
                 '음성 녹음': 'အသံဖမ်းခြင်း', '기본 정보': 'အခြေခံအချက်အလက်', '보호구': 'ကာကွယ်ရေးပစ္စည်း',
                 '참석자': 'တက်ရောက်သူများ', '위험성평가': 'အန္တရာယ်အကဲဖြတ်', '교육자료': 'ပညာရေးအထောက်အကူ',
-                '🌐 언어 변경 / Change Language': '🌐 ဘာသာစကားပြောင်းရန်'
+                '🌐 언어 변경 / Change Language': '🌐 ဘာသာစကားပြောင်းရန်',
+                joinBtn: 'ဝင်ရောက်ရန်', loginTitle: '🎤 TBM အစည်းအဝေးဝင်ရန်',
+                voiceTab: 'အသံဖမ်းခြင်း', basicTab: 'အခြေခံအချက်အလက်', ppeTab: 'ကာကွယ်ရေးပစ္စည်း',
+                attendeeTab: 'တက်ရောက်သူများ', riskTab: 'အန္တရာယ်အကဲဖြတ်', educationTab: 'ပညာရေးအထောက်အကူ'
             },
             'bn': {
                 '🎤 TBM 회의 참여': '🎤 TBM মিটিংয়ে যোগ দিন',
@@ -2141,40 +2488,10 @@
                 '세션 코드 (새 세션은 비워두세요)': 'সেশন কোড (নতুনের জন্য ফাঁকা রাখুন)',
                 '음성 녹음': 'ভয়েস রেকর্ডিং', '기본 정보': 'মৌলিক তথ্য', '보호구': 'সুরক্ষা সরঞ্জাম',
                 '참석자': 'অংশগ্রহণকারী', '위험성평가': 'ঝুঁকি মূল্যায়ন', '교육자료': 'শিক্ষা উপকরণ',
-                '🌐 언어 변경 / Change Language': '🌐 ভাষা পরিবর্তন'
-            },
-            'ru': {
-                '🎤 TBM 회의 참여': '🎤 Присоединиться к собранию TBM',
-                '참여하기': 'Присоединиться',
-                '이름을 입력하세요': 'Введите ваше имя',
-                '세션 코드 (새 세션은 비워두세요)': 'Код сессии (оставьте пустым для новой)',
-                '음성 녹음': 'Запись голоса', '기본 정보': 'Основная информация', '보호구': 'Средства защиты',
-                '참석자': 'Участники', '위험성평가': 'Оценка рисков', '교육자료': 'Учебные материалы',
-                '🌐 언어 변경 / Change Language': '🌐 Изменить язык',
-                'TBM 안전회의 시스템': 'Система безопасности TBM',
-                '로그아웃': 'Выход',
-                '🎤 음성으로 회의 진행': '🎤 Голосовое совещание',
-                '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다': 'Говорите — ИИ автоматически составит оценку рисков',
-                '준비 완료': 'Готово',
-                '🤖 AI 분석 시작': '🤖 Начать анализ ИИ',
-                '녹음 시작': 'Начать запись', '녹음 중지': 'Остановить запись',
-                '날짜': 'Дата', '시간': 'Время', '부서/업체명': 'Отдел/Компания',
-                '작업장소': 'Место работы', '작업내용': 'Описание работ',
-                '저장': 'Сохранить', '서명': 'Подпись', '서명 완료': 'Подписано',
-                '위험요인': 'Опасный фактор', '대책': 'Меры безопасности',
-                '빈도': 'Частота', '강도': 'Тяжесть', '위험도': 'Уровень риска',
-                '세션:': 'Сессия:',
-                '마이크 버튼을 눌러 회의를 시작하세요.': 'Нажмите кнопку микрофона для начала совещания.',
-                '교육 영상 생성': 'Создать учебное видео',
-                '교육자료 검색': 'Поиск учебных материалов',
-                '원페이지 교육자료 생성': 'Создать одностраничный учебный материал',
-                '📄 원페이지 교육자료 생성': '📄 Создать одностраничный учебный материал',
-                '맞춤형 안전교육자료': 'Индивидуальные учебные материалы',
-                '🔍 관련 자료 검색': '🔍 Поиск материалов',
-                '🖨️ 인쇄하기': '🖨️ Печать',
-                '📥 이미지 저장': '📥 Сохранить изображение',
-                '🔄 다시 생성': '🔄 Пересоздать',
-                '🔄 다시 검색': '🔄 Искать снова'
+                '🌐 언어 변경 / Change Language': '🌐 ভাষা পরিবর্তন',
+                joinBtn: 'যোগ দিন', loginTitle: '🎤 TBM মিটিংয়ে যোগ দিন',
+                voiceTab: 'ভয়েস রেকর্ডিং', basicTab: 'মৌলিক তথ্য', ppeTab: 'সুরক্ষা সরঞ্জাম',
+                attendeeTab: 'অংশগ্রহণকারী', riskTab: 'ঝুঁকি মূল্যায়ন', educationTab: 'শিক্ষা উপকরণ'
             }
         };
 
@@ -2182,9 +2499,28 @@
         function applyTranslations(lang) {
             if (!window.tbmTranslations) return;
             const t = window.tbmTranslations[lang] || window.tbmTranslations['ko'];
-            if (!t) return;
-            
-            // 텍스트 노드 교체
+            if (!t || Object.keys(t).length === 0) return;
+
+            // 1. data-i18n 속성 기반 번역 (최우선)
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    // innerHTML을 사용하여 <br> 등 HTML 태그 보존
+                    if (t[key].includes('<br>') || t[key].includes('<')) {
+                        el.innerHTML = t[key];
+                    } else {
+                        el.textContent = t[key];
+                    }
+                }
+            });
+
+            // 2. data-i18n-placeholder 속성 기반 플레이스홀더 번역
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) el.placeholder = t[key];
+            });
+
+            // 3. 텍스트 노드 교체 (레거시 호환용)
             const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
             let n;
             const nodesToReplace = [];
@@ -2195,50 +2531,21 @@
                     nodesToReplace.push({node: n, original: cleanText, translated: t[cleanText]});
                 }
             }
-            
             nodesToReplace.forEach(obj => {
                 obj.node.nodeValue = obj.node.nodeValue.replace(obj.original, obj.translated);
             });
-            
-            // 플레이스홀더 교체
+
+            // 4. 플레이스홀더 교체 (레거시 호환용)
             document.querySelectorAll('[placeholder]').forEach(el => {
                 const text = el.getAttribute('placeholder').trim();
                 if(text && t[text]) el.setAttribute('placeholder', t[text]);
             });
-            
-            // 밸류 교체
+
+            // 5. 밸류 교체
             document.querySelectorAll('input[type="button"], input[type="submit"]').forEach(el => {
                 const text = el.value.trim();
                 if(text && t[text]) el.value = t[text];
             });
-
-            // 내부 버튼 직접 교체 (번역 대상)
-            const joinBtn = document.getElementById('joinBtn');
-            if(joinBtn && t['참여하기']) joinBtn.textContent = t['참여하기'];
-
-            // ID 기반 번역 (확실한 매칭)
-            const idMap = {
-                'appTitle': 'TBM 안전회의 시스템',
-                'logoutBtn': '로그아웃',
-                'sessionLabel': '세션:',
-                'voiceTitle': '🎤 음성으로 회의 진행',
-                'voiceDesc': '회의 내용을 말하면 AI가 자동으로 위험성평가를 작성합니다',
-                'voiceStatus': '준비 완료',
-                'voicePlaceholder': '마이크 버튼을 눌러 회의를 시작하세요.',
-                'aiAnalyzeText': 'AI 분석 시작',
-                'generateVideoText': '교육자료 검색',
-                'loginTitle': '🎤 TBM 회의 참여'
-            };
-            Object.entries(idMap).forEach(([id, koText]) => {
-                const el = document.getElementById(id);
-                if (el && t[koText]) el.textContent = t[koText];
-            });
-
-            // innerHTML 포함 버튼 직접 교체
-            const aiBtn = document.getElementById('aiAnalyzeBtn');
-            if (aiBtn && t['AI 분석 시작']) aiBtn.innerHTML = '🤖 ' + t['AI 분석 시작'];
-            const vidBtn = document.getElementById('generateVideoBtn');
-            if (vidBtn && t['교육자료 검색']) vidBtn.innerHTML = '🔍 ' + t['교육자료 검색'];
         }
 
         // ==================== 언어 선택 ====================
@@ -2896,14 +3203,16 @@
 
         // ==================== PPE ====================
         function initPPE() {
+            const lang = localStorage.getItem('tbm_language') || 'ko';
+            const t = window.tbmTranslations?.[lang] || {};
             const ppeItems = [
-                { id: 'ppe1', icon: '🪖', name: '안전모' },
-                { id: 'ppe2', icon: '👟', name: '안전화' },
-                { id: 'ppe3', icon: '🧤', name: '안전장갑' },
-                { id: 'ppe4', icon: '🥽', name: '보안경' },
-                { id: 'ppe5', icon: '😷', name: '방진마스크' },
-                { id: 'ppe6', icon: '🔇', name: '귀마개' },
-                { id: 'ppe7', icon: '🦺', name: '안전대' }
+                { id: 'ppe1', icon: '🪖', name: '안전모', key: 'ppeHelmet' },
+                { id: 'ppe2', icon: '👟', name: '안전화', key: 'ppeSafetyShoes' },
+                { id: 'ppe3', icon: '🧤', name: '안전장갑', key: 'ppeGloves' },
+                { id: 'ppe4', icon: '🥽', name: '보안경', key: 'ppeGoggles' },
+                { id: 'ppe5', icon: '😷', name: '방진마스크', key: 'ppeMask' },
+                { id: 'ppe6', icon: '🔇', name: '귀마개', key: 'ppeEarplug' },
+                { id: 'ppe7', icon: '🦺', name: '안전대', key: 'ppeHarness' }
             ];
 
             const grid = document.getElementById('ppeGrid');
@@ -2911,7 +3220,7 @@
                 <label class="ppe-item" onclick="togglePPE(this)">
                     <input type="checkbox" value="${item.id}">
                     <span class="icon">${item.icon}</span>
-                    <span>${item.name}</span>
+                    <span data-i18n="${item.key}">${t[item.key] || item.name}</span>
                 </label>
             `).join('');
         }
@@ -3084,12 +3393,15 @@
         function updateRiskTable() {
             const tbody = document.getElementById('riskTableBody');
             const risks = sessionData?.riskAssessments || [];
+            const lang = localStorage.getItem('tbm_language') || 'ko';
+            const t = window.tbmTranslations?.[lang] || {};
 
             if (risks.length === 0) {
+                const noRiskMsg = t.noRiskMessage || '등록된 위험요인이 없습니다.<br>위험요인을 추가하거나 음성으로 회의를 진행하세요.';
                 tbody.innerHTML = `
                     <tr id="noRiskRow">
-                        <td colspan="9" style="text-align: center; color: #999; padding: 40px;">
-                            등록된 위험요인이 없습니다.<br>위험요인을 추가하거나 음성으로 회의를 진행하세요.
+                        <td colspan="9" style="text-align: center; color: #999; padding: 40px;" data-i18n="noRiskMessage">
+                            ${noRiskMsg}
                         </td>
                     </tr>
                 `;
@@ -3097,6 +3409,7 @@
                 return;
             }
 
+            const deleteLabel = t.deleteBtn || '삭제';
             tbody.innerHTML = risks.map((risk, index) => {
                 const score = risk.frequency * risk.severity;
                 let levelClass = 'risk-low', levelText = '하';
@@ -3114,7 +3427,7 @@
                         <td><span class="risk-badge ${levelClass}">${levelText} (${score})</span></td>
                         <td>${risk.countermeasure}</td>
                         <td>
-                            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="deleteRisk(${risk.id})">삭제</button>
+                            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="deleteRisk(${risk.id})">${deleteLabel}</button>
                         </td>
                     </tr>
                 `;
