@@ -2907,7 +2907,20 @@
 
         // Walk all text nodes in an element and replace Korean text
         function _translateElement(el, koreanKeys, t) {
-            const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+            // 번역 제외 영역 (대화 내용, 사용자 입력값)
+            const skipIds = ['voiceTranscript', 'onepageContent'];
+            const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+                acceptNode: function(node) {
+                    // 대화 영역, 입력값은 번역하지 않음
+                    let parent = node.parentElement;
+                    while (parent) {
+                        if (skipIds.includes(parent.id)) return NodeFilter.FILTER_REJECT;
+                        if (parent.tagName === 'INPUT' || parent.tagName === 'TEXTAREA') return NodeFilter.FILTER_REJECT;
+                        parent = parent.parentElement;
+                    }
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            }, false);
             const textNodes = [];
             while (walker.nextNode()) textNodes.push(walker.currentNode);
             textNodes.forEach(node => _replaceTextNode(node, koreanKeys, t));
@@ -3348,6 +3361,13 @@
 
                 aiAnalysisResult = result.analysis;
 
+                // 서버 결과가 부족하면 로컬 분석으로 보충
+                const localResult = performLocalAIAnalysis(transcriptText);
+                if (localResult.risks.length > (aiAnalysisResult?.risks?.length || 0)) {
+                    // 로컬이 더 많이 발견했으면 로컬 결과 사용
+                    aiAnalysisResult = localResult;
+                }
+
                 // 결과 표시
                 document.getElementById('aiResultPreview').style.display = 'block';
                 document.getElementById('aiResultSummary').textContent =
@@ -3371,7 +3391,10 @@
                 }
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '🤖 AI 분석 시작';
+                const lang = localStorage.getItem('tbm_language') || 'ko';
+                const t = window.tbmTranslations?.[lang] || {};
+                const btnText = t['AI 분석 시작'] || t['aiAnalyzeStart'] || 'AI 분석 시작';
+                btn.innerHTML = '🤖 ' + btnText;
             }
         }
 
