@@ -1525,6 +1525,13 @@
                 </button>
             </div>
 
+            <!-- 회의 요약 -->
+            <div id="meetingSummaryBox"
+                style="display: none; margin-top: 25px; padding: 20px; background: linear-gradient(135deg, #f0f9ff, #e8f4f8); border-radius: 15px; border-left: 5px solid #0ea5e9; text-align: left;">
+                <h3 style="color: #0369a1; margin-bottom: 15px;">📋 <span data-i18n="meetingSummary">회의 요약</span></h3>
+                <div id="meetingSummaryContent" style="font-size: 0.95rem; line-height: 1.8;"></div>
+            </div>
+
             <div id="aiResultPreview"
                 style="display: none; margin-top: 25px; padding: 20px; background: white; border-radius: 15px; border-left: 5px solid #7eb8da; text-align: left;">
                 <h3 style="color: #2e7d32; margin-bottom: 15px;" data-i18n="aiAnalysisDone">✅ AI 분석 완료!</h3>
@@ -2032,7 +2039,12 @@
                 '위험성평가 프로그램으로 내보내기': 'Export to Risk Assessment Program',
                 '결과 적용하기': 'Apply Results',
                 'AI 분석 완료!': 'AI Analysis Complete!',
-                '건의 위험요인이 식별되었습니다': 'risk factors have been identified',
+                'AI 분석이 완료되었습니다!': 'AI analysis is complete!',
+                '건의 위험요인이 식별되었습니다': ' risk factors have been identified',
+                '회의 요약': 'Meeting Summary',
+                '주요 안전지시사항': 'Key Safety Instructions',
+                '식별된 위험요인': 'Identified Risk Factors',
+                '작업': 'Work',
                 '리더': 'Leader',
                 '참여자': 'Participant',
                 '서명': 'Signature',
@@ -2188,6 +2200,11 @@
                 '위험성평가 프로그램으로 내보내기': '导出到风险评估系统',
                 '결과 적용하기': '应用结果',
                 'AI 분석 완료!': 'AI分析完成！',
+                'AI 분석이 완료되었습니다!': 'AI分析已完成！',
+                '회의 요약': '会议摘要',
+                '주요 안전지시사항': '主要安全指示',
+                '식별된 위험요인': '已识别的危险因素',
+                '작업': '作业',
                 '건의 위험요인이 식별되었습니다': '项危险因素已被识别',
                 '리더': '组长',
                 '참여자': '参与者',
@@ -2333,6 +2350,11 @@
                 '위험성평가 프로그램으로 내보내기': 'Xuất sang hệ thống đánh giá rủi ro',
                 '결과 적용하기': 'Áp dụng kết quả',
                 'AI 분석 완료!': 'Phân tích AI hoàn tất!',
+                'AI 분석이 완료되었습니다!': 'Phân tích AI đã hoàn tất!',
+                '회의 요약': 'Tóm tắt cuộc họp',
+                '주요 안전지시사항': 'Hướng dẫn an toàn chính',
+                '식별된 위험요인': 'Yếu tố nguy cơ đã xác định',
+                '작업': 'Công việc',
                 '건의 위험요인이 식별되었습니다': 'yếu tố nguy cơ đã được xác định',
                 '리더': 'Trưởng nhóm',
                 '참여자': 'Người tham gia',
@@ -2610,6 +2632,11 @@
                 '위험성평가 프로그램으로 내보내기': 'Ekspor ke Program Penilaian Risiko',
                 '결과 적용하기': 'Terapkan Hasil',
                 'AI 분석 완료!': 'Analisis AI Selesai!',
+                'AI 분석이 완료되었습니다!': 'Analisis AI telah selesai!',
+                '회의 요약': 'Ringkasan Rapat',
+                '주요 안전지시사항': 'Instruksi Keselamatan Utama',
+                '식별된 위험요인': 'Faktor risiko teridentifikasi',
+                '작업': 'Pekerjaan',
                 '건의 위험요인이 식별되었습니다': 'faktor risiko telah diidentifikasi',
                 '리더': 'Pemimpin',
                 '참여자': 'Peserta',
@@ -3368,12 +3395,19 @@
                     aiAnalysisResult = localResult;
                 }
 
+                // 회의 요약 생성
+                generateMeetingSummary(transcriptText, aiAnalysisResult);
+
                 // 결과 표시
                 document.getElementById('aiResultPreview').style.display = 'block';
+                const lang = localStorage.getItem('tbm_language') || 'ko';
+                const t = window.tbmTranslations?.[lang] || {};
+                const riskCount = aiAnalysisResult.risks?.length || 0;
+                const riskMsg = t['건의 위험요인이 식별되었습니다'] || '건의 위험요인이 식별되었습니다';
                 document.getElementById('aiResultSummary').textContent =
-                    `${aiAnalysisResult.risks?.length || 0}건의 위험요인이 식별되었습니다. ${aiAnalysisResult.summary || ''}`;
+                    `${riskCount}${riskMsg}`;
 
-                showNotification('AI 분석이 완료되었습니다!', 'success');
+                showNotification(t['AI 분석이 완료되었습니다!'] || 'AI 분석이 완료되었습니다!', 'success');
 
             } catch (error) {
                 console.error('AI 분석 오류:', error);
@@ -3396,6 +3430,70 @@
                 const btnText = t['AI 분석 시작'] || t['aiAnalyzeStart'] || 'AI 분석 시작';
                 btn.innerHTML = '🤖 ' + btnText;
             }
+        }
+
+        // ==================== 회의 요약 생성 ====================
+        function generateMeetingSummary(transcriptText, analysisResult) {
+            const lang = localStorage.getItem('tbm_language') || 'ko';
+            const t = window.tbmTranslations?.[lang] || {};
+
+            // 회의 내용에서 핵심 정보 추출
+            const workLocation = document.getElementById('workLocation')?.value || '';
+            const workContent = document.getElementById('workContent')?.value || '';
+            const riskCount = analysisResult?.risks?.length || 0;
+            const riskNames = (analysisResult?.risks || []).map(r => r.hazard || r.type || '').filter(Boolean);
+
+            // 대화에서 안전지시사항 추출
+            const safetyInstructions = [];
+            const transcriptLines = transcriptText.split(/[.!?]\s*/);
+            transcriptLines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed.length > 5 && (
+                    trimmed.includes('확인') || trimmed.includes('주의') || trimmed.includes('필수') ||
+                    trimmed.includes('착용') || trimmed.includes('비치') || trimmed.includes('측정') ||
+                    trimmed.includes('차단') || trimmed.includes('점검') || trimmed.includes('금지') ||
+                    trimmed.includes('조치') || trimmed.includes('check') || trimmed.includes('must') ||
+                    trimmed.includes('wear') || trimmed.includes('safety')
+                )) {
+                    safetyInstructions.push(trimmed);
+                }
+            });
+
+            // 번역된 라벨
+            const labels = {
+                work: t['작업'] || t['work'] || '작업',
+                location: t['장소'] || t['location'] || '장소',
+                safetyInstr: t['주요 안전지시사항'] || 'Safety Instructions',
+                risksFound: t['식별된 위험요인'] || 'Risks Identified',
+                meetingSummary: t['회의 요약'] || t['meetingSummary'] || '회의 요약'
+            };
+
+            let html = `
+                <div style="display: grid; gap: 12px;">
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div><strong>■ ${labels.work}:</strong> ${workLocation} - ${workContent}</div>
+                    </div>
+                    <div>
+                        <strong>■ ${labels.safetyInstr}:</strong>
+                        <ol style="margin: 8px 0 0 20px; padding: 0;">
+                            ${safetyInstructions.slice(0, 6).map(s => `<li style="margin-bottom: 4px;">${s}</li>`).join('')}
+                        </ol>
+                    </div>
+                    <div>
+                        <strong>■ ${labels.risksFound}:</strong> ${riskCount}건
+                        ${riskNames.length > 0 ? `<span style="color: #666; margin-left: 8px;">(${riskNames.join(', ')})</span>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('meetingSummaryBox').style.display = 'block';
+            document.getElementById('meetingSummaryContent').innerHTML = html;
+
+            // 번역 적용
+            setTimeout(() => {
+                const currentLang = localStorage.getItem('tbm_language');
+                if (currentLang && currentLang !== 'ko') applyTranslations(currentLang);
+            }, 100);
         }
 
         // ==================== 교육자료 검색 (YouTube + KOSHA) ====================
