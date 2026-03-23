@@ -4510,30 +4510,76 @@
 
         // ==================== AI 분석 ====================
         async function analyzeWithAI() {
+            const lang = localStorage.getItem('tbm_language') || 'ko';
+
             if (transcriptData.length === 0) {
-                // 데모 데이터 생성
-                transcriptData = [
-                    { time: '09:00:15', speaker: currentUser.name, text: '오늘 A동 3층 기계실에서 배관 교체 작업을 진행합니다.' },
-                    { time: '09:00:32', speaker: currentUser.name, text: '작업 전 전원 차단 확인하고, 잔압이 있을 수 있으니 주의하세요.' },
-                    { time: '09:01:05', speaker: currentUser.name, text: '고소작업이 있어서 안전대 착용 필수입니다.' },
-                    { time: '09:01:28', speaker: currentUser.name, text: '용접 작업 시 화재 위험이 있으니 소화기 비치해주세요.' },
-                    { time: '09:01:55', speaker: currentUser.name, text: '밀폐공간 작업 전 산소농도 측정 필수입니다.' }
-                ];
+                // 데모 데이터 - 언어별
+                const demoData = {
+                    ko: [
+                        { text: '오늘 A동 3층 기계실에서 배관 교체 작업을 진행합니다.' },
+                        { text: '작업 전 전원 차단 확인하고, 잔압이 있을 수 있으니 주의하세요.' },
+                        { text: '고소작업이 있어서 안전대 착용 필수입니다.' },
+                        { text: '용접 작업 시 화재 위험이 있으니 소화기 비치해주세요.' },
+                        { text: '밀폐공간 작업 전 산소농도 측정 필수입니다.' }
+                    ],
+                    en: [
+                        { text: 'Today we will be doing pipe replacement work in Building A, 3rd floor machine room.' },
+                        { text: 'Please verify power is off before work and watch for residual pressure.' },
+                        { text: 'Work at height requires safety harness.' },
+                        { text: 'Fire extinguisher must be ready for welding work.' },
+                        { text: 'Oxygen level measurement is required before confined space entry.' }
+                    ],
+                    zh: [
+                        { text: '今天在A栋3楼机械室进行管道更换作业。' },
+                        { text: '作业前确认电源切断，注意可能存在残压。' },
+                        { text: '高处作业必须佩戴安全带。' },
+                        { text: '焊接作业时有火灾危险，请准备灭火器。' },
+                        { text: '进入密闭空间前必须测量氧气浓度。' }
+                    ],
+                    vi: [
+                        { text: 'Hôm nay tiến hành thay ống tại phòng máy tầng 3 tòa A.' },
+                        { text: 'Xác nhận cắt điện trước khi làm việc, chú ý áp suất dư.' },
+                        { text: 'Làm việc trên cao bắt buộc đeo dây an toàn.' },
+                        { text: 'Chuẩn bị bình cứu hỏa khi hàn do nguy cơ cháy.' },
+                        { text: 'Bắt buộc đo nồng độ oxy trước khi vào không gian kín.' }
+                    ],
+                    ru: [
+                        { text: 'Сегодня проводим замену трубопровода в машинном зале 3 этажа здания А.' },
+                        { text: 'Перед работой убедитесь в отключении питания, возможно остаточное давление.' },
+                        { text: 'При работе на высоте обязательна страховочная привязь.' },
+                        { text: 'При сварке обеспечьте наличие огнетушителя.' },
+                        { text: 'Перед входом в замкнутое пространство обязательно измерить уровень кислорода.' }
+                    ]
+                };
+                const demos = demoData[lang] || demoData['en'] || demoData['ko'];
+                const times = ['09:00:15', '09:00:32', '09:01:05', '09:01:28', '09:01:55'];
+                transcriptData = demos.map((d, i) => ({ time: times[i], speaker: currentUser.name, text: d.text }));
                 updateTranscriptDisplay();
             }
 
             const btn = document.getElementById('aiAnalyzeBtn');
             btn.disabled = true;
-            btn.innerHTML = '<span class="loading-spinner"></span> AI가 분석 중입니다...';
+            const t = window.tbmTranslations?.[lang] || {};
+            btn.innerHTML = '<span class="loading-spinner"></span> ' + (t['AI가 분석 중입니다'] || t['analyzing'] || 'AI 분석 중...');
 
             try {
-                // 기본 정보 자동 채우기
+                // 기본 정보 자동 채우기 - 언어별
                 const transcriptText = transcriptData.map(t => t.text).join(' ');
-                if (transcriptText.includes('A동') || transcriptText.includes('기계실')) {
-                    document.getElementById('workLocation').value = 'A동 3층 기계실';
+                const locationNames = {
+                    ko: 'A동 3층 기계실', en: 'Building A, 3F Machine Room', zh: 'A栋3楼机械室',
+                    vi: 'Phòng máy tầng 3 tòa A', ru: 'Машинный зал, 3 эт., здание А',
+                    th: 'ห้องเครื่อง ชั้น 3 อาคาร A', id: 'Ruang Mesin Lt.3 Gedung A'
+                };
+                const workNames = {
+                    ko: '배관 교체 작업', en: 'Pipe Replacement', zh: '管道更换作业',
+                    vi: 'Thay thế đường ống', ru: 'Замена трубопровода',
+                    th: 'งานเปลี่ยนท่อ', id: 'Penggantian Pipa'
+                };
+                if (transcriptText.includes('기계실') || transcriptText.includes('machine') || transcriptText.includes('机械') || transcriptText.includes('máy') || transcriptText.includes('машин')) {
+                    document.getElementById('workLocation').value = locationNames[lang] || locationNames['en'];
                 }
-                if (transcriptText.includes('배관')) {
-                    document.getElementById('workContent').value = '배관 교체 작업';
+                if (transcriptText.includes('배관') || transcriptText.includes('pipe') || transcriptText.includes('管道') || transcriptText.includes('ống') || transcriptText.includes('трубо')) {
+                    document.getElementById('workContent').value = workNames[lang] || workNames['en'];
                 }
 
                 // 서버에 AI 분석 요청
@@ -4641,7 +4687,7 @@
                         </ol>
                     </div>
                     <div>
-                        <strong>■ ${labels.risksFound}:</strong> ${riskCount}건
+                        <strong>■ ${labels.risksFound}:</strong> ${riskCount}${lang === 'ko' ? '건' : ''}
                         ${riskNames.length > 0 ? `<span style="color: #666; margin-left: 8px;">(${riskNames.join(', ')})</span>` : ''}
                     </div>
                 </div>
