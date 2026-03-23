@@ -4649,8 +4649,6 @@
                 }
             } finally {
                 btn.disabled = false;
-                const lang = localStorage.getItem('tbm_language') || 'ko';
-                const t = window.tbmTranslations?.[lang] || {};
                 const btnText = t['AI 분석 시작'] || t['aiAnalyzeStart'] || 'AI 분석 시작';
                 btn.innerHTML = '🤖 ' + btnText;
             }
