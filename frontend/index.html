@@ -1479,7 +1479,8 @@
                 🎤 <span data-i18n="voiceTab">음성 녹음</span>
                 <span class="badge">AI</span>
             </button>
-            <button class="tab-btn" onclick="showTab('basic')">
+            <!-- 기본정보 탭 삭제: 회의요약으로 대체 -->
+            <button class="tab-btn" onclick="showTab('basic')" style="display:none;">
                 📋 <span data-i18n="basicTab">기본 정보</span>
             </button>
             <button class="tab-btn" onclick="showTab('ppe')">
@@ -1542,8 +1543,8 @@
             </div>
         </div>
 
-        <!-- 기본 정보 탭 -->
-        <div class="tab-content" id="basicTab">
+        <!-- 기본 정보 탭 (숨김 - 회의요약으로 대체, 데이터 필드는 유지) -->
+        <div class="tab-content" id="basicTab" style="display:none !important;"
             <h2 data-i18n="basicInfoTitle">📋 TBM 기본 정보</h2>
 
             <div class="form-row">
@@ -4929,94 +4930,285 @@
         function performLocalAIAnalysis(transcript) {
             const risks = [];
             const text = transcript;
+            const lang = localStorage.getItem('tbm_language') || 'ko';
             const location = document.getElementById('workLocation').value || '작업 현장';
+
+            // Hazard translations for all 15 languages
+            const hazardT = {
+                ko: {
+                    fall:       { activity: '고소작업', hazard: '추락 위험', measures: '안전대 착용, 2인 1조 작업, 작업발판 설치, 안전난간 설치' },
+                    fire:       { activity: '용접/화기 작업', hazard: '화재/화상 위험', measures: '소화기 비치, 불꽃 비산 방지막 설치, 화기작업 허가서 발행' },
+                    electric:   { activity: '전기 작업', hazard: '감전 위험', measures: '전원 차단 확인(LOTO), 잔류전압 확인, 절연장갑·절연장화 착용' },
+                    suffocation:{ activity: '밀폐공간 작업', hazard: '질식/중독 위험', measures: '산소농도 측정, 환기 실시, 감시인 배치, 공기호흡기 준비' },
+                    pressure:   { activity: '배관 작업', hazard: '잔압 분출 위험', measures: '잔압 확인 및 배출, 밸브 잠금(LOTO), 보안경 착용' },
+                    lifting:    { activity: '양중 작업', hazard: '낙하/충돌 위험', measures: '신호수 배치, 인양물 하부 출입금지, 과부하 방지' },
+                    vehicle:    { activity: '차량/운반 작업', hazard: '부딪힘/깔림 위험', measures: '보행로 분리, 후방카메라 확인, 제한속도 준수' },
+                    pinch:      { activity: '기계 작업', hazard: '끼임/협착 위험', measures: '방호덮개 설치, 비상정지장치 확인, 전원 차단 후 정비' },
+                    heavy:      { activity: '중량물 취급', hazard: '근골격계 질환/깔림 위험', measures: '보조기구 사용, 2인 1조 운반, 적정 중량 준수' },
+                    slip:       { activity: '보행/이동', hazard: '넘어짐/미끄러짐 위험', measures: '미끄럼 방지 조치, 바닥 청소, 안전화 착용' },
+                    noise:      { activity: '소음 작업', hazard: '청력 손상 위험', measures: '귀마개/귀덮개 착용, 소음원 격리, 작업시간 제한' },
+                    toxic:      { activity: '유해물질 취급', hazard: '중독/건강장해 위험', measures: '방진마스크/방독마스크 착용, 국소배기장치, MSDS 비치' },
+                    defaultH:   { activity: '일반 작업', hazard: '안전수칙 미준수 위험', measures: '작업 전 안전교육 실시, 보호구 착용, 정리정돈' }
+                },
+                en: {
+                    fall:       { activity: 'Work at Height', hazard: 'Fall Hazard', measures: 'Safety harness, buddy system, work platform, safety railing' },
+                    fire:       { activity: 'Welding/Hot Work', hazard: 'Fire/Burn Hazard', measures: 'Fire extinguisher, spark guard, hot work permit' },
+                    electric:   { activity: 'Electrical Work', hazard: 'Electrocution Hazard', measures: 'LOTO verification, residual voltage check, insulated gloves & boots' },
+                    suffocation:{ activity: 'Confined Space Work', hazard: 'Suffocation/Poisoning Hazard', measures: 'O2 measurement, ventilation, watchman, SCBA ready' },
+                    pressure:   { activity: 'Pipe Work', hazard: 'Residual Pressure Hazard', measures: 'Pressure check & release, valve LOTO, safety goggles' },
+                    lifting:    { activity: 'Lifting Work', hazard: 'Falling Object/Collision Hazard', measures: 'Signal person, exclusion zone below load, overload prevention' },
+                    vehicle:    { activity: 'Vehicle/Transport Work', hazard: 'Struck-by/Run-over Hazard', measures: 'Separate walkway, rear camera check, speed limit compliance' },
+                    pinch:      { activity: 'Machine Work', hazard: 'Pinch/Crush Hazard', measures: 'Guard cover, E-stop check, power off before maintenance' },
+                    heavy:      { activity: 'Heavy Load Handling', hazard: 'Musculoskeletal/Crush Hazard', measures: 'Use lifting aids, buddy lift, weight limits' },
+                    slip:       { activity: 'Walking/Moving', hazard: 'Slip/Trip Hazard', measures: 'Anti-slip measures, floor cleaning, safety shoes' },
+                    noise:      { activity: 'Noisy Work', hazard: 'Hearing Damage Hazard', measures: 'Earplugs/muffs, noise source isolation, work time limits' },
+                    toxic:      { activity: 'Hazardous Material Handling', hazard: 'Poisoning/Health Hazard', measures: 'Dust/gas mask, local exhaust ventilation, MSDS available' },
+                    defaultH:   { activity: 'General Work', hazard: 'Safety Non-compliance Hazard', measures: 'Pre-work safety training, PPE, housekeeping' }
+                },
+                zh: {
+                    fall:       { activity: '高处作业', hazard: '坠落危险', measures: '佩戴安全带, 二人一组, 安装作业平台, 安装安全栏杆' },
+                    fire:       { activity: '焊接/动火作业', hazard: '火灾/烧伤危险', measures: '配备灭火器, 设置防飞溅挡板, 办理动火许可证' },
+                    electric:   { activity: '电气作业', hazard: '触电危险', measures: '确认断电(LOTO), 检查残余电压, 穿绝缘手套·绝缘靴' },
+                    suffocation:{ activity: '密闭空间作业', hazard: '窒息/中毒危险', measures: '测量氧气浓度, 通风, 设置监护人, 准备空气呼吸器' },
+                    pressure:   { activity: '管道作业', hazard: '残压喷出危险', measures: '检查残压并排放, 阀门锁定(LOTO), 佩戴护目镜' },
+                    lifting:    { activity: '吊装作业', hazard: '坠落物/碰撞危险', measures: '配备信号员, 吊物下方禁止入内, 防止超载' },
+                    vehicle:    { activity: '车辆/搬运作业', hazard: '碰撞/碾压危险', measures: '分离步行道, 确认后方摄像头, 遵守限速' },
+                    pinch:      { activity: '机械作业', hazard: '夹伤/挤压危险', measures: '安装防护罩, 检查紧急停止装置, 断电后维修' },
+                    heavy:      { activity: '重物搬运', hazard: '肌肉骨骼疾病/碾压危险', measures: '使用辅助工具, 二人一组搬运, 遵守重量限制' },
+                    slip:       { activity: '行走/移动', hazard: '滑倒/绊倒危险', measures: '防滑措施, 清洁地面, 穿安全鞋' },
+                    noise:      { activity: '噪音作业', hazard: '听力损伤危险', measures: '佩戴耳塞/耳罩, 隔离噪音源, 限制作业时间' },
+                    toxic:      { activity: '有害物质处理', hazard: '中毒/健康损害危险', measures: '佩戴防尘/防毒面具, 局部排气装置, 备有MSDS' },
+                    defaultH:   { activity: '一般作业', hazard: '安全规则违规危险', measures: '作业前安全教育, 佩戴防护用品, 整理整顿' }
+                },
+                vi: {
+                    fall:       { activity: 'Lam viec tren cao', hazard: 'Nguy co roi nga', measures: 'Deo day an toan, lam viec theo cap, lap san cong tac, lap lan can an toan' },
+                    fire:       { activity: 'Han/Cong viec nong', hazard: 'Nguy co chay/bong', measures: 'Bo tri binh cuu hoa, lap tam chan tia lua, cap giay phep cong viec nong' },
+                    electric:   { activity: 'Cong viec dien', hazard: 'Nguy co dien giat', measures: 'Xac nhan cat dien(LOTO), kiem tra dien ap du, deo gang tay cach dien' },
+                    suffocation:{ activity: 'Khong gian kin', hazard: 'Nguy co ngat/nhiem doc', measures: 'Do nong do oxy, thong gio, bo tri nguoi giam sat, chuan bi mat na tho' },
+                    pressure:   { activity: 'Cong viec duong ong', hazard: 'Nguy co ap suat du', measures: 'Kiem tra va xa ap suat du, khoa van(LOTO), deo kinh bao ho' },
+                    lifting:    { activity: 'Cong viec nang ha', hazard: 'Nguy co roi vat/va cham', measures: 'Bo tri nguoi ra hieu, cam vao duoi vat nang, chong qua tai' },
+                    vehicle:    { activity: 'Xe/Van chuyen', hazard: 'Nguy co va cham/can', measures: 'Tach duong di bo, kiem tra camera lui, tuan thu toc do' },
+                    pinch:      { activity: 'Cong viec may moc', hazard: 'Nguy co kep/nghen', measures: 'Lap nap bao ve, kiem tra nut dung khan cap, tat nguon truoc khi bao tri' },
+                    heavy:      { activity: 'Xu ly vat nang', hazard: 'Nguy co co xuong/de', measures: 'Dung thiet bi ho tro, 2 nguoi nang, tuan thu gioi han trong luong' },
+                    slip:       { activity: 'Di bo/Di chuyen', hazard: 'Nguy co truot/nga', measures: 'Bien phap chong truot, lau san, mang giay bao ho' },
+                    noise:      { activity: 'Cong viec on', hazard: 'Nguy co ton thuong thinh giac', measures: 'Deo nut tai/che tai, cach ly nguon on, gioi han thoi gian' },
+                    toxic:      { activity: 'Xu ly chat doc hai', hazard: 'Nguy co nhiem doc/suc khoe', measures: 'Deo mat na chong bui/doc, he thong hut cuc bo, co MSDS' },
+                    defaultH:   { activity: 'Cong viec chung', hazard: 'Nguy co vi pham an toan', measures: 'Huan luyen an toan truoc khi lam, PPE, don dep' }
+                },
+                th: {
+                    fall:       { activity: 'ทำงานบนที่สูง', hazard: 'อันตรายจากการตก', measures: 'สวมสายรัดนิรภัย, ทำงาน 2 คน, ติดตั้งนั่งร้าน, ราวกันตก' },
+                    fire:       { activity: 'งานเชื่อม/งานร้อน', hazard: 'อันตรายจากไฟ/แผลไหม้', measures: 'เตรียมถังดับเพลิง, ม่านกันประกายไฟ, ใบอนุญาตงานร้อน' },
+                    electric:   { activity: 'งานไฟฟ้า', hazard: 'อันตรายจากไฟฟ้าช็อต', measures: 'ยืนยัน LOTO, ตรวจแรงดันตกค้าง, สวมถุงมือฉนวน' },
+                    suffocation:{ activity: 'พื้นที่อับอากาศ', hazard: 'อันตรายจากขาดอากาศ/พิษ', measures: 'วัดออกซิเจน, ระบายอากาศ, จัดผู้เฝ้าระวัง, เตรียม SCBA' },
+                    pressure:   { activity: 'งานท่อ', hazard: 'อันตรายจากแรงดันตกค้าง', measures: 'ตรวจและระบายแรงดัน, ล็อกวาล์ว(LOTO), สวมแว่นตานิรภัย' },
+                    lifting:    { activity: 'งานยกของ', hazard: 'อันตรายจากของตก/ชน', measures: 'จัดผู้ให้สัญญาณ, ห้ามเข้าใต้ของยก, ป้องกันเกินพิกัด' },
+                    vehicle:    { activity: 'รถ/ขนส่ง', hazard: 'อันตรายจากชน/ทับ', measures: 'แยกทางเดิน, ตรวจกล้องหลัง, จำกัดความเร็ว' },
+                    pinch:      { activity: 'งานเครื่องจักร', hazard: 'อันตรายจากหนีบ/บด', measures: 'ติดฝาครอบป้องกัน, ตรวจปุ่มฉุกเฉิน, ตัดไฟก่อนซ่อม' },
+                    heavy:      { activity: 'ยกของหนัก', hazard: 'อันตรายกล้ามเนื้อ/ทับ', measures: 'ใช้อุปกรณ์ช่วย, ยก 2 คน, ไม่เกินน้ำหนัก' },
+                    slip:       { activity: 'เดิน/เคลื่อนที่', hazard: 'อันตรายลื่น/สะดุด', measures: 'มาตรการกันลื่น, ทำความสะอาดพื้น, สวมรองเท้านิรภัย' },
+                    noise:      { activity: 'งานเสียงดัง', hazard: 'อันตรายต่อการได้ยิน', measures: 'สวมที่อุดหู, แยกแหล่งเสียง, จำกัดเวลาทำงาน' },
+                    toxic:      { activity: 'จัดการสารอันตราย', hazard: 'อันตรายพิษ/สุขภาพ', measures: 'สวมหน้ากากกันฝุ่น/สารพิษ, ระบบดูดอากาศ, มี MSDS' },
+                    defaultH:   { activity: 'งานทั่วไป', hazard: 'อันตรายจากไม่ปฏิบัติตามกฎ', measures: 'อบรมก่อนทำงาน, สวม PPE, จัดระเบียบ' }
+                },
+                id: {
+                    fall:       { activity: 'Kerja di Ketinggian', hazard: 'Bahaya Jatuh', measures: 'Sabuk pengaman, kerja 2 orang, platform kerja, pagar pengaman' },
+                    fire:       { activity: 'Las/Kerja Panas', hazard: 'Bahaya Kebakaran/Luka Bakar', measures: 'Alat pemadam, pelindung percikan, izin kerja panas' },
+                    electric:   { activity: 'Kerja Listrik', hazard: 'Bahaya Sengatan Listrik', measures: 'Verifikasi LOTO, cek tegangan sisa, sarung tangan isolasi' },
+                    suffocation:{ activity: 'Ruang Terbatas', hazard: 'Bahaya Sesak/Keracunan', measures: 'Ukur O2, ventilasi, pengawas, SCBA siap' },
+                    pressure:   { activity: 'Kerja Pipa', hazard: 'Bahaya Tekanan Sisa', measures: 'Cek & buang tekanan, kunci katup(LOTO), kacamata safety' },
+                    lifting:    { activity: 'Pengangkatan', hazard: 'Bahaya Jatuh/Tabrakan', measures: 'Juru isyarat, zona larangan bawah beban, cegah kelebihan beban' },
+                    vehicle:    { activity: 'Kendaraan/Angkut', hazard: 'Bahaya Tabrak/Terlindas', measures: 'Pisahkan jalur pejalan, cek kamera mundur, patuhi batas kecepatan' },
+                    pinch:      { activity: 'Kerja Mesin', hazard: 'Bahaya Terjepit/Tergencet', measures: 'Pasang pelindung, cek tombol darurat, matikan daya sebelum perbaikan' },
+                    heavy:      { activity: 'Penanganan Beban Berat', hazard: 'Bahaya Otot/Tergencet', measures: 'Gunakan alat bantu, angkat 2 orang, patuhi batas berat' },
+                    slip:       { activity: 'Berjalan/Bergerak', hazard: 'Bahaya Terpeleset/Tersandung', measures: 'Tindakan anti-selip, bersihkan lantai, sepatu safety' },
+                    noise:      { activity: 'Kerja Bising', hazard: 'Bahaya Kerusakan Pendengaran', measures: 'Penutup telinga, isolasi sumber bising, batasi waktu kerja' },
+                    toxic:      { activity: 'Penanganan Bahan Berbahaya', hazard: 'Bahaya Keracunan/Kesehatan', measures: 'Masker debu/gas, exhaust lokal, MSDS tersedia' },
+                    defaultH:   { activity: 'Kerja Umum', hazard: 'Bahaya Ketidakpatuhan Keselamatan', measures: 'Pelatihan pra-kerja, APD, kerapihan' }
+                },
+                ru: {
+                    fall:       { activity: 'Работа на высоте', hazard: 'Опасность падения', measures: 'Страховочная привязь, работа в паре, рабочий настил, ограждения' },
+                    fire:       { activity: 'Сварка/Огневые работы', hazard: 'Опасность пожара/ожога', measures: 'Огнетушитель, искрозащитный экран, наряд-допуск' },
+                    electric:   { activity: 'Электроработы', hazard: 'Опасность поражения током', measures: 'Проверка LOTO, остаточное напряжение, диэлектрические перчатки' },
+                    suffocation:{ activity: 'Замкнутое пространство', hazard: 'Опасность удушья/отравления', measures: 'Измерение O2, вентиляция, наблюдатель, СИЗОД' },
+                    pressure:   { activity: 'Трубопроводные работы', hazard: 'Опасность остаточного давления', measures: 'Проверка и сброс давления, LOTO клапанов, защитные очки' },
+                    lifting:    { activity: 'Подъёмные работы', hazard: 'Опасность падения груза', measures: 'Сигнальщик, запрет нахождения под грузом, защита от перегрузки' },
+                    vehicle:    { activity: 'Транспорт/Перемещение', hazard: 'Опасность наезда/столкновения', measures: 'Разделение пешеходных путей, камера заднего вида, ограничение скорости' },
+                    pinch:      { activity: 'Работа с механизмами', hazard: 'Опасность зажатия/раздавливания', measures: 'Защитные кожухи, аварийная остановка, отключение перед обслуживанием' },
+                    heavy:      { activity: 'Работа с тяжёлыми грузами', hazard: 'Опасность травм/раздавливания', measures: 'Вспомогательные устройства, подъём вдвоём, нормы веса' },
+                    slip:       { activity: 'Ходьба/Перемещение', hazard: 'Опасность скольжения/падения', measures: 'Противоскользящие меры, уборка пола, защитная обувь' },
+                    noise:      { activity: 'Шумные работы', hazard: 'Опасность повреждения слуха', measures: 'Беруши/наушники, изоляция шума, ограничение рабочего времени' },
+                    toxic:      { activity: 'Работа с вредными веществами', hazard: 'Опасность отравления', measures: 'Респиратор, местная вытяжка, наличие MSDS' },
+                    defaultH:   { activity: 'Общие работы', hazard: 'Опасность нарушения правил', measures: 'Инструктаж, СИЗ, наведение порядка' }
+                },
+                uz: {
+                    fall:       { activity: 'Balandlikda ishlash', hazard: 'Yiqilish xavfi', measures: 'Xavfsizlik kamari, juft ishlash, ish platformasi, himoya panjarasi' },
+                    fire:       { activity: 'Payvandlash/Issiq ish', hazard: 'Yong\'in/Kuyish xavfi', measures: 'O\'t o\'chirgich, uchqun himoyasi, issiq ish ruxsatnomasi' },
+                    electric:   { activity: 'Elektr ishlari', hazard: 'Tok urishi xavfi', measures: 'LOTO tekshiruvi, qoldiq kuchlanish, izolyatsiya qo\'lqoplari' },
+                    suffocation:{ activity: 'Yopiq makon', hazard: 'Bo\'g\'ilish/Zaharlanish xavfi', measures: 'O2 o\'lchash, shamollatish, kuzatuvchi, SCBA tayyor' },
+                    pressure:   { activity: 'Quvur ishlari', hazard: 'Qoldiq bosim xavfi', measures: 'Bosimni tekshirish va tushirish, klapan LOTO, himoya ko\'zoynagi' },
+                    lifting:    { activity: 'Ko\'tarish ishlari', hazard: 'Tushish/To\'qnashuv xavfi', measures: 'Signal beruvchi, yuk ostida taqiq, ortiqcha yuklanish oldini olish' },
+                    vehicle:    { activity: 'Transport/Tashish', hazard: 'Urilish/Bosib ketish xavfi', measures: 'Piyoda yo\'lini ajratish, orqa kamerani tekshirish, tezlik chegarasi' },
+                    pinch:      { activity: 'Mashina ishlari', hazard: 'Qisib qolish xavfi', measures: 'Himoya qopqog\'i, favqulodda to\'xtatish, ta\'mirdan oldin o\'chirish' },
+                    heavy:      { activity: 'Og\'ir yuk ishlash', hazard: 'Muskul/Ezilish xavfi', measures: 'Yordamchi asboblar, ikki kishilik ko\'tarish, vazn chegarasi' },
+                    slip:       { activity: 'Yurish/Harakatlanish', hazard: 'Sirpanish/Qoqinish xavfi', measures: 'Sirpanishga qarshi choralar, polni tozalash, xavfsiz poyabzal' },
+                    noise:      { activity: 'Shovqinli ish', hazard: 'Eshitish shikastlanishi xavfi', measures: 'Quloq tiqini, shovqin manbasini izolyatsiyalash, ish vaqtini cheklash' },
+                    toxic:      { activity: 'Xavfli moddalar', hazard: 'Zaharlanish/Salomatlik xavfi', measures: 'Chang/gaz niqobi, mahalliy so\'rish, MSDS mavjud' },
+                    defaultH:   { activity: 'Umumiy ish', hazard: 'Xavfsizlik qoidalari buzilishi', measures: 'Ish oldi ta\'lim, shaxsiy himoya vositalari, tartibga solish' }
+                },
+                mn: {
+                    fall:       { activity: 'Өндөрт ажиллах', hazard: 'Унах аюул', measures: 'Аюулгүй бүс, хос ажиллах, тавцан, хамгаалалтын хашлага' },
+                    fire:       { activity: 'Гагнуур/Халуун ажил', hazard: 'Гал/Түлэгдэх аюул', measures: 'Гал унтраагуур, оч хамгаалагч, халуун ажлын зөвшөөрөл' },
+                    electric:   { activity: 'Цахилгаан ажил', hazard: 'Цахилгаанд цохиулах аюул', measures: 'LOTO шалгалт, үлдэгдэл хүчдэл, тусгаарлагч бээлий' },
+                    suffocation:{ activity: 'Битүү орон зай', hazard: 'Боогдох/Хордох аюул', measures: 'O2 хэмжилт, агааржуулалт, хяналтын ажилтан, SCBA бэлэн' },
+                    pressure:   { activity: 'Хоолойн ажил', hazard: 'Үлдэгдэл даралтын аюул', measures: 'Даралт шалгах, хаалт LOTO, хамгаалалтын нүдний шил' },
+                    lifting:    { activity: 'Өргөх ажил', hazard: 'Унах/Мөргөлдөх аюул', measures: 'Дохио өгөгч, ачааны доорх бүс, хэт ачааллаас сэргийлэх' },
+                    vehicle:    { activity: 'Тээвэр/Зөөвөрлөлт', hazard: 'Мөргөлдөх/Дайрах аюул', measures: 'Явган зам тусгаарлах, арын камер, хурдны хязгаар' },
+                    pinch:      { activity: 'Машин механизм', hazard: 'Чимхэгдэх/Бяцалдах аюул', measures: 'Хамгаалалтын бүрхүүл, яаралтай зогсоох, засварын өмнө унтраах' },
+                    heavy:      { activity: 'Хүнд ачаа', hazard: 'Булчин/Бяцалдах аюул', measures: 'Туслах хэрэгсэл, хоёр хүн өргөх, жингийн хязгаар' },
+                    slip:       { activity: 'Алхах/Хөдлөх', hazard: 'Гулсах/Бүдрэх аюул', measures: 'Гулсахаас хамгаалах, шал цэвэрлэх, аюулгүй гутал' },
+                    noise:      { activity: 'Чимээтэй ажил', hazard: 'Сонсгол гэмтэх аюул', measures: 'Чихэвч, дуу чимээ тусгаарлах, ажлын цагийг хязгаарлах' },
+                    toxic:      { activity: 'Аюултай бодис', hazard: 'Хордох/Эрүүл мэндийн аюул', measures: 'Тоос/хий маск, орон нутгийн сорох, MSDS бэлэн' },
+                    defaultH:   { activity: 'Ерөнхий ажил', hazard: 'Аюулгүй байдлын зөрчил', measures: 'Ажлын өмнөх сургалт, ХХХ, эмх цэгц' }
+                },
+                tl: {
+                    fall:       { activity: 'Trabaho sa Taas', hazard: 'Panganib sa Pagkahulog', measures: 'Safety harness, buddy system, work platform, safety railing' },
+                    fire:       { activity: 'Welding/Hot Work', hazard: 'Panganib sa Sunog/Paso', measures: 'Fire extinguisher, spark guard, hot work permit' },
+                    electric:   { activity: 'Trabahong Elektrikal', hazard: 'Panganib sa Kuryente', measures: 'LOTO verification, residual voltage check, insulated gloves & boots' },
+                    suffocation:{ activity: 'Saradong Espasyo', hazard: 'Panganib sa Suffocation/Lason', measures: 'O2 measurement, ventilation, watchman, SCBA ready' },
+                    pressure:   { activity: 'Trabaho sa Tubo', hazard: 'Panganib sa Natitirang Presyon', measures: 'Pressure check & release, valve LOTO, safety goggles' },
+                    lifting:    { activity: 'Pag-angat', hazard: 'Panganib sa Pagkahulog ng Bagay', measures: 'Signal person, exclusion zone below load, overload prevention' },
+                    vehicle:    { activity: 'Sasakyan/Transportasyon', hazard: 'Panganib sa Banggaan/Sagasa', measures: 'Separate walkway, rear camera check, speed limit compliance' },
+                    pinch:      { activity: 'Trabaho sa Makina', hazard: 'Panganib sa Pagkapit/Pagkadurog', measures: 'Guard cover, E-stop check, power off before maintenance' },
+                    heavy:      { activity: 'Mabigat na Karga', hazard: 'Panganib sa Kalamnan/Pagkadurog', measures: 'Use lifting aids, buddy lift, weight limits' },
+                    slip:       { activity: 'Paglalakad/Paggalaw', hazard: 'Panganib sa Pagkadulas/Pagkatisod', measures: 'Anti-slip measures, floor cleaning, safety shoes' },
+                    noise:      { activity: 'Maingay na Trabaho', hazard: 'Panganib sa Pandinig', measures: 'Earplugs/muffs, noise source isolation, work time limits' },
+                    toxic:      { activity: 'Mapanganib na Kemikal', hazard: 'Panganib sa Lason/Kalusugan', measures: 'Dust/gas mask, local exhaust ventilation, MSDS available' },
+                    defaultH:   { activity: 'Pangkalahatang Trabaho', hazard: 'Panganib sa Hindi Pagsunod', measures: 'Pre-work safety training, PPE, housekeeping' }
+                },
+                km: {
+                    fall:       { activity: 'Work at Height', hazard: 'Fall Hazard', measures: 'Safety harness, buddy system, work platform, safety railing' },
+                    fire:       { activity: 'Welding/Hot Work', hazard: 'Fire/Burn Hazard', measures: 'Fire extinguisher, spark guard, hot work permit' },
+                    electric:   { activity: 'Electrical Work', hazard: 'Electrocution Hazard', measures: 'LOTO verification, residual voltage check, insulated gloves & boots' },
+                    suffocation:{ activity: 'Confined Space Work', hazard: 'Suffocation/Poisoning Hazard', measures: 'O2 measurement, ventilation, watchman, SCBA ready' },
+                    pressure:   { activity: 'Pipe Work', hazard: 'Residual Pressure Hazard', measures: 'Pressure check & release, valve LOTO, safety goggles' },
+                    lifting:    { activity: 'Lifting Work', hazard: 'Falling Object/Collision Hazard', measures: 'Signal person, exclusion zone below load, overload prevention' },
+                    vehicle:    { activity: 'Vehicle/Transport Work', hazard: 'Struck-by/Run-over Hazard', measures: 'Separate walkway, rear camera check, speed limit compliance' },
+                    pinch:      { activity: 'Machine Work', hazard: 'Pinch/Crush Hazard', measures: 'Guard cover, E-stop check, power off before maintenance' },
+                    heavy:      { activity: 'Heavy Load Handling', hazard: 'Musculoskeletal/Crush Hazard', measures: 'Use lifting aids, buddy lift, weight limits' },
+                    slip:       { activity: 'Walking/Moving', hazard: 'Slip/Trip Hazard', measures: 'Anti-slip measures, floor cleaning, safety shoes' },
+                    noise:      { activity: 'Noisy Work', hazard: 'Hearing Damage Hazard', measures: 'Earplugs/muffs, noise source isolation, work time limits' },
+                    toxic:      { activity: 'Hazardous Material Handling', hazard: 'Poisoning/Health Hazard', measures: 'Dust/gas mask, local exhaust ventilation, MSDS available' },
+                    defaultH:   { activity: 'General Work', hazard: 'Safety Non-compliance Hazard', measures: 'Pre-work safety training, PPE, housekeeping' }
+                },
+                ne: {
+                    fall:       { activity: 'Work at Height', hazard: 'Fall Hazard', measures: 'Safety harness, buddy system, work platform, safety railing' },
+                    fire:       { activity: 'Welding/Hot Work', hazard: 'Fire/Burn Hazard', measures: 'Fire extinguisher, spark guard, hot work permit' },
+                    electric:   { activity: 'Electrical Work', hazard: 'Electrocution Hazard', measures: 'LOTO verification, residual voltage check, insulated gloves & boots' },
+                    suffocation:{ activity: 'Confined Space Work', hazard: 'Suffocation/Poisoning Hazard', measures: 'O2 measurement, ventilation, watchman, SCBA ready' },
+                    pressure:   { activity: 'Pipe Work', hazard: 'Residual Pressure Hazard', measures: 'Pressure check & release, valve LOTO, safety goggles' },
+                    lifting:    { activity: 'Lifting Work', hazard: 'Falling Object/Collision Hazard', measures: 'Signal person, exclusion zone below load, overload prevention' },
+                    vehicle:    { activity: 'Vehicle/Transport Work', hazard: 'Struck-by/Run-over Hazard', measures: 'Separate walkway, rear camera check, speed limit compliance' },
+                    pinch:      { activity: 'Machine Work', hazard: 'Pinch/Crush Hazard', measures: 'Guard cover, E-stop check, power off before maintenance' },
+                    heavy:      { activity: 'Heavy Load Handling', hazard: 'Musculoskeletal/Crush Hazard', measures: 'Use lifting aids, buddy lift, weight limits' },
+                    slip:       { activity: 'Walking/Moving', hazard: 'Slip/Trip Hazard', measures: 'Anti-slip measures, floor cleaning, safety shoes' },
+                    noise:      { activity: 'Noisy Work', hazard: 'Hearing Damage Hazard', measures: 'Earplugs/muffs, noise source isolation, work time limits' },
+                    toxic:      { activity: 'Hazardous Material Handling', hazard: 'Poisoning/Health Hazard', measures: 'Dust/gas mask, local exhaust ventilation, MSDS available' },
+                    defaultH:   { activity: 'General Work', hazard: 'Safety Non-compliance Hazard', measures: 'Pre-work safety training, PPE, housekeeping' }
+                },
+                si: {
+                    fall:       { activity: 'Work at Height', hazard: 'Fall Hazard', measures: 'Safety harness, buddy system, work platform, safety railing' },
+                    fire:       { activity: 'Welding/Hot Work', hazard: 'Fire/Burn Hazard', measures: 'Fire extinguisher, spark guard, hot work permit' },
+                    electric:   { activity: 'Electrical Work', hazard: 'Electrocution Hazard', measures: 'LOTO verification, residual voltage check, insulated gloves & boots' },
+                    suffocation:{ activity: 'Confined Space Work', hazard: 'Suffocation/Poisoning Hazard', measures: 'O2 measurement, ventilation, watchman, SCBA ready' },
+                    pressure:   { activity: 'Pipe Work', hazard: 'Residual Pressure Hazard', measures: 'Pressure check & release, valve LOTO, safety goggles' },
+                    lifting:    { activity: 'Lifting Work', hazard: 'Falling Object/Collision Hazard', measures: 'Signal person, exclusion zone below load, overload prevention' },
+                    vehicle:    { activity: 'Vehicle/Transport Work', hazard: 'Struck-by/Run-over Hazard', measures: 'Separate walkway, rear camera check, speed limit compliance' },
+                    pinch:      { activity: 'Machine Work', hazard: 'Pinch/Crush Hazard', measures: 'Guard cover, E-stop check, power off before maintenance' },
+                    heavy:      { activity: 'Heavy Load Handling', hazard: 'Musculoskeletal/Crush Hazard', measures: 'Use lifting aids, buddy lift, weight limits' },
+                    slip:       { activity: 'Walking/Moving', hazard: 'Slip/Trip Hazard', measures: 'Anti-slip measures, floor cleaning, safety shoes' },
+                    noise:      { activity: 'Noisy Work', hazard: 'Hearing Damage Hazard', measures: 'Earplugs/muffs, noise source isolation, work time limits' },
+                    toxic:      { activity: 'Hazardous Material Handling', hazard: 'Poisoning/Health Hazard', measures: 'Dust/gas mask, local exhaust ventilation, MSDS available' },
+                    defaultH:   { activity: 'General Work', hazard: 'Safety Non-compliance Hazard', measures: 'Pre-work safety training, PPE, housekeeping' }
+                },
+                my: {
+                    fall:       { activity: 'Work at Height', hazard: 'Fall Hazard', measures: 'Safety harness, buddy system, work platform, safety railing' },
+                    fire:       { activity: 'Welding/Hot Work', hazard: 'Fire/Burn Hazard', measures: 'Fire extinguisher, spark guard, hot work permit' },
+                    electric:   { activity: 'Electrical Work', hazard: 'Electrocution Hazard', measures: 'LOTO verification, residual voltage check, insulated gloves & boots' },
+                    suffocation:{ activity: 'Confined Space Work', hazard: 'Suffocation/Poisoning Hazard', measures: 'O2 measurement, ventilation, watchman, SCBA ready' },
+                    pressure:   { activity: 'Pipe Work', hazard: 'Residual Pressure Hazard', measures: 'Pressure check & release, valve LOTO, safety goggles' },
+                    lifting:    { activity: 'Lifting Work', hazard: 'Falling Object/Collision Hazard', measures: 'Signal person, exclusion zone below load, overload prevention' },
+                    vehicle:    { activity: 'Vehicle/Transport Work', hazard: 'Struck-by/Run-over Hazard', measures: 'Separate walkway, rear camera check, speed limit compliance' },
+                    pinch:      { activity: 'Machine Work', hazard: 'Pinch/Crush Hazard', measures: 'Guard cover, E-stop check, power off before maintenance' },
+                    heavy:      { activity: 'Heavy Load Handling', hazard: 'Musculoskeletal/Crush Hazard', measures: 'Use lifting aids, buddy lift, weight limits' },
+                    slip:       { activity: 'Walking/Moving', hazard: 'Slip/Trip Hazard', measures: 'Anti-slip measures, floor cleaning, safety shoes' },
+                    noise:      { activity: 'Noisy Work', hazard: 'Hearing Damage Hazard', measures: 'Earplugs/muffs, noise source isolation, work time limits' },
+                    toxic:      { activity: 'Hazardous Material Handling', hazard: 'Poisoning/Health Hazard', measures: 'Dust/gas mask, local exhaust ventilation, MSDS available' },
+                    defaultH:   { activity: 'General Work', hazard: 'Safety Non-compliance Hazard', measures: 'Pre-work safety training, PPE, housekeeping' }
+                },
+                bn: {
+                    fall:       { activity: 'Work at Height', hazard: 'Fall Hazard', measures: 'Safety harness, buddy system, work platform, safety railing' },
+                    fire:       { activity: 'Welding/Hot Work', hazard: 'Fire/Burn Hazard', measures: 'Fire extinguisher, spark guard, hot work permit' },
+                    electric:   { activity: 'Electrical Work', hazard: 'Electrocution Hazard', measures: 'LOTO verification, residual voltage check, insulated gloves & boots' },
+                    suffocation:{ activity: 'Confined Space Work', hazard: 'Suffocation/Poisoning Hazard', measures: 'O2 measurement, ventilation, watchman, SCBA ready' },
+                    pressure:   { activity: 'Pipe Work', hazard: 'Residual Pressure Hazard', measures: 'Pressure check & release, valve LOTO, safety goggles' },
+                    lifting:    { activity: 'Lifting Work', hazard: 'Falling Object/Collision Hazard', measures: 'Signal person, exclusion zone below load, overload prevention' },
+                    vehicle:    { activity: 'Vehicle/Transport Work', hazard: 'Struck-by/Run-over Hazard', measures: 'Separate walkway, rear camera check, speed limit compliance' },
+                    pinch:      { activity: 'Machine Work', hazard: 'Pinch/Crush Hazard', measures: 'Guard cover, E-stop check, power off before maintenance' },
+                    heavy:      { activity: 'Heavy Load Handling', hazard: 'Musculoskeletal/Crush Hazard', measures: 'Use lifting aids, buddy lift, weight limits' },
+                    slip:       { activity: 'Walking/Moving', hazard: 'Slip/Trip Hazard', measures: 'Anti-slip measures, floor cleaning, safety shoes' },
+                    noise:      { activity: 'Noisy Work', hazard: 'Hearing Damage Hazard', measures: 'Earplugs/muffs, noise source isolation, work time limits' },
+                    toxic:      { activity: 'Hazardous Material Handling', hazard: 'Poisoning/Health Hazard', measures: 'Dust/gas mask, local exhaust ventilation, MSDS available' },
+                    defaultH:   { activity: 'General Work', hazard: 'Safety Non-compliance Hazard', measures: 'Pre-work safety training, PPE, housekeeping' }
+                }
+            };
+            const ht = hazardT[lang] || hazardT['ko'];
+
+            // Summary text translations
+            const summaryT = {
+                ko: (n) => `총 ${n}건의 위험요인이 식별되었습니다.`,
+                en: (n) => `${n} hazard(s) identified.`,
+                zh: (n) => `共识别出${n}项危险因素。`,
+                vi: (n) => `Da xac dinh ${n} moi nguy.`,
+                th: (n) => `พบอันตราย ${n} รายการ`,
+                id: (n) => `${n} bahaya teridentifikasi.`,
+                ru: (n) => `Выявлено ${n} опасных факторов.`,
+                uz: (n) => `${n} ta xavf aniqlandi.`,
+                km: (n) => `${n} hazard(s) identified.`,
+                mn: (n) => `${n} аюул тодорхойлогдсон.`,
+                tl: (n) => `${n} panganib ang natukoy.`,
+                ne: (n) => `${n} hazard(s) identified.`,
+                si: (n) => `${n} hazard(s) identified.`,
+                my: (n) => `${n} hazard(s) identified.`,
+                bn: (n) => `${n} hazard(s) identified.`
+            };
 
             // 위험요인 패턴 DB (키워드 → 위험요인)
             const hazardPatterns = [
-                {
-                    keywords: ['고소', '사다리', '높은', '높이', '비계', '지붕', '옥상', '안전대', '추락', '개구부', '난간'],
-                    activity: '고소작업', hazard: '추락 위험',
-                    frequency: 3, severity: 4,
-                    countermeasure: '안전대 착용, 2인 1조 작업, 작업발판 설치, 안전난간 설치'
-                },
-                {
-                    keywords: ['용접', '화재', '불꽃', '그라인더', '절단기', '화기', '가연물', '인화'],
-                    activity: '용접/화기 작업', hazard: '화재/화상 위험',
-                    frequency: 3, severity: 3,
-                    countermeasure: '소화기 비치, 불꽃 비산 방지막 설치, 화기작업 허가서 발행'
-                },
-                {
-                    keywords: ['전원', '전기', '감전', '차단', '활선', '배선', '전압', '누전', '콘센트'],
-                    activity: '전기 작업', hazard: '감전 위험',
-                    frequency: 2, severity: 4,
-                    countermeasure: '전원 차단 확인(LOTO), 잔류전압 확인, 절연장갑·절연장화 착용'
-                },
-                {
-                    keywords: ['밀폐', '산소', '환기', '맨홀', '탱크', '피트', '지하', '질식', '유해가스'],
-                    activity: '밀폐공간 작업', hazard: '질식/중독 위험',
-                    frequency: 2, severity: 4,
-                    countermeasure: '산소농도 측정, 환기 실시, 감시인 배치, 공기호흡기 준비'
-                },
-                {
-                    keywords: ['배관', '잔압', '압력', '밸브', '배수', '증기', '스팀'],
-                    activity: '배관 작업', hazard: '잔압 분출 위험',
-                    frequency: 3, severity: 3,
-                    countermeasure: '잔압 확인 및 배출, 밸브 잠금(LOTO), 보안경 착용'
-                },
-                {
-                    keywords: ['크레인', '호이스트', '인양', '양중', '와이어', '슬링', '달기'],
-                    activity: '양중 작업', hazard: '낙하/충돌 위험',
-                    frequency: 3, severity: 4,
-                    countermeasure: '신호수 배치, 인양물 하부 출입금지, 과부하 방지'
-                },
-                {
-                    keywords: ['지게차', '포크리프트', '차량', '운반', '이동', '운전'],
-                    activity: '차량/운반 작업', hazard: '부딪힘/깔림 위험',
-                    frequency: 3, severity: 3,
-                    countermeasure: '보행로 분리, 후방카메라 확인, 제한속도 준수'
-                },
-                {
-                    keywords: ['회전', '기계', '프레스', '롤러', '컨베이어', '끼임', '협착', '벨트'],
-                    activity: '기계 작업', hazard: '끼임/협착 위험',
-                    frequency: 3, severity: 3,
-                    countermeasure: '방호덮개 설치, 비상정지장치 확인, 전원 차단 후 정비'
-                },
-                {
-                    keywords: ['중량', '무거운', '운반', '들어올', '자재', '하역', '적재'],
-                    activity: '중량물 취급', hazard: '근골격계 질환/깔림 위험',
-                    frequency: 3, severity: 2,
-                    countermeasure: '보조기구 사용, 2인 1조 운반, 적정 중량 준수'
-                },
-                {
-                    keywords: ['미끄', '젖은', '바닥', '계단', '경사', '넘어', '빙판'],
-                    activity: '보행/이동', hazard: '넘어짐/미끄러짐 위험',
-                    frequency: 3, severity: 2,
-                    countermeasure: '미끄럼 방지 조치, 바닥 청소, 안전화 착용'
-                },
-                {
-                    keywords: ['소음', '시끄', '청력', '귀'],
-                    activity: '소음 작업', hazard: '청력 손상 위험',
-                    frequency: 3, severity: 2,
-                    countermeasure: '귀마개/귀덮개 착용, 소음원 격리, 작업시간 제한'
-                },
-                {
-                    keywords: ['분진', '먼지', '가루', '석면', '유해물질', '화학', '약품', '세척'],
-                    activity: '유해물질 취급', hazard: '중독/건강장해 위험',
-                    frequency: 2, severity: 3,
-                    countermeasure: '방진마스크/방독마스크 착용, 국소배기장치, MSDS 비치'
-                }
+                { keywords: ['고소', '사다리', '높은', '높이', '비계', '지붕', '옥상', '안전대', '추락', '개구부', '난간'], htKey: 'fall', frequency: 3, severity: 4 },
+                { keywords: ['용접', '화재', '불꽃', '그라인더', '절단기', '화기', '가연물', '인화'], htKey: 'fire', frequency: 3, severity: 3 },
+                { keywords: ['전원', '전기', '감전', '차단', '활선', '배선', '전압', '누전', '콘센트'], htKey: 'electric', frequency: 2, severity: 4 },
+                { keywords: ['밀폐', '산소', '환기', '맨홀', '탱크', '피트', '지하', '질식', '유해가스'], htKey: 'suffocation', frequency: 2, severity: 4 },
+                { keywords: ['배관', '잔압', '압력', '밸브', '배수', '증기', '스팀'], htKey: 'pressure', frequency: 3, severity: 3 },
+                { keywords: ['크레인', '호이스트', '인양', '양중', '와이어', '슬링', '달기'], htKey: 'lifting', frequency: 3, severity: 4 },
+                { keywords: ['지게차', '포크리프트', '차량', '운반', '이동', '운전'], htKey: 'vehicle', frequency: 3, severity: 3 },
+                { keywords: ['회전', '기계', '프레스', '롤러', '컨베이어', '끼임', '협착', '벨트'], htKey: 'pinch', frequency: 3, severity: 3 },
+                { keywords: ['중량', '무거운', '운반', '들어올', '자재', '하역', '적재'], htKey: 'heavy', frequency: 3, severity: 2 },
+                { keywords: ['미끄', '젖은', '바닥', '계단', '경사', '넘어', '빙판'], htKey: 'slip', frequency: 3, severity: 2 },
+                { keywords: ['소음', '시끄', '청력', '귀'], htKey: 'noise', frequency: 3, severity: 2 },
+                { keywords: ['분진', '먼지', '가루', '석면', '유해물질', '화학', '약품', '세척'], htKey: 'toxic', frequency: 2, severity: 3 }
             ];
 
             hazardPatterns.forEach((pattern, idx) => {
                 if (pattern.keywords.some(kw => text.includes(kw))) {
+                    const h = ht[pattern.htKey];
                     risks.push({
                         id: Date.now() + idx + 1,
                         location,
-                        activity: pattern.activity,
-                        hazard: pattern.hazard,
+                        activity: h.activity,
+                        hazard: h.hazard,
                         frequency: pattern.frequency,
                         severity: pattern.severity,
-                        countermeasure: pattern.countermeasure
+                        countermeasure: h.measures
                     });
                 }
             });
@@ -5026,17 +5218,17 @@
                 risks.push({
                     id: Date.now(),
                     location,
-                    activity: '일반 작업',
-                    hazard: '안전수칙 미준수 위험',
+                    activity: ht.defaultH.activity,
+                    hazard: ht.defaultH.hazard,
                     frequency: 2,
                     severity: 2,
-                    countermeasure: '작업 전 안전교육 실시, 보호구 착용, 정리정돈'
+                    countermeasure: ht.defaultH.measures
                 });
             }
 
             return {
                 risks,
-                summary: `총 ${risks.length}건의 위험요인이 식별되었습니다.`
+                summary: (summaryT[lang] || summaryT['ko'])(risks.length)
             };
         }
 
@@ -5267,11 +5459,29 @@
             }
 
             const deleteLabel = t.deleteBtn || '삭제';
+            const riskLevelLabels = {
+                ko: { high: '상', medium: '중', low: '하' },
+                en: { high: 'High', medium: 'Med', low: 'Low' },
+                zh: { high: '高', medium: '中', low: '低' },
+                vi: { high: 'Cao', medium: 'TB', low: 'Thap' },
+                th: { high: 'สูง', medium: 'กลาง', low: 'ต่ำ' },
+                id: { high: 'Tinggi', medium: 'Sedang', low: 'Rendah' },
+                ru: { high: 'Высок.', medium: 'Сред.', low: 'Низк.' },
+                uz: { high: 'Yuqori', medium: "O'rta", low: 'Past' },
+                km: { high: 'High', medium: 'Med', low: 'Low' },
+                mn: { high: 'Өндөр', medium: 'Дунд', low: 'Бага' },
+                tl: { high: 'Mataas', medium: 'Katamtaman', low: 'Mababa' },
+                ne: { high: 'High', medium: 'Med', low: 'Low' },
+                si: { high: 'High', medium: 'Med', low: 'Low' },
+                my: { high: 'High', medium: 'Med', low: 'Low' },
+                bn: { high: 'High', medium: 'Med', low: 'Low' }
+            };
+            const rl = riskLevelLabels[lang] || riskLevelLabels['ko'];
             tbody.innerHTML = risks.map((risk, index) => {
                 const score = risk.frequency * risk.severity;
-                let levelClass = 'risk-low', levelText = '하';
-                if (score >= 12) { levelClass = 'risk-high'; levelText = '상'; }
-                else if (score >= 6) { levelClass = 'risk-medium'; levelText = '중'; }
+                let levelClass = 'risk-low', levelText = rl.low;
+                if (score >= 12) { levelClass = 'risk-high'; levelText = rl.high; }
+                else if (score >= 6) { levelClass = 'risk-medium'; levelText = rl.medium; }
 
                 return `
                     <tr>
@@ -5656,6 +5866,270 @@
                 defaultPPE: 'Каска',
                 safetyHat: 'Каска', safetyShoes: 'Защитная обувь', safetyGloves: 'Перчатки',
                 safetyGoggles: 'Защитные очки', mask: 'Маска', earplug: 'Беруши', harness: 'Страховочная привязь'
+            },
+            uz: {
+                safetyBriefing: 'Bugungi Xavfsizlik Brifing',
+                workLocation: 'Ish joyi',
+                participants: 'Ishtirokchilar',
+                hazardsIdentified: 'Xavflar',
+                identified: ' aniqlandi',
+                hazardToMeasure: 'Xavf bo\'yicha batafsil xavfsizlik ta\'limi',
+                count: '',
+                riskLevel: 'Xavf darajasi',
+                high: 'Yuqori', medium: "O'rta", low: 'Past',
+                requiredPPE: 'Zarur ShHV',
+                safetyFirst: 'Xavfsizlik birinchi! Nol baxtsiz hodisa!',
+                preWorkCheck: 'Ish oldi tekshiruv ✓ ShHV ✓ Muammolarni xabar qilish ✓',
+                accidentCase: 'O\'xshash baxtsiz hodisa',
+                causeAnalysis: 'Sabab tahlili',
+                directCause: 'Bevosita sabab',
+                indirectCause: 'Bilvosita sabab',
+                rootCause: 'Asosiy sabab',
+                prevention: 'Oldini olish choralari',
+                beforeWork: 'Ishdan oldin',
+                duringWork: 'Ish davomida',
+                afterWork: 'Ishdan keyin',
+                relatedLaw: 'Tegishli qonunchilik',
+                generating: 'Ta\'lim materiali yaratilmoqda...',
+                aiGenerating: 'AI maxsus kontent yaratmoqda',
+                noRiskData: 'Avval xavf baholashni yakunlang',
+                generated: 'Batafsil ta\'lim materiali yaratildi!',
+                noCaseData: 'Baxtsiz hodisa ma\'lumotlarini yuklab bo\'lmadi.',
+                persons: ' kishi',
+                defaultPPE: 'Kaska',
+                safetyHat: 'Kaska', safetyShoes: 'Xavfsiz poyabzal', safetyGloves: 'Qo\'lqop',
+                safetyGoggles: 'Himoya ko\'zoynagi', mask: 'Niqob', earplug: 'Quloq tiqini', harness: 'Xavfsizlik kamari'
+            },
+            km: {
+                safetyBriefing: "Today's Safety Briefing",
+                workLocation: 'Work Location',
+                participants: 'Participants',
+                hazardsIdentified: 'Hazards',
+                identified: ' identified',
+                hazardToMeasure: 'Detailed Safety Education by Hazard',
+                count: '',
+                riskLevel: 'Risk Level',
+                high: 'High', medium: 'Medium', low: 'Low',
+                requiredPPE: 'Required PPE',
+                safetyFirst: 'Safety First! Zero Accidents!',
+                preWorkCheck: 'Pre-work check ✓ PPE on ✓ Report issues ✓',
+                accidentCase: 'Similar Accident Case',
+                causeAnalysis: 'Cause Analysis',
+                directCause: 'Direct Cause',
+                indirectCause: 'Indirect Cause',
+                rootCause: 'Root Cause',
+                prevention: 'Prevention Measures',
+                beforeWork: 'Before Work',
+                duringWork: 'During Work',
+                afterWork: 'After Work',
+                relatedLaw: 'Related Regulation',
+                generating: 'Generating education material...',
+                aiGenerating: 'AI is creating customized content',
+                noRiskData: 'Please complete the risk assessment first',
+                generated: 'Detailed education material has been generated!',
+                noCaseData: 'Unable to load accident case information.',
+                persons: '',
+                defaultPPE: 'Hard hat',
+                safetyHat: 'Hard Hat', safetyShoes: 'Safety Shoes', safetyGloves: 'Safety Gloves',
+                safetyGoggles: 'Safety Goggles', mask: 'Mask', earplug: 'Earplugs', harness: 'Safety Harness'
+            },
+            mn: {
+                safetyBriefing: 'Өнөөдрийн Аюулгүй Байдлын Зааварчилгаа',
+                workLocation: 'Ажлын газар',
+                participants: 'Оролцогчид',
+                hazardsIdentified: 'Аюул',
+                identified: ' тодорхойлогдсон',
+                hazardToMeasure: 'Аюулын дагуу дэлгэрэнгүй аюулгүй ажиллагааны сургалт',
+                count: '',
+                riskLevel: 'Эрсдэлийн түвшин',
+                high: 'Өндөр', medium: 'Дунд', low: 'Бага',
+                requiredPPE: 'Шаардлагатай ХХХ',
+                safetyFirst: 'Аюулгүй байдал нэгдүгээрт! Тэг осол!',
+                preWorkCheck: 'Ажлын өмнөх шалгалт ✓ ХХХ ✓ Мэдээлэх ✓',
+                accidentCase: 'Ижил төстэй осол',
+                causeAnalysis: 'Шалтгааны шинжилгээ',
+                directCause: 'Шууд шалтгаан',
+                indirectCause: 'Шууд бус шалтгаан',
+                rootCause: 'Үндсэн шалтгаан',
+                prevention: 'Урьдчилан сэргийлэх арга хэмжээ',
+                beforeWork: 'Ажлын өмнө',
+                duringWork: 'Ажлын үед',
+                afterWork: 'Ажлын дараа',
+                relatedLaw: 'Холбогдох хууль',
+                generating: 'Сургалтын материал бэлтгэж байна...',
+                aiGenerating: 'AI тусгай агуулга үүсгэж байна',
+                noRiskData: 'Эхлээд эрсдэлийн үнэлгээг хийнэ үү',
+                generated: 'Дэлгэрэнгүй сургалтын материал бэлтгэгдлээ!',
+                noCaseData: 'Ослын мэдээлэл ачаалах боломжгүй.',
+                persons: ' хүн',
+                defaultPPE: 'Дуулга',
+                safetyHat: 'Дуулга', safetyShoes: 'Аюулгүй гутал', safetyGloves: 'Бээлий',
+                safetyGoggles: 'Хамгаалалтын шил', mask: 'Маск', earplug: 'Чихэвч', harness: 'Аюулгүй бүс'
+            },
+            tl: {
+                safetyBriefing: 'Briefing sa Kaligtasan Ngayon',
+                workLocation: 'Lugar ng Trabaho',
+                participants: 'Mga Kalahok',
+                hazardsIdentified: 'Mga Panganib',
+                identified: ' natukoy',
+                hazardToMeasure: 'Detalyadong Edukasyon sa Kaligtasan ayon sa Panganib',
+                count: '',
+                riskLevel: 'Antas ng Panganib',
+                high: 'Mataas', medium: 'Katamtaman', low: 'Mababa',
+                requiredPPE: 'Kinakailangang PPE',
+                safetyFirst: 'Kaligtasan Muna! Zero Aksidente!',
+                preWorkCheck: 'Pre-work check ✓ PPE ✓ I-report ang problema ✓',
+                accidentCase: 'Katulad na Kaso ng Aksidente',
+                causeAnalysis: 'Pagsusuri ng Sanhi',
+                directCause: 'Direktang Sanhi',
+                indirectCause: 'Hindi Direktang Sanhi',
+                rootCause: 'Pangunahing Sanhi',
+                prevention: 'Mga Hakbang sa Pag-iwas',
+                beforeWork: 'Bago Magtrabaho',
+                duringWork: 'Habang Nagtatrabaho',
+                afterWork: 'Pagkatapos Magtrabaho',
+                relatedLaw: 'Kaugnay na Regulasyon',
+                generating: 'Ginagawa ang materyal...',
+                aiGenerating: 'AI ay gumagawa ng nilalaman',
+                noRiskData: 'Kumpletuhin muna ang risk assessment',
+                generated: 'Nagawa na ang detalyadong materyal!',
+                noCaseData: 'Hindi ma-load ang impormasyon ng aksidente.',
+                persons: '',
+                defaultPPE: 'Hard hat',
+                safetyHat: 'Hard Hat', safetyShoes: 'Safety Shoes', safetyGloves: 'Safety Gloves',
+                safetyGoggles: 'Safety Goggles', mask: 'Mask', earplug: 'Earplugs', harness: 'Safety Harness'
+            },
+            ne: {
+                safetyBriefing: "Today's Safety Briefing",
+                workLocation: 'Work Location',
+                participants: 'Participants',
+                hazardsIdentified: 'Hazards',
+                identified: ' identified',
+                hazardToMeasure: 'Detailed Safety Education by Hazard',
+                count: '',
+                riskLevel: 'Risk Level',
+                high: 'High', medium: 'Medium', low: 'Low',
+                requiredPPE: 'Required PPE',
+                safetyFirst: 'Safety First! Zero Accidents!',
+                preWorkCheck: 'Pre-work check ✓ PPE on ✓ Report issues ✓',
+                accidentCase: 'Similar Accident Case',
+                causeAnalysis: 'Cause Analysis',
+                directCause: 'Direct Cause',
+                indirectCause: 'Indirect Cause',
+                rootCause: 'Root Cause',
+                prevention: 'Prevention Measures',
+                beforeWork: 'Before Work',
+                duringWork: 'During Work',
+                afterWork: 'After Work',
+                relatedLaw: 'Related Regulation',
+                generating: 'Generating education material...',
+                aiGenerating: 'AI is creating customized content',
+                noRiskData: 'Please complete the risk assessment first',
+                generated: 'Detailed education material has been generated!',
+                noCaseData: 'Unable to load accident case information.',
+                persons: '',
+                defaultPPE: 'Hard hat',
+                safetyHat: 'Hard Hat', safetyShoes: 'Safety Shoes', safetyGloves: 'Safety Gloves',
+                safetyGoggles: 'Safety Goggles', mask: 'Mask', earplug: 'Earplugs', harness: 'Safety Harness'
+            },
+            si: {
+                safetyBriefing: "Today's Safety Briefing",
+                workLocation: 'Work Location',
+                participants: 'Participants',
+                hazardsIdentified: 'Hazards',
+                identified: ' identified',
+                hazardToMeasure: 'Detailed Safety Education by Hazard',
+                count: '',
+                riskLevel: 'Risk Level',
+                high: 'High', medium: 'Medium', low: 'Low',
+                requiredPPE: 'Required PPE',
+                safetyFirst: 'Safety First! Zero Accidents!',
+                preWorkCheck: 'Pre-work check ✓ PPE on ✓ Report issues ✓',
+                accidentCase: 'Similar Accident Case',
+                causeAnalysis: 'Cause Analysis',
+                directCause: 'Direct Cause',
+                indirectCause: 'Indirect Cause',
+                rootCause: 'Root Cause',
+                prevention: 'Prevention Measures',
+                beforeWork: 'Before Work',
+                duringWork: 'During Work',
+                afterWork: 'After Work',
+                relatedLaw: 'Related Regulation',
+                generating: 'Generating education material...',
+                aiGenerating: 'AI is creating customized content',
+                noRiskData: 'Please complete the risk assessment first',
+                generated: 'Detailed education material has been generated!',
+                noCaseData: 'Unable to load accident case information.',
+                persons: '',
+                defaultPPE: 'Hard hat',
+                safetyHat: 'Hard Hat', safetyShoes: 'Safety Shoes', safetyGloves: 'Safety Gloves',
+                safetyGoggles: 'Safety Goggles', mask: 'Mask', earplug: 'Earplugs', harness: 'Safety Harness'
+            },
+            my: {
+                safetyBriefing: "Today's Safety Briefing",
+                workLocation: 'Work Location',
+                participants: 'Participants',
+                hazardsIdentified: 'Hazards',
+                identified: ' identified',
+                hazardToMeasure: 'Detailed Safety Education by Hazard',
+                count: '',
+                riskLevel: 'Risk Level',
+                high: 'High', medium: 'Medium', low: 'Low',
+                requiredPPE: 'Required PPE',
+                safetyFirst: 'Safety First! Zero Accidents!',
+                preWorkCheck: 'Pre-work check ✓ PPE on ✓ Report issues ✓',
+                accidentCase: 'Similar Accident Case',
+                causeAnalysis: 'Cause Analysis',
+                directCause: 'Direct Cause',
+                indirectCause: 'Indirect Cause',
+                rootCause: 'Root Cause',
+                prevention: 'Prevention Measures',
+                beforeWork: 'Before Work',
+                duringWork: 'During Work',
+                afterWork: 'After Work',
+                relatedLaw: 'Related Regulation',
+                generating: 'Generating education material...',
+                aiGenerating: 'AI is creating customized content',
+                noRiskData: 'Please complete the risk assessment first',
+                generated: 'Detailed education material has been generated!',
+                noCaseData: 'Unable to load accident case information.',
+                persons: '',
+                defaultPPE: 'Hard hat',
+                safetyHat: 'Hard Hat', safetyShoes: 'Safety Shoes', safetyGloves: 'Safety Gloves',
+                safetyGoggles: 'Safety Goggles', mask: 'Mask', earplug: 'Earplugs', harness: 'Safety Harness'
+            },
+            bn: {
+                safetyBriefing: "Today's Safety Briefing",
+                workLocation: 'Work Location',
+                participants: 'Participants',
+                hazardsIdentified: 'Hazards',
+                identified: ' identified',
+                hazardToMeasure: 'Detailed Safety Education by Hazard',
+                count: '',
+                riskLevel: 'Risk Level',
+                high: 'High', medium: 'Medium', low: 'Low',
+                requiredPPE: 'Required PPE',
+                safetyFirst: 'Safety First! Zero Accidents!',
+                preWorkCheck: 'Pre-work check ✓ PPE on ✓ Report issues ✓',
+                accidentCase: 'Similar Accident Case',
+                causeAnalysis: 'Cause Analysis',
+                directCause: 'Direct Cause',
+                indirectCause: 'Indirect Cause',
+                rootCause: 'Root Cause',
+                prevention: 'Prevention Measures',
+                beforeWork: 'Before Work',
+                duringWork: 'During Work',
+                afterWork: 'After Work',
+                relatedLaw: 'Related Regulation',
+                generating: 'Generating education material...',
+                aiGenerating: 'AI is creating customized content',
+                noRiskData: 'Please complete the risk assessment first',
+                generated: 'Detailed education material has been generated!',
+                noCaseData: 'Unable to load accident case information.',
+                persons: '',
+                defaultPPE: 'Hard hat',
+                safetyHat: 'Hard Hat', safetyShoes: 'Safety Shoes', safetyGloves: 'Safety Gloves',
+                safetyGoggles: 'Safety Goggles', mask: 'Mask', earplug: 'Earplugs', harness: 'Safety Harness'
             }
         };
 
@@ -5675,7 +6149,9 @@
             }
 
             const workLocation = sessionData.tbmData?.workLocation || getEduText('workLocation');
-            const workContent = sessionData.tbmData?.workContent || '작업';
+            const _lang = localStorage.getItem('tbm_language') || 'ko';
+            const _workFallback = { ko: '작업', en: 'Work', zh: '作业', vi: 'Cong viec', th: 'งาน', id: 'Kerja', ru: 'Работа', uz: 'Ish', mn: 'Ажил', tl: 'Trabaho' };
+            const workContent = sessionData.tbmData?.workContent || (_workFallback[_lang] || _workFallback['en']);
             const date = sessionData.tbmData?.date || new Date().toLocaleDateString();
             const time = sessionData.tbmData?.time || '';
             const department = sessionData.tbmData?.department || '';
@@ -5853,19 +6329,19 @@
                                     <div class="phase">
                                         <div class="phase-label">${getEduText('beforeWork')}</div>
                                         <ul>
-                                            ${(dm.before || ['안전교육 실시', '보호구 착용 확인', '작업환경 점검']).map(m => `<li>${m}</li>`).join('')}
+                                            ${(dm.before || (_lang === 'ko' ? ['안전교육 실시', '보호구 착용 확인', '작업환경 점검'] : ['Safety training', 'PPE check', 'Work environment inspection'])).map(m => `<li>${m}</li>`).join('')}
                                         </ul>
                                     </div>
                                     <div class="phase">
                                         <div class="phase-label">${getEduText('duringWork')}</div>
                                         <ul>
-                                            ${(dm.during || ['안전수칙 준수', '이상 시 작업 중지', '상호 안전 확인']).map(m => `<li>${m}</li>`).join('')}
+                                            ${(dm.during || (_lang === 'ko' ? ['안전수칙 준수', '이상 시 작업 중지', '상호 안전 확인'] : ['Follow safety rules', 'Stop work if abnormal', 'Mutual safety check'])).map(m => `<li>${m}</li>`).join('')}
                                         </ul>
                                     </div>
                                     <div class="phase">
                                         <div class="phase-label">${getEduText('afterWork')}</div>
                                         <ul>
-                                            ${(dm.after || ['작업장 정리정돈', '장비 점검']).map(m => `<li>${m}</li>`).join('')}
+                                            ${(dm.after || (_lang === 'ko' ? ['작업장 정리정돈', '장비 점검'] : ['Housekeeping', 'Equipment inspection'])).map(m => `<li>${m}</li>`).join('')}
                                         </ul>
                                     </div>
                                 </div>
@@ -5873,7 +6349,7 @@
 
                             <div class="law-section">
                                 <span class="law-icon">⚖️</span>
-                                <span>${edu.relatedLaw || '산업안전보건법 제38조(안전조치)'}</span>
+                                <span>${edu.relatedLaw || (_lang === 'ko' ? '산업안전보건법 제38조(안전조치)' : 'OSHA General Duty Clause, Section 5(a)(1)')}</span>
                             </div>
                         </div>
                         `;
@@ -5916,98 +6392,291 @@
          * 주요 위험유형별 사전 정의된 상세 콘텐츠
          */
         function generateLocalEducationFallback(risks, workContent, workLocation) {
-            const templates = {
-                '추락': {
-                    accidentCase: `사업장: ${workLocation || '○○건설'}(건설업)\n일시: 2024년 5월\n사고내용: 비계 작업 중 안전대 미체결 상태에서 7m 높이에서 추락, 중상\n사고원인: 안전대 미체결, 작업발판 규격 미달, 안전난간 미설치`,
-                    causeAnalysis: { directCause: '안전대 미체결 상태에서 고소작업 수행', indirectCause: '작업발판 규격 미달, 안전난간 미설치', rootCause: '작업 전 안전점검 미실시, 안전관리자 감독 부재' },
-                    detailedMeasures: { before: ['안전대·안전모 착용 상태 상호 확인', '작업발판 및 안전난간 설치 상태 점검', '기상조건(강풍·강우) 확인', '추락방지망 설치 상태 확인'], during: ['안전대 걸이 설비에 항시 체결 유지', '2인 1조 작업 실시', '개구부 접근 시 안전난간 확보 후 작업'], after: ['작업도구 및 잔재물 정리', '개구부 덮개 재설치 확인', '추락방지시설 최종 점검'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제42조(추락의 방지), 제44조(안전대의 부착설비 등)'
+            const lang = localStorage.getItem('tbm_language') || 'ko';
+            const loc = workLocation || '○○';
+
+            // Accident case label translations
+            const caseLabels = {
+                ko: { workplace: '사업장', date: '일시', accident: '사고내용', cause: '사고원인' },
+                en: { workplace: 'Workplace', date: 'Date', accident: 'Accident', cause: 'Cause' },
+                zh: { workplace: '事业场', date: '日期', accident: '事故内容', cause: '事故原因' },
+                vi: { workplace: 'Noi lam viec', date: 'Ngay', accident: 'Noi dung su co', cause: 'Nguyen nhan' },
+                th: { workplace: 'สถานที่', date: 'วันที่', accident: 'รายละเอียด', cause: 'สาเหตุ' },
+                id: { workplace: 'Tempat kerja', date: 'Tanggal', accident: 'Kecelakaan', cause: 'Penyebab' },
+                ru: { workplace: 'Предприятие', date: 'Дата', accident: 'Описание', cause: 'Причина' },
+                uz: { workplace: 'Ish joyi', date: 'Sana', accident: 'Hodisa', cause: 'Sabab' },
+                mn: { workplace: 'Ажлын газар', date: 'Огноо', accident: 'Осол', cause: 'Шалтгаан' },
+                tl: { workplace: 'Lugar ng trabaho', date: 'Petsa', accident: 'Aksidente', cause: 'Sanhi' },
+                km: { workplace: 'Workplace', date: 'Date', accident: 'Accident', cause: 'Cause' },
+                ne: { workplace: 'Workplace', date: 'Date', accident: 'Accident', cause: 'Cause' },
+                si: { workplace: 'Workplace', date: 'Date', accident: 'Accident', cause: 'Cause' },
+                my: { workplace: 'Workplace', date: 'Date', accident: 'Accident', cause: 'Cause' },
+                bn: { workplace: 'Workplace', date: 'Date', accident: 'Accident', cause: 'Cause' }
+            };
+            const cl = caseLabels[lang] || caseLabels['ko'];
+
+            // Education templates by hazard key, with ko/en/zh/vi translations (others fallback to en)
+            const eduTemplatesByLang = {
+                ko: {
+                    fall: {
+                        accidentCase: `${cl.workplace}: ${loc}(건설업)\n${cl.date}: 2024년 5월\n${cl.accident}: 비계 작업 중 안전대 미체결 상태에서 7m 높이에서 추락, 중상\n${cl.cause}: 안전대 미체결, 작업발판 규격 미달, 안전난간 미설치`,
+                        causeAnalysis: { directCause: '안전대 미체결 상태에서 고소작업 수행', indirectCause: '작업발판 규격 미달, 안전난간 미설치', rootCause: '작업 전 안전점검 미실시, 안전관리자 감독 부재' },
+                        detailedMeasures: { before: ['안전대·안전모 착용 상태 상호 확인', '작업발판 및 안전난간 설치 상태 점검', '기상조건(강풍·강우) 확인', '추락방지망 설치 상태 확인'], during: ['안전대 걸이 설비에 항시 체결 유지', '2인 1조 작업 실시', '개구부 접근 시 안전난간 확보 후 작업'], after: ['작업도구 및 잔재물 정리', '개구부 덮개 재설치 확인', '추락방지시설 최종 점검'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제42조(추락의 방지), 제44조(안전대의 부착설비 등)'
+                    },
+                    electric: {
+                        accidentCase: `${cl.workplace}: ${loc}(제조업)\n${cl.date}: 2024년 7월\n${cl.accident}: 전기배선 작업 중 절연장갑 미착용 상태에서 분전함 충전부 접촉, 감전\n${cl.cause}: 절연장갑 미착용, 전원 미차단(LOTO 미실시), 활선 경고 표시 부재`,
+                        causeAnalysis: { directCause: '절연용 보호구 미착용 상태에서 전기 작업 수행', indirectCause: '전원 미차단(LOTO 미실시), 활선 경고 표시 부재', rootCause: '정전작업 절차 미수립, 전기안전 교육 미실시' },
+                        detailedMeasures: { before: ['전원 차단(LOTO) 절차 실시 및 확인', '잔류전압 방전 확인(검전기 사용)', '절연장갑·절연화 착용 확인', '작업구간 접지 실시'], during: ['활선 접근 금지구역 설정', '절연 공구만 사용', '감시인 배치 및 상호 확인'], after: ['전원 복구 전 작업자 이격 확인', 'LOTO 해제 및 통전 확인', '절연저항 측정'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제301조(충전부 방호), 제319조(정전 전로에서의 전기작업)'
+                    },
+                    fire: {
+                        accidentCase: `${cl.workplace}: ${loc}(건설업)\n${cl.date}: 2024년 3월\n${cl.accident}: 용접 작업 중 비산 불꽃이 인근 보온재에 착화, 화재 발생\n${cl.cause}: 불꽃 비산 방지 미조치, 가연물 미제거, 소화기 원거리 비치`,
+                        causeAnalysis: { directCause: '불꽃 비산 방지 조치 없이 용접작업 수행', indirectCause: '작업 반경 내 가연물 미제거, 소화설비 미비', rootCause: '화기작업 허가제 미이행, 화재감시자 미배치' },
+                        detailedMeasures: { before: ['화기작업 허가서 발급', '반경 11m 이내 가연물 제거', '방화포·비산 방지막 설치', '소화기 2대 이상 비치'], during: ['화재감시자 전담 배치', '불꽃 비산 방향 확인', '환기 상태 유지'], after: ['완료 후 30분 이상 잔불 감시', '이상 발열 여부 확인'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제241조(용접 등의 작업)'
+                    },
+                    pinch: {
+                        accidentCase: `${cl.workplace}: ${loc}(제조업)\n${cl.date}: 2024년 9월\n${cl.accident}: 컨베이어 벨트 정비 중 가동 상태에서 이물질 제거 시도, 롤러에 손 협착\n${cl.cause}: 기계 가동 중 회전체 접근, 방호덮개 미설치, 비상정지장치 접근성 불량`,
+                        causeAnalysis: { directCause: '기계 가동 중 회전체 접근', indirectCause: '회전체 방호덮개 미설치, 비상정지장치 접근성 불량', rootCause: 'LOTO 절차 미수립, 정비작업 안전수칙 미교육' },
+                        detailedMeasures: { before: ['기계 정지 후 LOTO 실시', '방호덮개·안전가드 확인', '비상정지 스위치 작동 확인'], during: ['운전 중 회전체 접근 금지', '이물질 제거 시 기계 정지 후 실시', '면장갑 착용 금지'], after: ['방호장치 재설치 후 가동', '장비 이상 유무 점검'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제87조(회전기계의 돌출부), 제92조(덮개 등의 설치)'
+                    },
+                    suffocation: {
+                        accidentCase: `${cl.workplace}: ${loc}(환경업)\n${cl.date}: 2024년 6월\n${cl.accident}: 맨홀 내부 점검 중 산소농도 16% 상태에서 사전 측정 없이 진입, 산소결핍으로 실신\n${cl.cause}: 산소농도 측정 미실시, 환기 미실시, 구조용 장비 미비치`,
+                        causeAnalysis: { directCause: '산소농도 측정 없이 밀폐공간 진입', indirectCause: '환기설비 미설치, 구조용 장비 미비치', rootCause: '밀폐공간 작업 프로그램 미수립, 특별안전교육 미실시' },
+                        detailedMeasures: { before: ['밀폐공간 작업 허가 절차 이행', '산소농도 및 유해가스 측정', '환기 실시(30분 이상)', '비상구조 장비 비치'], during: ['연속 가스 농도 모니터링', '감시인 상주 배치', '송기마스크 착용'], after: ['작업자 건강 상태 확인', '밀폐공간 출입금지 조치'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제618조(밀폐공간 작업 프로그램 수립 등)'
+                    },
+                    slip: {
+                        accidentCase: `${cl.workplace}: ${loc}(물류업)\n${cl.date}: 2024년 11월\n${cl.accident}: 자재 운반 중 바닥 기름에 미끄러져 넘어짐, 허리 부상\n${cl.cause}: 바닥 오염물질 미제거, 통행로 자재 적치, 미끄럼 방지 미조치`,
+                        causeAnalysis: { directCause: '바닥 오염물질 미인지 상태에서 보행', indirectCause: '통행로 자재 적치, 미끄럼 방지 미조치', rootCause: '정리정돈 미흡, 안전통로 관리 기준 미수립' },
+                        detailedMeasures: { before: ['바닥 상태 점검 및 이물질 제거', '안전통로 확보 및 표시', '미끄럼 방지 안전화 착용', '자재 적치 구역 분리'], during: ['바닥 오염 즉시 제거', '전방 주시', '경사로 이동 시 손잡이 활용'], after: ['작업장 정리정돈', '바닥 청소'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제3조(전도의 방지), 제22조(통로의 설치)'
+                    },
+                    vehicle: {
+                        accidentCase: `${cl.workplace}: ${loc}(건설업)\n${cl.date}: 2024년 4월\n${cl.accident}: 굴착기 주변 작업 중 선회하는 굴착기 붐에 부딪혀 부상\n${cl.cause}: 중장비 작업반경 내 무단 진입, 유도원 미배치, 사각지대 작업`,
+                        causeAnalysis: { directCause: '중장비 작업 반경 내 무단 진입', indirectCause: '유도원 미배치, 작업반경 미설정', rootCause: '장비·인력 동시작업 안전계획 미수립' },
+                        detailedMeasures: { before: ['작업반경 설정 및 출입금지 구역 표시', '유도원(신호수) 배치', '장비 경보장치 작동 확인'], during: ['작업반경 내 보행 금지', '유도원 신호에 따라 이동', '사각지대 접근 시 사전 연락'], after: ['장비 주차 후 시동 차단', '작업반경 내 잔여 인원 확인'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제196조(차량계 건설기계 등의 위험 방지)'
+                    },
+                    collapse: {
+                        accidentCase: `${cl.workplace}: ${loc}(건설업)\n${cl.date}: 2024년 8월\n${cl.accident}: 터파기 작업 중 굴착면 붕괴로 작업자 매몰\n${cl.cause}: 흙막이 가시설 미설치, 강우 후 지반 약화, 굴착 기울기 미준수`,
+                        causeAnalysis: { directCause: '흙막이 가시설 미설치 상태에서 굴착면 접근', indirectCause: '강우 후 지반 약화, 굴착 기울기 미준수', rootCause: '가설구조물 설계 미흡, 지반조사 미실시' },
+                        detailedMeasures: { before: ['지반조사 및 토질 확인', '흙막이 가시설 설계·설치', '강우 후 지반 상태 재점검'], during: ['굴착면 변위 관측', '중장비 굴착면 접근 제한', '이상 징후 시 즉시 대피'], after: ['굴착면 상태 최종 점검', '되메우기 전 안전 확인'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제338조(굴착작업시 지반 등의 위험 방지)'
+                    },
+                    lifting: {
+                        accidentCase: `${cl.workplace}: ${loc}(조선업)\n${cl.date}: 2024년 10월\n${cl.accident}: 크레인 인양 작업 중 와이어로프 파단으로 자재(2톤) 낙하, 하부 작업자 중상\n${cl.cause}: 와이어로프 안전계수 미달, 과적 인양, 인양물 하부 출입통제 미실시`,
+                        causeAnalysis: { directCause: '인양물 하부 출입통제 미실시', indirectCause: '와이어로프 마모·손상 상태에서 사용, 과적 인양', rootCause: '양중작업 계획서 미작성, 장비 정기검사 미실시' },
+                        detailedMeasures: { before: ['양중작업 계획서 작성', '와이어로프·슬링벨트 상태 점검', '정격하중 확인', '신호수 지정'], during: ['인양물 하부 출입통제', '신호수 신호에 따라 작업', '풍속 10m/s 이상 시 중지'], after: ['인양장비 정위치 후 시동 차단', '와이어로프 정리·보관'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제132조(양중기의 와이어로프 등)'
+                    },
+                    cut: {
+                        accidentCase: `${cl.workplace}: ${loc}(제조업)\n${cl.date}: 2024년 2월\n${cl.accident}: 철판 절단 작업 중 보호장갑 미착용 상태에서 절단면에 손 베임, 심부 열상\n${cl.cause}: 보호장갑 미착용, 절단면 면취(디버링) 미실시, 맨손 취급`,
+                        causeAnalysis: { directCause: '보호장갑 미착용 상태에서 절단물 취급', indirectCause: '절단면 면취(디버링) 미실시', rootCause: '절단물 취급 안전수칙 미교육' },
+                        detailedMeasures: { before: ['방검장갑 착용 확인', '절단 장비 안전장치 점검', '구급함 비치 확인'], during: ['절단면 즉시 면취 처리', '날카로운 모서리에 보호캡 설치', '방검장갑 착용'], after: ['절단 잔재물 안전 수거', '절단면 면취 상태 확인'] },
+                        relatedLaw: '산업안전보건기준에 관한 규칙 제118조(날·칼 부분의 방호)'
+                    },
+                    defaultH: {
+                        accidentCase: `${cl.workplace}: ${loc}(일반)\n${cl.date}: 2024년\n${cl.accident}: ${workContent || '작업'} 중 안전수칙 미준수로 부상 발생\n${cl.cause}: 안전수칙 미준수, 사전 안전교육 미실시, 위험요인 점검 미흡`,
+                        causeAnalysis: { directCause: '안전수칙 미준수 및 부주의', indirectCause: '안전시설 미비, 작업환경 불량', rootCause: '안전관리 체계 미흡, 안전교육 부족' },
+                        detailedMeasures: { before: ['TBM 실시', '위험요인 사전 파악', '보호구 착용 확인', '비상연락망 확인'], during: ['안전수칙 준수', '이상 시 작업 중지', '2인 1조 작업'], after: ['작업장 정리정돈', '장비 점검'] },
+                        relatedLaw: '산업안전보건법 제38조(안전조치), 제39조(보건조치)'
+                    }
                 },
-                '감전': {
-                    accidentCase: `사업장: ${workLocation || '○○공장'}(제조업)\n일시: 2024년 7월\n사고내용: 전기배선 작업 중 절연장갑 미착용 상태에서 분전함 충전부 접촉, 감전\n사고원인: 절연장갑 미착용, 전원 미차단(LOTO 미실시), 활선 경고 표시 부재`,
-                    causeAnalysis: { directCause: '절연용 보호구 미착용 상태에서 전기 작업 수행', indirectCause: '전원 미차단(LOTO 미실시), 활선 경고 표시 부재', rootCause: '정전작업 절차 미수립, 전기안전 교육 미실시' },
-                    detailedMeasures: { before: ['전원 차단(LOTO) 절차 실시 및 확인', '잔류전압 방전 확인(검전기 사용)', '절연장갑·절연화 착용 확인', '작업구간 접지 실시'], during: ['활선 접근 금지구역 설정', '절연 공구만 사용', '감시인 배치 및 상호 확인'], after: ['전원 복구 전 작업자 이격 확인', 'LOTO 해제 및 통전 확인', '절연저항 측정'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제301조(충전부 방호), 제319조(정전 전로에서의 전기작업)'
+                en: {
+                    fall: {
+                        accidentCase: `${cl.workplace}: ${loc} (Construction)\n${cl.date}: May 2024\n${cl.accident}: Fell 7m from scaffolding without safety harness, serious injury\n${cl.cause}: No harness, substandard platform, no safety railing`,
+                        causeAnalysis: { directCause: 'Work at height without safety harness', indirectCause: 'Substandard platform, no safety railing', rootCause: 'No pre-work safety inspection, lack of safety supervision' },
+                        detailedMeasures: { before: ['Verify harness & hard hat on each other', 'Inspect platform & railing installation', 'Check weather (high wind/rain)', 'Verify fall arrest net'], during: ['Keep harness attached at all times', 'Work in pairs', 'Secure railing before approaching openings'], after: ['Clean up tools & debris', 'Reinstall opening covers', 'Final fall protection inspection'] },
+                        relatedLaw: 'OSHA 1926.501 (Fall Protection), 1926.502 (Fall Protection Systems)'
+                    },
+                    electric: {
+                        accidentCase: `${cl.workplace}: ${loc} (Manufacturing)\n${cl.date}: Jul 2024\n${cl.accident}: Contact with energized panel without insulated gloves, electric shock\n${cl.cause}: No insulated gloves, power not locked out (no LOTO), no live-wire warning`,
+                        causeAnalysis: { directCause: 'Electrical work without insulated PPE', indirectCause: 'Power not locked out (no LOTO), no warning signs', rootCause: 'No LOTO procedure, no electrical safety training' },
+                        detailedMeasures: { before: ['Perform LOTO procedure', 'Verify zero energy (voltage tester)', 'Confirm insulated gloves & boots', 'Ground work section'], during: ['Enforce exclusion zone around live parts', 'Use insulated tools only', 'Post watchman for verification'], after: ['Verify workers clear before restoring power', 'Remove LOTO & verify energization', 'Measure insulation resistance'] },
+                        relatedLaw: 'OSHA 1910.333 (Selection & Use of Work Practices), 1910.147 (LOTO)'
+                    },
+                    fire: {
+                        accidentCase: `${cl.workplace}: ${loc} (Construction)\n${cl.date}: Mar 2024\n${cl.accident}: Welding sparks ignited nearby insulation, fire broke out\n${cl.cause}: No spark guard, combustibles not removed, fire extinguisher too far`,
+                        causeAnalysis: { directCause: 'Welding without spark containment', indirectCause: 'Combustibles within work radius, insufficient fire suppression', rootCause: 'Hot work permit not followed, no fire watch posted' },
+                        detailedMeasures: { before: ['Issue hot work permit', 'Remove combustibles within 11m', 'Install fire blanket & spark guard', 'Stage 2+ fire extinguishers'], during: ['Dedicated fire watch', 'Monitor spark direction', 'Maintain ventilation'], after: ['Fire watch for 30+ min after completion', 'Check for residual heat'] },
+                        relatedLaw: 'OSHA 1910.252 (Welding, Cutting and Brazing - General Requirements)'
+                    },
+                    pinch: {
+                        accidentCase: `${cl.workplace}: ${loc} (Manufacturing)\n${cl.date}: Sep 2024\n${cl.accident}: Hand caught in conveyor roller while clearing debris during operation\n${cl.cause}: Approached rotating parts during operation, no guard, poor E-stop access`,
+                        causeAnalysis: { directCause: 'Approached rotating parts during operation', indirectCause: 'No guard cover, poor emergency stop access', rootCause: 'No LOTO procedure, maintenance safety not trained' },
+                        detailedMeasures: { before: ['LOTO before maintenance', 'Verify guards & safety covers', 'Check E-stop function'], during: ['Never approach rotating parts during operation', 'Stop machine before clearing debris', 'No cotton gloves near rotating parts'], after: ['Reinstall guards before restarting', 'Equipment status check'] },
+                        relatedLaw: 'OSHA 1910.212 (General Requirements for All Machines)'
+                    },
+                    suffocation: {
+                        accidentCase: `${cl.workplace}: ${loc} (Environmental)\n${cl.date}: Jun 2024\n${cl.accident}: Entered manhole with 16% O2 without testing, lost consciousness\n${cl.cause}: No O2 measurement, no ventilation, no rescue equipment`,
+                        causeAnalysis: { directCause: 'Entered confined space without atmosphere testing', indirectCause: 'No ventilation, no rescue equipment', rootCause: 'No confined space program, no special safety training' },
+                        detailedMeasures: { before: ['Follow confined space entry permit', 'Test O2 and toxic gases', 'Ventilate 30+ min', 'Stage rescue equipment'], during: ['Continuous gas monitoring', 'Dedicated attendant on watch', 'Wear SCBA'], after: ['Check worker health status', 'Restrict confined space entry'] },
+                        relatedLaw: 'OSHA 1910.146 (Permit-Required Confined Spaces)'
+                    },
+                    slip: {
+                        accidentCase: `${cl.workplace}: ${loc} (Logistics)\n${cl.date}: Nov 2024\n${cl.accident}: Slipped on oily floor while carrying materials, back injury\n${cl.cause}: Floor contaminant not cleaned, materials on walkway, no anti-slip measures`,
+                        causeAnalysis: { directCause: 'Walking on contaminated floor without awareness', indirectCause: 'Materials stored on walkway, no anti-slip measures', rootCause: 'Poor housekeeping, no walkway management standards' },
+                        detailedMeasures: { before: ['Inspect floor condition, remove contaminants', 'Mark and secure walkways', 'Wear anti-slip safety shoes', 'Separate material storage areas'], during: ['Clean spills immediately', 'Watch where you step', 'Use handrails on slopes'], after: ['Housekeeping & cleanup', 'Floor cleaning'] },
+                        relatedLaw: 'OSHA 1910.22 (Walking-Working Surfaces - General Requirements)'
+                    },
+                    vehicle: {
+                        accidentCase: `${cl.workplace}: ${loc} (Construction)\n${cl.date}: Apr 2024\n${cl.accident}: Struck by excavator boom while working nearby\n${cl.cause}: Unauthorized entry into swing radius, no signal person, blind spot work`,
+                        causeAnalysis: { directCause: 'Unauthorized entry into equipment swing radius', indirectCause: 'No signal person, no exclusion zone', rootCause: 'No concurrent operation safety plan' },
+                        detailedMeasures: { before: ['Set exclusion zones', 'Assign signal person', 'Verify equipment alarms'], during: ['No walking in swing radius', 'Follow signal person directions', 'Communicate before entering blind spots'], after: ['Park equipment & shut down', 'Verify no personnel in work radius'] },
+                        relatedLaw: 'OSHA 1926.600 (Equipment), 1926.601 (Motor Vehicles)'
+                    },
+                    collapse: {
+                        accidentCase: `${cl.workplace}: ${loc} (Construction)\n${cl.date}: Aug 2024\n${cl.accident}: Excavation face collapsed, worker buried\n${cl.cause}: No shoring installed, ground weakened by rain, slope angle not maintained`,
+                        causeAnalysis: { directCause: 'Approached unshored excavation face', indirectCause: 'Rain-weakened ground, slope angle not maintained', rootCause: 'Inadequate shoring design, no soil survey' },
+                        detailedMeasures: { before: ['Soil survey & classification', 'Design & install shoring', 'Re-inspect after rain'], during: ['Monitor excavation face movement', 'Restrict equipment near face', 'Evacuate if abnormalities'], after: ['Final excavation face inspection', 'Safety check before backfill'] },
+                        relatedLaw: 'OSHA 1926 Subpart P (Excavations)'
+                    },
+                    lifting: {
+                        accidentCase: `${cl.workplace}: ${loc} (Shipbuilding)\n${cl.date}: Oct 2024\n${cl.accident}: Wire rope broke during crane lift, 2-ton load fell on worker below\n${cl.cause}: Wire rope below safety factor, overloaded, no exclusion zone below load`,
+                        causeAnalysis: { directCause: 'No exclusion zone below suspended load', indirectCause: 'Worn wire rope, overloading', rootCause: 'No lift plan, no periodic equipment inspection' },
+                        detailedMeasures: { before: ['Prepare lift plan', 'Inspect wire rope & slings', 'Verify rated load', 'Assign signal person'], during: ['Enforce exclusion zone below load', 'Follow signal person', 'Stop if wind > 10m/s'], after: ['Park crane & shut down', 'Store wire rope properly'] },
+                        relatedLaw: 'OSHA 1926.1400-1442 (Cranes and Derricks in Construction)'
+                    },
+                    cut: {
+                        accidentCase: `${cl.workplace}: ${loc} (Manufacturing)\n${cl.date}: Feb 2024\n${cl.accident}: Cut hand on sharp edge of steel plate without cut-resistant gloves\n${cl.cause}: No gloves, no deburring of cut edges, bare-hand handling`,
+                        causeAnalysis: { directCause: 'Handling cut material without protective gloves', indirectCause: 'Cut edges not deburred', rootCause: 'No training on cut material handling safety' },
+                        detailedMeasures: { before: ['Confirm cut-resistant gloves', 'Inspect cutting equipment safety', 'Verify first aid kit'], during: ['Deburr cut edges immediately', 'Install edge guards on sharp corners', 'Wear cut-resistant gloves'], after: ['Safely collect cut-off waste', 'Verify edges are deburred'] },
+                        relatedLaw: 'OSHA 1910.212 (General Requirements for All Machines)'
+                    },
+                    defaultH: {
+                        accidentCase: `${cl.workplace}: ${loc} (General)\n${cl.date}: 2024\n${cl.accident}: Injury during ${workContent || 'work'} due to safety non-compliance\n${cl.cause}: Safety rules not followed, no pre-work training, insufficient hazard check`,
+                        causeAnalysis: { directCause: 'Safety non-compliance and inattention', indirectCause: 'Inadequate safety facilities, poor work environment', rootCause: 'Weak safety management system, insufficient training' },
+                        detailedMeasures: { before: ['Conduct TBM', 'Identify hazards in advance', 'Verify PPE', 'Confirm emergency contacts'], during: ['Follow safety rules', 'Stop work if abnormality', 'Work in pairs'], after: ['Housekeeping', 'Equipment inspection'] },
+                        relatedLaw: 'OSHA General Duty Clause, Section 5(a)(1)'
+                    }
                 },
-                '화재': {
-                    accidentCase: `사업장: ${workLocation || '○○플랜트'}(건설업)\n일시: 2024년 3월\n사고내용: 용접 작업 중 비산 불꽃이 인근 보온재에 착화, 화재 발생\n사고원인: 불꽃 비산 방지 미조치, 가연물 미제거, 소화기 원거리 비치`,
-                    causeAnalysis: { directCause: '불꽃 비산 방지 조치 없이 용접작업 수행', indirectCause: '작업 반경 내 가연물 미제거, 소화설비 미비', rootCause: '화기작업 허가제 미이행, 화재감시자 미배치' },
-                    detailedMeasures: { before: ['화기작업 허가서 발급', '반경 11m 이내 가연물 제거', '방화포·비산 방지막 설치', '소화기 2대 이상 비치'], during: ['화재감시자 전담 배치', '불꽃 비산 방향 확인', '환기 상태 유지'], after: ['완료 후 30분 이상 잔불 감시', '이상 발열 여부 확인'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제241조(용접 등의 작업)'
+                zh: {
+                    fall: {
+                        accidentCase: `${cl.workplace}: ${loc}(建筑业)\n${cl.date}: 2024年5月\n${cl.accident}: 脚手架作业时未系安全带从7米高处坠落，重伤\n${cl.cause}: 未系安全带，作业平台不达标，未安装安全栏杆`,
+                        causeAnalysis: { directCause: '未系安全带进行高处作业', indirectCause: '作业平台不达标，未安装安全栏杆', rootCause: '未进行作业前安全检查，安全管理人员监督缺失' },
+                        detailedMeasures: { before: ['相互确认安全带·安全帽佩戴状态', '检查作业平台及安全栏杆安装状态', '确认天气条件(大风·暴雨)', '确认防坠网安装状态'], during: ['始终保持安全带连接', '二人一组作业', '接近开口部位时先确保安全栏杆'], after: ['清理作业工具及残留物', '确认重新安装开口盖板', '最终检查防坠设施'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第42条(防止坠落), 第44条(安全带附着设备等)'
+                    },
+                    electric: {
+                        accidentCase: `${cl.workplace}: ${loc}(制造业)\n${cl.date}: 2024年7月\n${cl.accident}: 电气布线作业中未戴绝缘手套接触配电盘带电部分，触电\n${cl.cause}: 未戴绝缘手套，未断电(未实施LOTO)，无带电警告标识`,
+                        causeAnalysis: { directCause: '未穿戴绝缘防护用品进行电气作业', indirectCause: '未断电(未实施LOTO)，无带电警告标识', rootCause: '未制定停电作业程序，未实施电气安全教育' },
+                        detailedMeasures: { before: ['执行LOTO程序并确认', '使用验电器确认残余电压放电', '确认穿戴绝缘手套·绝缘靴', '实施作业区段接地'], during: ['设定带电禁止进入区域', '仅使用绝缘工具', '配置监护人及相互确认'], after: ['恢复供电前确认作业人员撤离', '解除LOTO并确认通电', '测量绝缘电阻'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第301条(充电部防护), 第319条(停电线路电气作业)'
+                    },
+                    fire: {
+                        accidentCase: `${cl.workplace}: ${loc}(建筑业)\n${cl.date}: 2024年3月\n${cl.accident}: 焊接作业中飞溅火花引燃附近保温材料，发生火灾\n${cl.cause}: 未做防飞溅措施，未清除可燃物，灭火器距离过远`,
+                        causeAnalysis: { directCause: '未采取防飞溅措施进行焊接作业', indirectCause: '作业范围内未清除可燃物，消防设备不足', rootCause: '未执行动火许可制度，未配置火灾监护人' },
+                        detailedMeasures: { before: ['办理动火许可证', '清除11米范围内可燃物', '安装防火布·防飞溅挡板', '配备2台以上灭火器'], during: ['专人担任火灾监护', '确认火花飞溅方向', '维持通风状态'], after: ['完工后监护残火30分钟以上', '确认有无异常发热'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第241条(焊接等作业)'
+                    },
+                    pinch: {
+                        accidentCase: `${cl.workplace}: ${loc}(制造业)\n${cl.date}: 2024年9月\n${cl.accident}: 传送带维修中在运行状态下清除异物，手被滚筒夹住\n${cl.cause}: 机器运行中接近旋转部件，未安装防护罩，紧急停止装置可达性差`,
+                        causeAnalysis: { directCause: '机器运行中接近旋转部件', indirectCause: '旋转部件未安装防护罩，紧急停止装置可达性差', rootCause: '未制定LOTO程序，未进行维修作业安全教育' },
+                        detailedMeasures: { before: ['停机后执行LOTO', '确认防护罩·安全护栏', '确认紧急停止开关功能'], during: ['运行中禁止接近旋转部件', '清除异物时先停机', '禁止佩戴棉手套'], after: ['重新安装防护装置后启动', '检查设备异常'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第87条(旋转机械突出部), 第92条(防护罩等的设置)'
+                    },
+                    suffocation: {
+                        accidentCase: `${cl.workplace}: ${loc}(环保业)\n${cl.date}: 2024年6月\n${cl.accident}: 检查井内检查时氧气浓度16%未经测量即进入，因缺氧昏迷\n${cl.cause}: 未测量氧气浓度，未通风，未配备救援设备`,
+                        causeAnalysis: { directCause: '未测量氧气浓度即进入密闭空间', indirectCause: '未安装通风设备，未配备救援设备', rootCause: '未制定密闭空间作业计划，未实施特别安全教育' },
+                        detailedMeasures: { before: ['执行密闭空间作业许可程序', '测量氧气浓度及有害气体', '通风30分钟以上', '配备紧急救援设备'], during: ['连续监测气体浓度', '专人监护在场', '佩戴送气面罩'], after: ['确认作业人员健康状态', '实施密闭空间禁止进入措施'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第618条(密闭空间作业计划制定等)'
+                    },
+                    slip: {
+                        accidentCase: `${cl.workplace}: ${loc}(物流业)\n${cl.date}: 2024年11月\n${cl.accident}: 搬运材料时在地面油污上滑倒，腰部受伤\n${cl.cause}: 地面污染物未清理，通道堆放材料，未采取防滑措施`,
+                        causeAnalysis: { directCause: '未察觉地面污染物状态下行走', indirectCause: '通道堆放材料，未采取防滑措施', rootCause: '整理不善，未制定安全通道管理标准' },
+                        detailedMeasures: { before: ['检查地面状态并清除异物', '确保并标记安全通道', '穿防滑安全鞋', '分离材料堆放区域'], during: ['立即清除地面污染', '注意前方', '在斜坡上使用扶手'], after: ['整理作业场所', '清洁地面'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第3条(防止倒伏), 第22条(通道的设置)'
+                    },
+                    vehicle: {
+                        accidentCase: `${cl.workplace}: ${loc}(建筑业)\n${cl.date}: 2024年4月\n${cl.accident}: 在挖掘机附近作业时被旋转的挖掘机臂撞伤\n${cl.cause}: 擅自进入重型设备作业半径，未配置引导员，盲区作业`,
+                        causeAnalysis: { directCause: '擅自进入重型设备作业半径', indirectCause: '未配置引导员，未设定作业半径', rootCause: '未制定设备·人员同时作业安全计划' },
+                        detailedMeasures: { before: ['设定作业半径并标记禁止进入区域', '配置引导员(信号员)', '确认设备报警装置运行'], during: ['禁止在作业半径内行走', '按引导员信号移动', '进入盲区前先联络'], after: ['停放设备并关闭发动机', '确认作业半径内无残留人员'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第196条(车辆系建设机械等的危险防止)'
+                    },
+                    collapse: {
+                        accidentCase: `${cl.workplace}: ${loc}(建筑业)\n${cl.date}: 2024年8月\n${cl.accident}: 开挖作业中挖掘面坍塌，作业人员被埋\n${cl.cause}: 未安装土挡支撑，降雨后地基弱化，开挖坡度不达标`,
+                        causeAnalysis: { directCause: '在未安装土挡支撑的状态下接近挖掘面', indirectCause: '降雨后地基弱化，开挖坡度不达标', rootCause: '临时结构设计不足，未进行地基调查' },
+                        detailedMeasures: { before: ['地基调查及土质确认', '设计·安装土挡支撑', '降雨后重新检查地基状态'], during: ['观测挖掘面位移', '限制重型设备接近挖掘面', '异常征兆时立即撤离'], after: ['最终检查挖掘面状态', '回填前安全确认'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第338条(开挖作业时地基等的危险防止)'
+                    },
+                    lifting: {
+                        accidentCase: `${cl.workplace}: ${loc}(造船业)\n${cl.date}: 2024年10月\n${cl.accident}: 起重机吊装作业中钢丝绳断裂，2吨材料坠落，下方作业人员重伤\n${cl.cause}: 钢丝绳安全系数不足，超载吊装，吊物下方未实施出入管制`,
+                        causeAnalysis: { directCause: '吊物下方未实施出入管制', indirectCause: '钢丝绳磨损·损伤状态下使用，超载吊装', rootCause: '未编写吊装作业计划书，未实施设备定期检查' },
+                        detailedMeasures: { before: ['编写吊装作业计划书', '检查钢丝绳·吊带状态', '确认额定载荷', '指定信号员'], during: ['吊物下方出入管制', '按信号员信号作业', '风速10m/s以上时停止'], after: ['吊装设备归位后关闭发动机', '整理·保管钢丝绳'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第132条(起重机的钢丝绳等)'
+                    },
+                    cut: {
+                        accidentCase: `${cl.workplace}: ${loc}(制造业)\n${cl.date}: 2024年2月\n${cl.accident}: 钢板切割作业中未戴防护手套，被切割面割伤，深层裂伤\n${cl.cause}: 未戴防护手套，切割面未去毛刺，徒手操作`,
+                        causeAnalysis: { directCause: '未戴防护手套操作切割件', indirectCause: '切割面未去毛刺(去毛刺)', rootCause: '未进行切割件操作安全教育' },
+                        detailedMeasures: { before: ['确认佩戴防割手套', '检查切割设备安全装置', '确认急救箱'], during: ['立即对切割面去毛刺', '在锋利边角安装保护帽', '佩戴防割手套'], after: ['安全收集切割废料', '确认切割面去毛刺状态'] },
+                        relatedLaw: '韩国产业安全保健基准规则 第118条(刀刃部分的防护)'
+                    },
+                    defaultH: {
+                        accidentCase: `${cl.workplace}: ${loc}(一般)\n${cl.date}: 2024年\n${cl.accident}: ${workContent || '作业'}中因不遵守安全规则导致受伤\n${cl.cause}: 不遵守安全规则，未实施事前安全教育，危险因素检查不足`,
+                        causeAnalysis: { directCause: '不遵守安全规则及疏忽大意', indirectCause: '安全设施不完善，作业环境不良', rootCause: '安全管理体系不完善，安全教育不足' },
+                        detailedMeasures: { before: ['实施TBM', '事前识别危险因素', '确认防护用品佩戴', '确认紧急联络网'], during: ['遵守安全规则', '异常时停止作业', '二人一组作业'], after: ['整理作业场所', '设备检查'] },
+                        relatedLaw: '韩国产业安全保健法 第38条(安全措施), 第39条(保健措施)'
+                    }
                 },
-                '끼임': {
-                    accidentCase: `사업장: ${workLocation || '○○제조공장'}(제조업)\n일시: 2024년 9월\n사고내용: 컨베이어 벨트 정비 중 가동 상태에서 이물질 제거 시도, 롤러에 손 협착\n사고원인: 기계 가동 중 회전체 접근, 방호덮개 미설치, 비상정지장치 접근성 불량`,
-                    causeAnalysis: { directCause: '기계 가동 중 회전체 접근', indirectCause: '회전체 방호덮개 미설치, 비상정지장치 접근성 불량', rootCause: 'LOTO 절차 미수립, 정비작업 안전수칙 미교육' },
-                    detailedMeasures: { before: ['기계 정지 후 LOTO 실시', '방호덮개·안전가드 확인', '비상정지 스위치 작동 확인'], during: ['운전 중 회전체 접근 금지', '이물질 제거 시 기계 정지 후 실시', '면장갑 착용 금지'], after: ['방호장치 재설치 후 가동', '장비 이상 유무 점검'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제87조(회전기계의 돌출부), 제92조(덮개 등의 설치)'
-                },
-                '질식': {
-                    accidentCase: `사업장: ${workLocation || '○○하수처리장'}(환경업)\n일시: 2024년 6월\n사고내용: 맨홀 내부 점검 중 산소농도 16% 상태에서 사전 측정 없이 진입, 산소결핍으로 실신\n사고원인: 산소농도 측정 미실시, 환기 미실시, 구조용 장비 미비치`,
-                    causeAnalysis: { directCause: '산소농도 측정 없이 밀폐공간 진입', indirectCause: '환기설비 미설치, 구조용 장비 미비치', rootCause: '밀폐공간 작업 프로그램 미수립, 특별안전교육 미실시' },
-                    detailedMeasures: { before: ['밀폐공간 작업 허가 절차 이행', '산소농도 및 유해가스 측정', '환기 실시(30분 이상)', '비상구조 장비 비치'], during: ['연속 가스 농도 모니터링', '감시인 상주 배치', '송기마스크 착용'], after: ['작업자 건강 상태 확인', '밀폐공간 출입금지 조치'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제618조(밀폐공간 작업 프로그램 수립 등)'
-                },
-                '넘어짐': {
-                    accidentCase: `사업장: ${workLocation || '○○물류센터'}(물류업)\n일시: 2024년 11월\n사고내용: 자재 운반 중 바닥 기름에 미끄러져 넘어짐, 허리 부상\n사고원인: 바닥 오염물질 미제거, 통행로 자재 적치, 미끄럼 방지 미조치`,
-                    causeAnalysis: { directCause: '바닥 오염물질 미인지 상태에서 보행', indirectCause: '통행로 자재 적치, 미끄럼 방지 미조치', rootCause: '정리정돈 미흡, 안전통로 관리 기준 미수립' },
-                    detailedMeasures: { before: ['바닥 상태 점검 및 이물질 제거', '안전통로 확보 및 표시', '미끄럼 방지 안전화 착용', '자재 적치 구역 분리'], during: ['바닥 오염 즉시 제거', '전방 주시', '경사로 이동 시 손잡이 활용'], after: ['작업장 정리정돈', '바닥 청소'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제3조(전도의 방지), 제22조(통로의 설치)'
-                },
-                '부딪힘': {
-                    accidentCase: `사업장: ${workLocation || '○○건설현장'}(건설업)\n일시: 2024년 4월\n사고내용: 굴착기 주변 작업 중 선회하는 굴착기 붐에 부딪혀 부상\n사고원인: 중장비 작업반경 내 무단 진입, 유도원 미배치, 사각지대 작업`,
-                    causeAnalysis: { directCause: '중장비 작업 반경 내 무단 진입', indirectCause: '유도원 미배치, 작업반경 미설정', rootCause: '장비·인력 동시작업 안전계획 미수립' },
-                    detailedMeasures: { before: ['작업반경 설정 및 출입금지 구역 표시', '유도원(신호수) 배치', '장비 경보장치 작동 확인'], during: ['작업반경 내 보행 금지', '유도원 신호에 따라 이동', '사각지대 접근 시 사전 연락'], after: ['장비 주차 후 시동 차단', '작업반경 내 잔여 인원 확인'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제196조(차량계 건설기계 등의 위험 방지)'
-                },
-                '무너짐': {
-                    accidentCase: `사업장: ${workLocation || '○○건설현장'}(건설업)\n일시: 2024년 8월\n사고내용: 터파기 작업 중 굴착면 붕괴로 작업자 매몰\n사고원인: 흙막이 가시설 미설치, 강우 후 지반 약화, 굴착 기울기 미준수`,
-                    causeAnalysis: { directCause: '흙막이 가시설 미설치 상태에서 굴착면 접근', indirectCause: '강우 후 지반 약화, 굴착 기울기 미준수', rootCause: '가설구조물 설계 미흡, 지반조사 미실시' },
-                    detailedMeasures: { before: ['지반조사 및 토질 확인', '흙막이 가시설 설계·설치', '강우 후 지반 상태 재점검'], during: ['굴착면 변위 관측', '중장비 굴착면 접근 제한', '이상 징후 시 즉시 대피'], after: ['굴착면 상태 최종 점검', '되메우기 전 안전 확인'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제338조(굴착작업시 지반 등의 위험 방지)'
-                },
-                '중량물': {
-                    accidentCase: `사업장: ${workLocation || '○○조선소'}(조선업)\n일시: 2024년 10월\n사고내용: 크레인 인양 작업 중 와이어로프 파단으로 자재(2톤) 낙하, 하부 작업자 중상\n사고원인: 와이어로프 안전계수 미달, 과적 인양, 인양물 하부 출입통제 미실시`,
-                    causeAnalysis: { directCause: '인양물 하부 출입통제 미실시', indirectCause: '와이어로프 마모·손상 상태에서 사용, 과적 인양', rootCause: '양중작업 계획서 미작성, 장비 정기검사 미실시' },
-                    detailedMeasures: { before: ['양중작업 계획서 작성', '와이어로프·슬링벨트 상태 점검', '정격하중 확인', '신호수 지정'], during: ['인양물 하부 출입통제', '신호수 신호에 따라 작업', '풍속 10m/s 이상 시 중지'], after: ['인양장비 정위치 후 시동 차단', '와이어로프 정리·보관'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제132조(양중기의 와이어로프 등)'
-                },
-                '베임': {
-                    accidentCase: `사업장: ${workLocation || '○○금속가공 공장'}(제조업)\n일시: 2024년 2월\n사고내용: 철판 절단 작업 중 보호장갑 미착용 상태에서 절단면에 손 베임, 심부 열상\n사고원인: 보호장갑 미착용, 절단면 면취(디버링) 미실시, 맨손 취급`,
-                    causeAnalysis: { directCause: '보호장갑 미착용 상태에서 절단물 취급', indirectCause: '절단면 면취(디버링) 미실시', rootCause: '절단물 취급 안전수칙 미교육' },
-                    detailedMeasures: { before: ['방검장갑 착용 확인', '절단 장비 안전장치 점검', '구급함 비치 확인'], during: ['절단면 즉시 면취 처리', '날카로운 모서리에 보호캡 설치', '방검장갑 착용'], after: ['절단 잔재물 안전 수거', '절단면 면취 상태 확인'] },
-                    relatedLaw: '산업안전보건기준에 관한 규칙 제118조(날·칼 부분의 방호)'
+                vi: {
+                    fall: {
+                        accidentCase: `${cl.workplace}: ${loc} (Xay dung)\n${cl.date}: Thang 5/2024\n${cl.accident}: Roi tu do cao 7m khi lam viec tren gian giao ma khong deo day an toan, bi thuong nang\n${cl.cause}: Khong deo day an toan, san tac nghiep khong dat tieu chuan, khong co lan can an toan`,
+                        causeAnalysis: { directCause: 'Lam viec tren cao ma khong deo day an toan', indirectCause: 'San tac nghiep khong dat tieu chuan, khong co lan can an toan', rootCause: 'Khong kiem tra an toan truoc khi lam, thieu giam sat an toan' },
+                        detailedMeasures: { before: ['Kiem tra cho nhau viec deo day an toan va mu bao ho', 'Kiem tra san tac nghiep va lan can an toan', 'Kiem tra thoi tiet (gio manh, mua)', 'Kiem tra luoi chong roi'], during: ['Luon giu day an toan duoc moc', 'Lam viec theo cap', 'Dam bao lan can truoc khi tiep can lo mo'], after: ['Don dep dung cu va manh vun', 'Kiem tra nap dau lo mo', 'Kiem tra cuoi cung thiet bi chong roi'] },
+                        relatedLaw: 'OSHA 1926.501 (Fall Protection)'
+                    },
+                    electric: {
+                        accidentCase: `${cl.workplace}: ${loc} (San xuat)\n${cl.date}: Thang 7/2024\n${cl.accident}: Bi dien giat khi cham vao tu dien ma khong deo gang tay cach dien\n${cl.cause}: Khong deo gang tay cach dien, khong cat dien (khong LOTO), khong co bien canh bao`,
+                        causeAnalysis: { directCause: 'Lam viec dien ma khong co PPE cach dien', indirectCause: 'Khong cat dien (khong LOTO), khong co bien canh bao', rootCause: 'Khong co quy trinh LOTO, khong dao tao an toan dien' },
+                        detailedMeasures: { before: ['Thuc hien quy trinh LOTO', 'Xac nhan xa dien du bang but thu dien', 'Xac nhan gang tay va giay cach dien', 'Noi dat khu vuc lam viec'], during: ['Thiet lap vung cam tiep can dien', 'Chi su dung dung cu cach dien', 'Bo tri nguoi giam sat'], after: ['Xac nhan cong nhan roi di truoc khi cap dien lai', 'Go LOTO va xac nhan cap dien', 'Do dien tro cach dien'] },
+                        relatedLaw: 'OSHA 1910.333, 1910.147 (LOTO)'
+                    },
+                    defaultH: {
+                        accidentCase: `${cl.workplace}: ${loc} (Chung)\n${cl.date}: 2024\n${cl.accident}: Bi thuong trong ${workContent || 'cong viec'} do khong tuan thu quy tac an toan\n${cl.cause}: Khong tuan thu quy tac an toan, khong dao tao truoc, kiem tra nguy hiem khong du`,
+                        causeAnalysis: { directCause: 'Khong tuan thu quy tac an toan va bat can', indirectCause: 'Co so an toan khong day du, moi truong lam viec kem', rootCause: 'He thong quan ly an toan yeu, dao tao khong du' },
+                        detailedMeasures: { before: ['Thuc hien TBM', 'Nhan dien nguy hiem truoc', 'Kiem tra PPE', 'Xac nhan lien lac khan cap'], during: ['Tuan thu quy tac an toan', 'Dung cong viec neu bat thuong', 'Lam viec theo cap'], after: ['Don dep', 'Kiem tra thiet bi'] },
+                        relatedLaw: 'OSHA General Duty Clause'
+                    }
                 }
             };
 
-            const defaultTemplate = {
-                accidentCase: `사업장: ${workLocation || '○○작업현장'}(일반)\n일시: 2024년\n사고내용: ${workContent || '작업'} 중 안전수칙 미준수로 부상 발생\n사고원인: 안전수칙 미준수, 사전 안전교육 미실시, 위험요인 점검 미흡`,
-                causeAnalysis: { directCause: '안전수칙 미준수 및 부주의', indirectCause: '안전시설 미비, 작업환경 불량', rootCause: '안전관리 체계 미흡, 안전교육 부족' },
-                detailedMeasures: { before: ['TBM 실시', '위험요인 사전 파악', '보호구 착용 확인', '비상연락망 확인'], during: ['안전수칙 준수', '이상 시 작업 중지', '2인 1조 작업'], after: ['작업장 정리정돈', '장비 점검'] },
-                relatedLaw: '산업안전보건법 제38조(안전조치), 제39조(보건조치)'
-            };
+            // Get templates for current language, fallback chain: lang -> en -> ko
+            const langTemplates = eduTemplatesByLang[lang] || eduTemplatesByLang['en'] || eduTemplatesByLang['ko'];
+            const fallbackTemplates = eduTemplatesByLang['en'] || eduTemplatesByLang['ko'];
+
+            function getTemplate(key) {
+                return langTemplates[key] || fallbackTemplates[key] || langTemplates['defaultH'] || fallbackTemplates['defaultH'];
+            }
+
+            // Hazard text to template key mapping (works for all languages)
+            const hazardKeywordMap = [
+                { key: 'fall', patterns: ['추락', '낙하', '떨어', '높이', '고소', 'fall', 'height', '坠落', '高处', 'roi', 'nga', 'ตก', 'jatuh', 'падени', 'yiqilish', 'унах', 'hulog'] },
+                { key: 'electric', patterns: ['감전', '전기', '전류', 'electr', 'shock', '触电', '电气', 'dien', 'ไฟฟ้า', 'listrik', 'ток', 'tok', 'цахилгаан', 'kuryente'] },
+                { key: 'fire', patterns: ['화재', '화상', '용접', 'fire', 'burn', 'weld', '火灾', '烧伤', '焊接', 'chay', 'bong', 'ไฟ', 'ไหม้', 'kebakaran', 'пожар', 'ожог', "yong'in", 'гал', 'sunog'] },
+                { key: 'pinch', patterns: ['끼임', '협착', '말림', '회전', 'pinch', 'crush', 'caught', '夹', '挤压', 'kep', 'nghen', 'หนีบ', 'terjepit', 'зажат', 'qisib', 'чимхэгдэх', 'kapit'] },
+                { key: 'suffocation', patterns: ['질식', '중독', '산소', '밀폐', 'suffoc', 'confin', 'poison', '窒息', '密闭', 'ngat', 'nhiem doc', 'อับอากาศ', 'sesak', 'удуш', "bo'g'ilish", 'боогдох'] },
+                { key: 'slip', patterns: ['넘어짐', '미끄', '전도', 'slip', 'trip', '滑倒', '绊倒', 'truot', 'ลื่น', 'สะดุด', 'terpeleset', 'скольж', 'sirpanish', 'гулсах', 'dulas'] },
+                { key: 'vehicle', patterns: ['부딪힘', '충돌', '장비', 'struck', 'vehicle', 'collisi', '碰撞', '碾压', 'va cham', 'can', 'ชน', 'ทับ', 'tabrak', 'наезд', 'столкн', 'urilish', 'мөргөлдөх', 'banggaan'] },
+                { key: 'collapse', patterns: ['무너짐', '붕괴', '토사', 'collaps', 'cave', 'excav', '坍塌', 'sap', 'ถล่ม', 'runtuh', 'обруш', "qulash", 'нурах'] },
+                { key: 'lifting', patterns: ['중량물', '낙하', '크레인', 'lifting', 'crane', 'falling obj', '起重', '吊装', 'nang ha', 'ยกของ', 'angkat', 'подъём', 'груз', "ko'tarish", 'өргөх', 'angat'] },
+                { key: 'cut', patterns: ['베임', '절단', '날카', 'cut', 'lacerat', 'sharp', '割', '切割', 'cat', 'ตัด', 'potong', 'порез', 'kesish', 'зүсэгдэх'] }
+            ];
 
             return risks.map((risk, index) => {
                 const hazardText = (risk.hazard || '').toLowerCase();
-                let template = null;
+                let templateKey = 'defaultH';
 
-                for (const [keyword, tmpl] of Object.entries(templates)) {
-                    if (hazardText.includes(keyword)) { template = tmpl; break; }
+                for (const mapping of hazardKeywordMap) {
+                    if (mapping.patterns.some(p => hazardText.includes(p))) {
+                        templateKey = mapping.key;
+                        break;
+                    }
                 }
 
-                if (!template) {
-                    if (hazardText.includes('떨어') || hazardText.includes('높이') || hazardText.includes('고소')) template = templates['추락'];
-                    else if (hazardText.includes('전기') || hazardText.includes('전류')) template = templates['감전'];
-                    else if (hazardText.includes('화상') || hazardText.includes('용접')) template = templates['화재'];
-                    else if (hazardText.includes('협착') || hazardText.includes('말림') || hazardText.includes('회전')) template = templates['끼임'];
-                    else if (hazardText.includes('산소') || hazardText.includes('밀폐')) template = templates['질식'];
-                    else if (hazardText.includes('미끄') || hazardText.includes('전도')) template = templates['넘어짐'];
-                    else if (hazardText.includes('충돌') || hazardText.includes('장비')) template = templates['부딪힘'];
-                    else if (hazardText.includes('붕괴') || hazardText.includes('토사')) template = templates['무너짐'];
-                    else if (hazardText.includes('낙하') || hazardText.includes('크레인')) template = templates['중량물'];
-                    else if (hazardText.includes('절단') || hazardText.includes('날카')) template = templates['베임'];
-                }
-
-                if (!template) template = defaultTemplate;
+                const template = getTemplate(templateKey);
 
                 return {
                     hazardIndex: index,
