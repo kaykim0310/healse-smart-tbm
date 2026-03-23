@@ -4564,16 +4564,23 @@
 
             try {
                 // 기본 정보 자동 채우기 - 언어별
-                const transcriptText = transcriptData.map(t => t.text).join(' ');
+                const transcriptText = transcriptData.map(item => item.text).join(' ');
                 const locationNames = {
                     ko: 'A동 3층 기계실', en: 'Building A, 3F Machine Room', zh: 'A栋3楼机械室',
                     vi: 'Phòng máy tầng 3 tòa A', ru: 'Машинный зал, 3 эт., здание А',
-                    th: 'ห้องเครื่อง ชั้น 3 อาคาร A', id: 'Ruang Mesin Lt.3 Gedung A'
+                    th: 'ห้องเครื่อง ชั้น 3 อาคาร A', id: 'Ruang Mesin Lt.3 Gedung A',
+                    tl: 'Machine Room, 3F Building A', uz: 'A bino 3-qavat mashina xonasi',
+                    mn: 'А байр 3 давхар машины өрөө', km: 'បន្ទប់ម៉ាស៊ីន ជាន់ទី3 អគារA',
+                    ne: 'भवन A, तल्ला ३ मेसिन कोठा', si: 'A ගොඩනැගිල්ල 3 මහල යන්ත්‍ර කාමරය',
+                    my: 'A အဆောက်အအုံ 3 ထပ် စက်ခန်း', bn: 'A ভবন ৩য় তলা মেশিন রুম'
                 };
                 const workNames = {
                     ko: '배관 교체 작업', en: 'Pipe Replacement', zh: '管道更换作业',
                     vi: 'Thay thế đường ống', ru: 'Замена трубопровода',
-                    th: 'งานเปลี่ยนท่อ', id: 'Penggantian Pipa'
+                    th: 'งานเปลี่ยนท่อ', id: 'Penggantian Pipa',
+                    tl: 'Pagpapalit ng Tubo', uz: 'Quvur almashtirish', mn: 'Хоолой солих',
+                    km: 'ការជំនួសបំពង់', ne: 'पाइप प्रतिस्थापन', si: 'නළ ආදේශනය',
+                    my: 'ပိုက်လိုင်းလဲလှယ်ခြင်း', bn: 'পাইপ প্রতিস্থাপন'
                 };
                 if (transcriptText.includes('기계실') || transcriptText.includes('machine') || transcriptText.includes('机械') || transcriptText.includes('máy') || transcriptText.includes('машин')) {
                     document.getElementById('workLocation').value = locationNames[lang] || locationNames['en'];
@@ -4595,12 +4602,14 @@
 
                 aiAnalysisResult = result.analysis;
 
-                // 서버 결과가 부족하면 로컬 분석으로 보충
+                // 서버 결과가 부족하면 로컬 분석으로 보충 (중복 방지)
                 const localResult = performLocalAIAnalysis(transcriptText);
                 if (localResult.risks.length > (aiAnalysisResult?.risks?.length || 0)) {
-                    // 로컬이 더 많이 발견했으면 로컬 결과 사용
                     aiAnalysisResult = localResult;
                 }
+
+                // 기존 위험요인 초기화 후 새 결과 적용 (중복 방지)
+                if (sessionData) sessionData.riskAssessments = [];
 
                 // 회의 요약 생성
                 generateMeetingSummary(transcriptText, aiAnalysisResult);
@@ -4619,7 +4628,7 @@
             } catch (error) {
                 console.error('AI 분석 오류:', error);
                 // 서버 실패 시 로컬 분석으로 폴백
-                const transcriptText = transcriptData.map(t => t.text).join(' ');
+                const transcriptText = transcriptData.map(item => item.text).join(' ');
                 aiAnalysisResult = performLocalAIAnalysis(transcriptText);
 
                 if (aiAnalysisResult.risks?.length > 0) {
