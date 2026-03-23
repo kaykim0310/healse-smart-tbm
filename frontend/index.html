@@ -4602,10 +4602,22 @@
 
                 aiAnalysisResult = result.analysis;
 
-                // 서버 결과가 부족하면 로컬 분석으로 보충 (중복 방지)
+                // 서버 결과의 위험요인 수 파악 (다양한 구조 대응)
+                const serverRiskCount = aiAnalysisResult?.risks?.length
+                    || aiAnalysisResult?.riskAssessments?.length
+                    || (Array.isArray(aiAnalysisResult) ? aiAnalysisResult.length : 0)
+                    || 0;
+
+                // 항상 로컬 분석 실행하여 비교
                 const localResult = performLocalAIAnalysis(transcriptText);
-                if (localResult.risks.length > (aiAnalysisResult?.risks?.length || 0)) {
+
+                // 로컬이 더 많으면 로컬 결과 사용 (서버가 부족할 때)
+                if (localResult.risks.length > serverRiskCount) {
                     aiAnalysisResult = localResult;
+                }
+                // 서버 결과에 risks가 없고 riskAssessments만 있으면 변환
+                if (!aiAnalysisResult?.risks && aiAnalysisResult?.riskAssessments) {
+                    aiAnalysisResult.risks = aiAnalysisResult.riskAssessments;
                 }
 
                 // 기존 위험요인 초기화 후 새 결과 적용 (중복 방지)
@@ -4616,8 +4628,6 @@
 
                 // 결과 표시
                 document.getElementById('aiResultPreview').style.display = 'block';
-                const lang = localStorage.getItem('tbm_language') || 'ko';
-                const t = window.tbmTranslations?.[lang] || {};
                 const riskCount = aiAnalysisResult.risks?.length || 0;
                 const riskMsg = t['건의 위험요인이 식별되었습니다'] || '건의 위험요인이 식별되었습니다';
                 document.getElementById('aiResultSummary').textContent =
