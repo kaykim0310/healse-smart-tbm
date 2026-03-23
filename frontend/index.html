@@ -4631,13 +4631,21 @@
                 const transcriptText = transcriptData.map(item => item.text).join(' ');
                 aiAnalysisResult = performLocalAIAnalysis(transcriptText);
 
+                // 기존 위험요인 초기화
+                if (sessionData) sessionData.riskAssessments = [];
+
                 if (aiAnalysisResult.risks?.length > 0) {
+                    // 회의요약 생성
+                    generateMeetingSummary(transcriptText, aiAnalysisResult);
+
                     document.getElementById('aiResultPreview').style.display = 'block';
+                    const riskCount = aiAnalysisResult.risks.length;
+                    const riskMsg = t['건의 위험요인이 식별되었습니다'] || ' risk factors identified';
                     document.getElementById('aiResultSummary').textContent =
-                        `${aiAnalysisResult.risks.length}건의 위험요인이 식별되었습니다. (로컬 분석)`;
-                    showNotification('서버 연결 실패로 로컬 분석을 수행했습니다', 'info');
+                        `${riskCount}${riskMsg} (${t['로컬 분석'] || 'local analysis'})`;
+                    showNotification(t['서버 연결 실패로 로컬 분석을 수행했습니다'] || 'Server unavailable - local analysis performed', 'info');
                 } else {
-                    showNotification('AI 분석 중 오류가 발생했습니다', 'error');
+                    showNotification(t['AI 분석 중 오류가 발생했습니다'] || 'AI analysis error', 'error');
                 }
             } finally {
                 btn.disabled = false;
